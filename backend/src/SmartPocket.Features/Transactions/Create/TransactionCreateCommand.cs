@@ -1,0 +1,13 @@
+﻿namespace SmartPocket.Features.Transactions.Create
+{
+    public class TransactionCreateCommand
+    {
+        public int AccountId { get; set; }
+        public int CategoryId { get; set; }
+
+        public MoneyDTO AccountMoney { get; set; } = default!;
+        public DateTime EffectiveDate { get; set; }
+        public string? Description { get; set; }
+        public bool IsIncome { get; set; }
+    }
+}

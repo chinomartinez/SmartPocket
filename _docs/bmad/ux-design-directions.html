@@ -1,0 +1,2541 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartPocket — Design Directions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+      }
+
+      /* Glass */
+      .glass {
+        background: rgba(30, 41, 59, 0.5);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+      }
+      .glass-strong {
+        background: rgba(30, 41, 59, 0.75);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+      }
+
+      /* Direction nav */
+      .dir-btn {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .dir-btn.active {
+        background: #3b82f6;
+        color: #fff;
+        border-color: #3b82f6;
+      }
+
+      /* Screen frames */
+      .screen {
+        display: none;
+      }
+      .screen.active {
+        display: block;
+      }
+
+      /* Sidebar */
+      .sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        color: #94a3b8;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .sidebar-item:hover {
+        background: rgba(71, 85, 105, 0.4);
+        color: #fff;
+      }
+      .sidebar-item.active {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.25);
+      }
+
+      /* Tabs */
+      .tab-btn {
+        padding: 8px 24px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        color: #94a3b8;
+        border: 1px solid transparent;
+      }
+      .tab-btn.active-gasto {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+      .tab-btn.active-ingreso {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.3);
+      }
+
+      /* Calculator buttons */
+      .calc-btn {
+        background: rgba(51, 65, 85, 0.8);
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.1s;
+        color: #34d399;
+      }
+      .calc-btn:hover {
+        background: rgba(71, 85, 105, 0.9);
+        transform: scale(1.05);
+      }
+      .calc-btn.op {
+        color: #94a3b8;
+      }
+      .calc-btn.accent {
+        background: #3b82f6;
+        color: #fff;
+      }
+      .calc-btn.clear {
+        color: #f87171;
+      }
+
+      /* FAB */
+      .fab {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 50;
+        font-size: 24px;
+      }
+      .fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 12px 32px rgba(59, 130, 246, 0.5);
+      }
+
+      /* Category chip */
+      .cat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      /* Transaction row */
+      .tx-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      }
+
+      /* Bar chart bar */
+      .bar {
+        border-radius: 4px 4px 0 0;
+        transition: all 0.3s;
+      }
+
+      /* Scroll area */
+      .scroll-area {
+        overflow-y: auto;
+        max-height: 480px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.2) transparent;
+      }
+
+      /* Section label */
+      .section-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #475569;
+        margin-bottom: 8px;
+      }
+
+      /* Badge */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      /* Annotation */
+      .annotation {
+        position: absolute;
+        background: rgba(59, 130, 246, 0.9);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      .annotation::before {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: rgba(59, 130, 246, 0.9);
+        transform: rotate(45deg);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <!-- Header -->
+    <div class="border-b border-slate-700/50 px-8 py-5">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-bold text-white">SmartPocket — Design Directions</h1>
+          <p class="text-sm text-slate-400 mt-0.5">
+            Exploración de variantes de layout · Dark Mode Glassmorphism
+          </p>
+        </div>
+        <div class="text-xs text-slate-500 glass px-4 py-2 rounded-xl">
+          UX Specification · Step 9
+        </div>
+      </div>
+    </div>
+
+    <!-- Direction Selector -->
+    <div class="max-w-7xl mx-auto px-8 py-6">
+      <div class="flex gap-3 flex-wrap mb-2">
+        <button
+          onclick="showDirection('A')"
+          id="btn-A"
+          class="dir-btn active glass px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-700"
+        >
+          A — Home: Hero Balance
+        </button>
+        <button
+          onclick="showDirection('B')"
+          id="btn-B"
+          class="dir-btn glass px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-700"
+        >
+          B — Home: Cards Grid
+        </button>
+        <button
+          onclick="showDirection('C')"
+          id="btn-C"
+          class="dir-btn glass px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-700"
+        >
+          C — Formulario Transacción
+        </button>
+        <button
+          onclick="showDirection('D')"
+          id="btn-D"
+          class="dir-btn glass px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-700"
+        >
+          D — Mini Calculadora
+        </button>
+        <button
+          onclick="showDirection('E')"
+          id="btn-E"
+          class="dir-btn glass px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-700"
+        >
+          E — Dashboard Analítico
+        </button>
+        <button
+          onclick="showDirection('F')"
+          id="btn-F"
+          class="dir-btn glass px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-700"
+        >
+          F — Navegación Mobile
+        </button>
+      </div>
+      <p class="text-xs text-slate-500">
+        Hacé clic en cada dirección para explorar. Todos los diseños usan el mismo sistema de color.
+      </p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- DIRECTION A: Home - Hero Balance -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="screen-A" class="screen active max-w-7xl mx-auto px-8 pb-12">
+      <div class="mb-4">
+        <h2 class="text-lg font-bold text-white">A — Home: Hero Balance</h2>
+        <p class="text-sm text-slate-400">
+          Balance consolidado como elemento visual dominante. Foco inmediato en estado financiero
+          actual.
+        </p>
+      </div>
+
+      <div class="flex gap-4 h-[620px]">
+        <!-- Sidebar -->
+        <div class="glass-strong rounded-2xl w-56 flex-shrink-0 p-4 flex flex-col">
+          <div class="flex items-center gap-2.5 px-2 mb-8 mt-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-base">
+              💰
+            </div>
+            <span class="font-bold text-white">SmartPocket</span>
+          </div>
+          <nav class="space-y-1 flex-1">
+            <div class="sidebar-item active">🏠 <span>Inicio</span></div>
+            <div class="sidebar-item">💳 <span>Cuentas</span></div>
+            <div class="sidebar-item">💸 <span>Transacciones</span></div>
+            <div class="sidebar-item">🔔 <span>Próximos Pagos</span></div>
+            <div style="height: 1px; background: rgba(148, 163, 184, 0.1); margin: 8px 0"></div>
+            <div class="sidebar-item">📊 <span>Dashboard</span></div>
+            <div class="sidebar-item" style="opacity: 0.6">🏷️ <span>Categorías</span></div>
+            <div class="sidebar-item" style="opacity: 0.6">⚙️ <span>Configuración</span></div>
+          </nav>
+          <div style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; padding: 12px">
+            <p style="font-size: 11px; color: #475569">Versión</p>
+            <p style="font-size: 13px; font-weight: 600; color: #fff">v1.0.0 MVP</p>
+          </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+          <!-- Hero Balance -->
+          <div
+            class="glass-strong rounded-2xl p-6 relative overflow-hidden"
+            style="
+              background: linear-gradient(
+                135deg,
+                rgba(30, 41, 59, 0.8) 0%,
+                rgba(59, 130, 246, 0.08) 100%
+              );
+            "
+          >
+            <div
+              style="
+                position: absolute;
+                top: -40px;
+                right: -40px;
+                width: 160px;
+                height: 160px;
+                background: rgba(59, 130, 246, 0.06);
+                border-radius: 50%;
+              "
+            ></div>
+            <p class="section-label">Balance Total</p>
+            <div class="flex items-end gap-4 mt-1">
+              <span
+                style="
+                  font-size: 42px;
+                  font-weight: 800;
+                  color: #f8fafc;
+                  text-shadow: 0 0 30px rgba(248, 250, 252, 0.15);
+                "
+                >$124.580,50</span
+              >
+              <span
+                class="badge mb-2"
+                style="
+                  background: rgba(16, 185, 129, 0.15);
+                  color: #34d399;
+                  border: 1px solid rgba(16, 185, 129, 0.25);
+                "
+                >↗ +5.2%</span
+              >
+            </div>
+            <div class="flex gap-6 mt-3">
+              <div>
+                <p style="font-size: 11px; color: #475569">Cuenta Principal</p>
+                <p style="font-size: 15px; font-weight: 600; color: #94a3b8">$98.200,00</p>
+              </div>
+              <div>
+                <p style="font-size: 11px; color: #475569">Ahorro</p>
+                <p style="font-size: 15px; font-weight: 600; color: #94a3b8">$26.380,50</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics row -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="glass rounded-xl p-4">
+              <p class="section-label">Ingresos del Mes</p>
+              <p style="font-size: 22px; font-weight: 700; color: #34d399">+$84.200,00</p>
+              <p style="font-size: 11px; color: #475569; margin-top: 4px">
+                ↗ +12.5% vs mes anterior
+              </p>
+            </div>
+            <div class="glass rounded-xl p-4">
+              <p class="section-label">Gastos del Mes</p>
+              <p style="font-size: 22px; font-weight: 700; color: #f87171">-$32.800,00</p>
+              <p style="font-size: 11px; color: #475569; margin-top: 4px">
+                ↘ -3.2% vs mes anterior
+              </p>
+            </div>
+            <div class="glass rounded-xl p-4">
+              <p class="section-label">Ahorro del Mes</p>
+              <p style="font-size: 22px; font-weight: 700; color: #60a5fa">$51.400,00</p>
+              <p style="font-size: 11px; color: #475569; margin-top: 4px">61% de los ingresos</p>
+            </div>
+          </div>
+
+          <!-- Bottom: Recents + Upcoming -->
+          <div class="grid grid-cols-2 gap-4 flex-1 overflow-hidden">
+            <!-- Recent Transactions -->
+            <div class="glass rounded-xl p-4 flex flex-col overflow-hidden">
+              <div class="flex items-center justify-between mb-3">
+                <p class="section-label mb-0">Últimas Transacciones</p>
+                <span style="font-size: 11px; color: #3b82f6; cursor: pointer">Ver todas →</span>
+              </div>
+              <div class="scroll-area flex-1">
+                <div class="tx-row">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(239, 68, 68, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    🍕
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Almuerzo</p>
+                    <p style="font-size: 11px; color: #475569">Hoy · Cuenta Principal</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #f87171">-$1.200</p>
+                </div>
+                <div class="tx-row">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(239, 68, 68, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    🚌
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Transporte</p>
+                    <p style="font-size: 11px; color: #475569">Hoy · Cuenta Principal</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #f87171">-$600</p>
+                </div>
+                <div class="tx-row">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(16, 185, 129, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    💼
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Sueldo Marzo</p>
+                    <p style="font-size: 11px; color: #475569">Ayer · Cuenta Principal</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #34d399">+$84.200</p>
+                </div>
+                <div class="tx-row">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(239, 68, 68, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    🛒
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Merienda</p>
+                    <p style="font-size: 11px; color: #475569">28/02 · Cuenta Principal</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #f87171">-$600</p>
+                </div>
+                <div class="tx-row" style="border: none">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(168, 85, 247, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    🔄
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">A Ahorro</p>
+                    <p style="font-size: 11px; color: #475569">28/02 · Transferencia</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #c084fc">-$20.000</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upcoming Payments -->
+            <div class="glass rounded-xl p-4 flex flex-col overflow-hidden">
+              <div class="flex items-center justify-between mb-3">
+                <p class="section-label mb-0">Próximos Pagos</p>
+                <span style="font-size: 11px; color: #3b82f6; cursor: pointer">Ver todos →</span>
+              </div>
+              <div class="scroll-area flex-1 space-y-2">
+                <div
+                  style="
+                    background: rgba(239, 68, 68, 0.08);
+                    border: 1px solid rgba(239, 68, 68, 0.2);
+                    border-radius: 12px;
+                    padding: 10px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  "
+                >
+                  <span style="font-size: 18px">📱</span>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">
+                      Servicio Internet
+                    </p>
+                    <p style="font-size: 11px; color: #475569">Vence en 3 días</p>
+                  </div>
+                  <div style="text-align: right">
+                    <p style="font-size: 13px; font-weight: 600; color: #f87171">$4.500</p>
+                    <span
+                      class="badge"
+                      style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 10px"
+                      >3 días</span
+                    >
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: rgba(245, 158, 11, 0.08);
+                    border: 1px solid rgba(245, 158, 11, 0.2);
+                    border-radius: 12px;
+                    padding: 10px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  "
+                >
+                  <span style="font-size: 18px">💡</span>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Luz y Gas</p>
+                    <p style="font-size: 11px; color: #475569">Vence en 8 días</p>
+                  </div>
+                  <div style="text-align: right">
+                    <p style="font-size: 13px; font-weight: 600; color: #f87171">$12.300</p>
+                    <span
+                      class="badge"
+                      style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 10px"
+                      >8 días</span
+                    >
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: rgba(148, 163, 184, 0.05);
+                    border: 1px solid rgba(148, 163, 184, 0.1);
+                    border-radius: 12px;
+                    padding: 10px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  "
+                >
+                  <span style="font-size: 18px">🏠</span>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Alquiler</p>
+                    <p style="font-size: 11px; color: #475569">Vence en 15 días</p>
+                  </div>
+                  <div style="text-align: right">
+                    <p style="font-size: 13px; font-weight: 600; color: #f87171">$85.000</p>
+                    <span
+                      class="badge"
+                      style="background: rgba(148, 163, 184, 0.1); color: #94a3b8; font-size: 10px"
+                      >15 días</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- FAB -->
+      <div class="fab" title="Nueva Transacción">+</div>
+      <div class="mt-3 text-xs text-slate-500 text-right pr-4">
+        💡 <strong class="text-slate-400">Dirección A:</strong> Balance como hero → visibilidad
+        inmediata del estado financiero. Métricas de mes como fila secundaria. Recientes + Próximos
+        en grilla inferior.
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- DIRECTION B: Home - Cards Grid -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="screen-B" class="screen max-w-7xl mx-auto px-8 pb-12">
+      <div class="mb-4">
+        <h2 class="text-lg font-bold text-white">B — Home: Cards Grid (estilo design-preview)</h2>
+        <p class="text-sm text-slate-400">
+          Cards financieras en grilla 3 columnas + layout de 2 columnas para recientes y próximos.
+          Mayor densidad visual.
+        </p>
+      </div>
+
+      <div class="flex gap-4 h-[620px]">
+        <!-- Sidebar (idéntico) -->
+        <div class="glass-strong rounded-2xl w-56 flex-shrink-0 p-4 flex flex-col">
+          <div class="flex items-center gap-2.5 px-2 mb-8 mt-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-base">
+              💰
+            </div>
+            <span class="font-bold text-white">SmartPocket</span>
+          </div>
+          <nav class="space-y-1 flex-1">
+            <div class="sidebar-item active">🏠 <span>Inicio</span></div>
+            <div class="sidebar-item">💳 <span>Cuentas</span></div>
+            <div class="sidebar-item">💸 <span>Transacciones</span></div>
+            <div class="sidebar-item">🔔 <span>Próximos Pagos</span></div>
+            <div style="height: 1px; background: rgba(148, 163, 184, 0.1); margin: 8px 0"></div>
+            <div class="sidebar-item">📊 <span>Dashboard</span></div>
+            <div class="sidebar-item" style="opacity: 0.6">🏷️ <span>Categorías</span></div>
+            <div class="sidebar-item" style="opacity: 0.6">⚙️ <span>Configuración</span></div>
+          </nav>
+          <div style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; padding: 12px">
+            <p style="font-size: 11px; color: #475569">Versión</p>
+            <p style="font-size: 13px; font-weight: 600; color: #fff">v1.0.0 MVP</p>
+          </div>
+        </div>
+
+        <!-- Main -->
+        <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+          <!-- Financial cards 3-col (estilo design-preview-2) -->
+          <div class="grid grid-cols-3 gap-4">
+            <div
+              class="glass-strong rounded-2xl p-5 relative overflow-hidden"
+              style="
+                background: linear-gradient(
+                  135deg,
+                  rgba(30, 41, 59, 0.8),
+                  rgba(59, 130, 246, 0.06)
+                );
+              "
+            >
+              <div
+                style="
+                  position: absolute;
+                  top: -20px;
+                  right: -20px;
+                  width: 80px;
+                  height: 80px;
+                  background: rgba(59, 130, 246, 0.08);
+                  border-radius: 50%;
+                "
+              ></div>
+              <div class="flex items-center justify-between mb-4">
+                <div
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 12px;
+                    background: rgba(59, 130, 246, 0.15);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                  "
+                >
+                  💰
+                </div>
+                <span
+                  class="badge"
+                  style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 10px"
+                  >BALANCE</span
+                >
+              </div>
+              <p style="font-size: 24px; font-weight: 800; color: #f8fafc">$124.580</p>
+              <p style="font-size: 11px; color: #475569; margin-top: 4px">Balance Total</p>
+              <div class="flex items-center gap-1 mt-3" style="font-size: 11px; color: #34d399">
+                <span>↗</span><span>+5.2% este mes</span>
+              </div>
+            </div>
+            <div
+              class="glass-strong rounded-2xl p-5 relative overflow-hidden"
+              style="
+                background: linear-gradient(
+                  135deg,
+                  rgba(30, 41, 59, 0.8),
+                  rgba(16, 185, 129, 0.06)
+                );
+              "
+            >
+              <div
+                style="
+                  position: absolute;
+                  top: -20px;
+                  right: -20px;
+                  width: 80px;
+                  height: 80px;
+                  background: rgba(16, 185, 129, 0.08);
+                  border-radius: 50%;
+                "
+              ></div>
+              <div class="flex items-center justify-between mb-4">
+                <div
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 12px;
+                    background: rgba(16, 185, 129, 0.15);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                  "
+                >
+                  📈
+                </div>
+                <span
+                  class="badge"
+                  style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 10px"
+                  >INGRESOS</span
+                >
+              </div>
+              <p style="font-size: 24px; font-weight: 800; color: #34d399">$84.200</p>
+              <p style="font-size: 11px; color: #475569; margin-top: 4px">Este Mes</p>
+              <div class="flex items-center gap-1 mt-3" style="font-size: 11px; color: #34d399">
+                <span>↗</span><span>+12.5% vs anterior</span>
+              </div>
+            </div>
+            <div
+              class="glass-strong rounded-2xl p-5 relative overflow-hidden"
+              style="
+                background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(239, 68, 68, 0.06));
+              "
+            >
+              <div
+                style="
+                  position: absolute;
+                  top: -20px;
+                  right: -20px;
+                  width: 80px;
+                  height: 80px;
+                  background: rgba(239, 68, 68, 0.08);
+                  border-radius: 50%;
+                "
+              ></div>
+              <div class="flex items-center justify-between mb-4">
+                <div
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 12px;
+                    background: rgba(239, 68, 68, 0.15);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                  "
+                >
+                  📉
+                </div>
+                <span
+                  class="badge"
+                  style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 10px"
+                  >GASTOS</span
+                >
+              </div>
+              <p style="font-size: 24px; font-weight: 800; color: #f87171">$32.800</p>
+              <p style="font-size: 11px; color: #475569; margin-top: 4px">Este Mes</p>
+              <div class="flex items-center gap-1 mt-3" style="font-size: 11px; color: #f87171">
+                <span>↘</span><span>-3.2% vs anterior</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recents + Upcoming -->
+          <div class="grid grid-cols-2 gap-4 flex-1 overflow-hidden">
+            <div class="glass rounded-xl p-4 flex flex-col overflow-hidden">
+              <div class="flex items-center justify-between mb-3">
+                <p class="section-label mb-0">Últimas Transacciones</p>
+                <span style="font-size: 11px; color: #3b82f6; cursor: pointer">Ver todas →</span>
+              </div>
+              <div class="scroll-area flex-1">
+                <div class="tx-row">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(239, 68, 68, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    🍕
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Almuerzo</p>
+                    <p style="font-size: 11px; color: #475569">Hoy · Comida</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #f87171">-$1.200</p>
+                </div>
+                <div class="tx-row">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(239, 68, 68, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    🚌
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Transporte</p>
+                    <p style="font-size: 11px; color: #475569">Hoy · Transporte</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #f87171">-$600</p>
+                </div>
+                <div class="tx-row">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(16, 185, 129, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    💼
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Sueldo Marzo</p>
+                    <p style="font-size: 11px; color: #475569">Ayer · Trabajo</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #34d399">+$84.200</p>
+                </div>
+                <div class="tx-row" style="border: none">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      border-radius: 10px;
+                      background: rgba(239, 68, 68, 0.15);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    🛒
+                  </div>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Merienda</p>
+                    <p style="font-size: 11px; color: #475569">28/02 · Comida</p>
+                  </div>
+                  <p style="font-size: 13px; font-weight: 600; color: #f87171">-$600</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass rounded-xl p-4 flex flex-col overflow-hidden">
+              <div class="flex items-center justify-between mb-3">
+                <p class="section-label mb-0">Próximos Pagos</p>
+                <span style="font-size: 11px; color: #3b82f6; cursor: pointer">Ver todos →</span>
+              </div>
+              <div class="scroll-area flex-1 space-y-2">
+                <div
+                  style="
+                    background: rgba(239, 68, 68, 0.08);
+                    border: 1px solid rgba(239, 68, 68, 0.2);
+                    border-radius: 12px;
+                    padding: 10px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  "
+                >
+                  <span style="font-size: 18px">📱</span>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">
+                      Servicio Internet
+                    </p>
+                    <p style="font-size: 11px; color: #475569">Vence en 3 días</p>
+                  </div>
+                  <div style="text-align: right">
+                    <p style="font-size: 13px; font-weight: 600; color: #f87171">$4.500</p>
+                    <span
+                      class="badge"
+                      style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 10px"
+                      >3 días</span
+                    >
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: rgba(245, 158, 11, 0.08);
+                    border: 1px solid rgba(245, 158, 11, 0.2);
+                    border-radius: 12px;
+                    padding: 10px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  "
+                >
+                  <span style="font-size: 18px">💡</span>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Luz y Gas</p>
+                    <p style="font-size: 11px; color: #475569">Vence en 8 días</p>
+                  </div>
+                  <div style="text-align: right">
+                    <p style="font-size: 13px; font-weight: 600; color: #f87171">$12.300</p>
+                    <span
+                      class="badge"
+                      style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 10px"
+                      >8 días</span
+                    >
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: rgba(148, 163, 184, 0.05);
+                    border: 1px solid rgba(148, 163, 184, 0.1);
+                    border-radius: 12px;
+                    padding: 10px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  "
+                >
+                  <span style="font-size: 18px">🏠</span>
+                  <div class="flex-1">
+                    <p style="font-size: 13px; font-weight: 500; color: #e2e8f0">Alquiler</p>
+                    <p style="font-size: 11px; color: #475569">Vence en 15 días</p>
+                  </div>
+                  <div style="text-align: right">
+                    <p style="font-size: 13px; font-weight: 600; color: #f87171">$85.000</p>
+                    <span
+                      class="badge"
+                      style="background: rgba(148, 163, 184, 0.1); color: #94a3b8; font-size: 10px"
+                      >15 días</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fab">+</div>
+      <div class="mt-3 text-xs text-slate-500 text-right pr-4">
+        💡 <strong class="text-slate-400">Dirección B:</strong> 3 cards financieras en grilla →
+        inspirado en design-preview-2.html. Más dense, más datos visibles de inmediato. Recientes +
+        Próximos en grilla inferior.
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- DIRECTION C: Formulario de Transacción -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="screen-C" class="screen max-w-7xl mx-auto px-8 pb-12">
+      <div class="mb-4">
+        <h2 class="text-lg font-bold text-white">C — Modal: Formulario de Nueva Transacción</h2>
+        <p class="text-sm text-slate-400">
+          Modal centrado con tabs Gasto/Ingreso · Monto como protagonista · Campos opcionales al
+          final
+        </p>
+      </div>
+
+      <div class="flex gap-8 items-start">
+        <!-- Modal mockup -->
+        <div class="flex-1 flex justify-center">
+          <div
+            class="glass-strong rounded-2xl w-full max-w-md"
+            style="border: 1px solid rgba(148, 163, 184, 0.2)"
+          >
+            <!-- Modal header -->
+            <div
+              class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-700/50"
+            >
+              <h3 class="font-bold text-white text-base">Nueva Transacción</h3>
+              <button
+                style="
+                  color: #475569;
+                  font-size: 18px;
+                  background: rgba(71, 85, 105, 0.3);
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 8px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                ✕
+              </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+              <!-- Tabs Gasto / Ingreso -->
+              <div class="flex gap-2 p-1 rounded-xl" style="background: rgba(15, 23, 42, 0.5)">
+                <button class="tab-btn active-gasto flex-1">💸 Gasto</button>
+                <button class="tab-btn flex-1">💰 Ingreso</button>
+              </div>
+
+              <!-- Monto (protagonista) -->
+              <div>
+                <label class="section-label">Monto *</label>
+                <div class="flex gap-2">
+                  <div class="flex-1 relative">
+                    <span
+                      style="
+                        position: absolute;
+                        left: 14px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        color: #475569;
+                        font-size: 16px;
+                        font-weight: 600;
+                      "
+                      >$</span
+                    >
+                    <input
+                      style="
+                        width: 100%;
+                        background: rgba(15, 23, 42, 0.6);
+                        border: 1px solid rgba(148, 163, 184, 0.2);
+                        border-radius: 12px;
+                        padding: 14px 14px 14px 30px;
+                        color: #f8fafc;
+                        font-size: 22px;
+                        font-weight: 700;
+                        font-family: monospace;
+                        outline: none;
+                      "
+                      placeholder="0,00"
+                      value="600,00"
+                    />
+                  </div>
+                  <button
+                    style="
+                      background: rgba(59, 130, 246, 0.15);
+                      border: 1px solid rgba(59, 130, 246, 0.3);
+                      color: #60a5fa;
+                      border-radius: 12px;
+                      padding: 0 16px;
+                      font-size: 18px;
+                      cursor: pointer;
+                      flex-shrink: 0;
+                    "
+                    title="Mini Calculadora"
+                  >
+                    🔢
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cuenta -->
+              <div>
+                <label class="section-label">Cuenta *</label>
+                <div
+                  style="
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(148, 163, 184, 0.2);
+                    border-radius: 12px;
+                    padding: 12px 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: between;
+                    cursor: pointer;
+                  "
+                >
+                  <div class="flex items-center gap-2 flex-1">
+                    <div
+                      style="
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 6px;
+                        background: #3b82f6;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                      "
+                    >
+                      💳
+                    </div>
+                    <span style="font-size: 14px; font-weight: 500; color: #e2e8f0"
+                      >Cuenta Principal</span
+                    >
+                  </div>
+                  <span style="color: #475569">▾</span>
+                </div>
+              </div>
+
+              <!-- Categoría -->
+              <div>
+                <label class="section-label">Categoría *</label>
+                <div
+                  style="
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(148, 163, 184, 0.2);
+                    border-radius: 12px;
+                    padding: 12px 14px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                  "
+                >
+                  <div class="flex items-center gap-2 flex-1">
+                    <span style="font-size: 18px">🍕</span>
+                    <span style="font-size: 14px; font-weight: 500; color: #e2e8f0">Comida</span>
+                  </div>
+                  <span style="color: #475569">▾</span>
+                </div>
+              </div>
+
+              <!-- Fecha -->
+              <div>
+                <label class="section-label">Fecha *</label>
+                <div
+                  style="
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(148, 163, 184, 0.2);
+                    border-radius: 12px;
+                    padding: 12px 14px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                  "
+                >
+                  <div class="flex items-center gap-2 flex-1">
+                    <span style="font-size: 16px">📅</span>
+                    <span style="font-size: 14px; font-weight: 500; color: #e2e8f0"
+                      >Hoy, 01 de marzo 2026</span
+                    >
+                  </div>
+                  <span style="color: #475569">▾</span>
+                </div>
+              </div>
+
+              <!-- Descripción (opcional) -->
+              <div>
+                <label class="section-label"
+                  >Descripción
+                  <span style="color: #475569; font-weight: 400">(opcional)</span></label
+                >
+                <input
+                  style="
+                    width: 100%;
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(148, 163, 184, 0.12);
+                    border-radius: 12px;
+                    padding: 11px 14px;
+                    color: #94a3b8;
+                    font-size: 14px;
+                    outline: none;
+                  "
+                  placeholder="Merienda, galletas + dulce + jugo..."
+                />
+              </div>
+
+              <!-- Tags (opcional) -->
+              <div>
+                <label class="section-label"
+                  >Tags <span style="color: #475569; font-weight: 400">(opcional)</span></label
+                >
+                <div
+                  style="
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(148, 163, 184, 0.12);
+                    border-radius: 12px;
+                    padding: 10px 14px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <span
+                    class="cat-chip"
+                    style="background: rgba(59, 130, 246, 0.15); color: #60a5fa"
+                    >🏷️ merienda</span
+                  >
+                  <span style="font-size: 12px; color: #475569; cursor: pointer"
+                    >+ agregar tag</span
+                  >
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex gap-3 pt-2">
+                <button
+                  style="
+                    flex: 1;
+                    padding: 12px;
+                    border-radius: 12px;
+                    border: 1px solid rgba(148, 163, 184, 0.2);
+                    background: transparent;
+                    color: #94a3b8;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                  "
+                >
+                  Cancelar
+                </button>
+                <button
+                  style="
+                    flex: 2;
+                    padding: 12px;
+                    border-radius: 12px;
+                    background: #3b82f6;
+                    color: #fff;
+                    font-size: 14px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+                  "
+                >
+                  ✓ Guardar Transacción
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Annotations -->
+        <div class="w-72 space-y-3">
+          <h4 class="font-semibold text-slate-300 text-sm">Decisiones de Diseño</h4>
+          <div class="text-xs space-y-3">
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Tabs Gasto/Ingreso</span>
+              <p class="text-slate-400 mt-1">
+                Cambio de tipo en 1 clic. Estado visual claro (rojo=gasto, verde=ingreso). Sin radio
+                buttons.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Monto Protagonista</span>
+              <p class="text-slate-400 mt-1">
+                Font 22px monospace, símbolo $ pre-fijo. Es el dato más importante → mayor tamaño
+                visual.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Botón 🔢 Mini Calc</span>
+              <p class="text-slate-400 mt-1">
+                Visible pero no invasivo. On-demand → no estorba el flujo básico. Color accent
+                sutil.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Campos Opcionales</span>
+              <p class="text-slate-400 mt-1">
+                Descripción y Tags al final. Label indica "(opcional)". No bloquean el flujo rápido.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Smart Defaults</span>
+              <p class="text-slate-400 mt-1">
+                Fecha = Hoy, Cuenta = última usada, Tipo = Gasto (más frecuente). Mínimas
+                decisiones.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- DIRECTION D: Mini Calculadora -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="screen-D" class="screen max-w-7xl mx-auto px-8 pb-12">
+      <div class="mb-4">
+        <h2 class="text-lg font-bold text-white">
+          D — Mini Calculadora (dentro del modal de transacción)
+        </h2>
+        <p class="text-sm text-slate-400">
+          Panel que emerge al hacer clic en 🔢 · Layout 4×5 · Referencia: Gestor de Gastos app
+        </p>
+      </div>
+
+      <div class="flex gap-8 items-start">
+        <!-- Calculator panel embedded in form -->
+        <div class="flex-1 flex justify-center">
+          <div
+            class="glass-strong rounded-2xl w-full max-w-md"
+            style="border: 1px solid rgba(148, 163, 184, 0.2)"
+          >
+            <!-- Modal header -->
+            <div
+              class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-700/50"
+            >
+              <h3 class="font-bold text-white text-base">Nueva Transacción</h3>
+              <button
+                style="
+                  color: #475569;
+                  font-size: 18px;
+                  background: rgba(71, 85, 105, 0.3);
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 8px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                ✕
+              </button>
+            </div>
+            <div class="p-6 pb-4">
+              <!-- Monto con botón activo -->
+              <label class="section-label">Monto *</label>
+              <div class="flex gap-2 mb-4">
+                <div class="flex-1 relative">
+                  <span
+                    style="
+                      position: absolute;
+                      left: 14px;
+                      top: 50%;
+                      transform: translateY(-50%);
+                      color: #475569;
+                      font-size: 16px;
+                      font-weight: 600;
+                    "
+                    >$</span
+                  >
+                  <input
+                    style="
+                      width: 100%;
+                      background: rgba(15, 23, 42, 0.6);
+                      border: 1px solid rgba(59, 130, 246, 0.4);
+                      border-radius: 12px;
+                      padding: 14px 14px 14px 30px;
+                      color: #f8fafc;
+                      font-size: 22px;
+                      font-weight: 700;
+                      font-family: monospace;
+                      outline: none;
+                      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                    "
+                    value="600,00"
+                  />
+                </div>
+                <button
+                  style="
+                    background: rgba(59, 130, 246, 0.3);
+                    border: 1px solid rgba(59, 130, 246, 0.5);
+                    color: #93c5fd;
+                    border-radius: 12px;
+                    padding: 0 16px;
+                    font-size: 18px;
+                    cursor: pointer;
+                    flex-shrink: 0;
+                  "
+                >
+                  🔢
+                </button>
+              </div>
+
+              <!-- Calculator panel -->
+              <div
+                class="rounded-xl overflow-hidden"
+                style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(59, 130, 246, 0.2)"
+              >
+                <!-- Display -->
+                <div
+                  style="
+                    padding: 12px 16px;
+                    text-align: right;
+                    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+                  "
+                >
+                  <p style="font-size: 11px; color: #475569; font-family: monospace">
+                    200 + 100 + 300
+                  </p>
+                  <p
+                    style="
+                      font-size: 28px;
+                      font-weight: 700;
+                      color: #f8fafc;
+                      font-family: monospace;
+                    "
+                  >
+                    600
+                  </p>
+                </div>
+                <!-- Buttons grid -->
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 6px;
+                    padding: 10px;
+                  "
+                >
+                  <div class="calc-btn clear">C</div>
+                  <div class="calc-btn op">+/-</div>
+                  <div class="calc-btn op">%</div>
+                  <div class="calc-btn op">÷</div>
+
+                  <div class="calc-btn">7</div>
+                  <div class="calc-btn">8</div>
+                  <div class="calc-btn">9</div>
+                  <div class="calc-btn op">×</div>
+
+                  <div class="calc-btn">4</div>
+                  <div class="calc-btn">5</div>
+                  <div class="calc-btn">6</div>
+                  <div class="calc-btn op">−</div>
+
+                  <div class="calc-btn">1</div>
+                  <div class="calc-btn">2</div>
+                  <div class="calc-btn">3</div>
+                  <div class="calc-btn op">+</div>
+
+                  <div class="calc-btn op">,</div>
+                  <div class="calc-btn">0</div>
+                  <div class="calc-btn op">⌫</div>
+                  <div class="calc-btn accent">=</div>
+                </div>
+                <!-- Use result button -->
+                <div style="padding: 0 10px 10px">
+                  <button
+                    style="
+                      width: 100%;
+                      padding: 10px;
+                      border-radius: 10px;
+                      background: rgba(16, 185, 129, 0.15);
+                      border: 1px solid rgba(16, 185, 129, 0.3);
+                      color: #34d399;
+                      font-size: 13px;
+                      font-weight: 700;
+                      cursor: pointer;
+                    "
+                  >
+                    ✓ Usar resultado: $600,00
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Annotations -->
+        <div class="w-72 space-y-3">
+          <h4 class="font-semibold text-slate-300 text-sm">Diseño de Mini Calculadora</h4>
+          <div class="text-xs space-y-3">
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Layout 4×5 Estándar</span>
+              <p class="text-slate-400 mt-1">
+                Idéntico al patrón conocido (Gestor de Gastos, calculadora del sistema). Cero curva
+                de aprendizaje.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Display Superior</span>
+              <p class="text-slate-400 mt-1">
+                Muestra operación en curso (200+100+300) y resultado. 2 líneas = historial + número
+                actual.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Botón = Destacado</span>
+              <p class="text-slate-400 mt-1">
+                Color Primary Blue (como amarillo en Gestor de Gastos). Alta visibilidad, confirmar
+                la operación.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-green-400 font-semibold">Botón "Usar Resultado"</span>
+              <p class="text-slate-400 mt-1">
+                Inserta $600,00 al campo monto automáticamente. Color éxito (verde) indica
+                confirmación.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Panel Integrado</span>
+              <p class="text-slate-400 mt-1">
+                Emerge debajo del campo monto dentro del mismo modal. Sin modal anidado. Scroll
+                natural.
+              </p>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-3 border border-yellow-500/20">
+            <p class="text-yellow-400 font-semibold text-xs">Caso de Uso</p>
+            <p class="text-slate-400 text-xs mt-1">
+              Merienda: 200 (galletas) + 100 (dulce de leche) + 300 (jugo) = 600. Click "Usar
+              resultado" → $600 al campo monto.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- DIRECTION E: Dashboard Analítico -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="screen-E" class="screen max-w-7xl mx-auto px-8 pb-12">
+      <div class="mb-4">
+        <h2 class="text-lg font-bold text-white">E — Dashboard Analítico</h2>
+        <p class="text-sm text-slate-400">
+          Gráfico de torta prominente · Categorías ordenadas por % · Tabs de período e
+          Ingresos/Gastos · Gráfico de evolución temporal
+        </p>
+      </div>
+
+      <div class="flex gap-4 h-[620px]">
+        <!-- Sidebar -->
+        <div class="glass-strong rounded-2xl w-56 flex-shrink-0 p-4 flex flex-col">
+          <div class="flex items-center gap-2.5 px-2 mb-8 mt-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-base">
+              💰
+            </div>
+            <span class="font-bold text-white">SmartPocket</span>
+          </div>
+          <nav class="space-y-1 flex-1">
+            <div class="sidebar-item">🏠 <span>Inicio</span></div>
+            <div class="sidebar-item">💳 <span>Cuentas</span></div>
+            <div class="sidebar-item">💸 <span>Transacciones</span></div>
+            <div class="sidebar-item">🔔 <span>Próximos Pagos</span></div>
+            <div style="height: 1px; background: rgba(148, 163, 184, 0.1); margin: 8px 0"></div>
+            <div class="sidebar-item active">📊 <span>Dashboard</span></div>
+            <div class="sidebar-item" style="opacity: 0.6">🏷️ <span>Categorías</span></div>
+            <div class="sidebar-item" style="opacity: 0.6">⚙️ <span>Configuración</span></div>
+          </nav>
+          <div style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; padding: 12px">
+            <p style="font-size: 11px; color: #475569">Versión</p>
+            <p style="font-size: 13px; font-weight: 600; color: #fff">v1.0.0 MVP</p>
+          </div>
+        </div>
+
+        <!-- Main -->
+        <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+          <!-- Header with period tabs -->
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-white text-lg">Análisis Financiero</h2>
+            <div class="flex gap-1 p-1 rounded-xl" style="background: rgba(15, 23, 42, 0.5)">
+              <button
+                class="tab-btn"
+                style="
+                  padding: 6px 14px;
+                  background: rgba(59, 130, 246, 0.15);
+                  color: #60a5fa;
+                  border: 1px solid rgba(59, 130, 246, 0.25);
+                "
+              >
+                Este mes
+              </button>
+              <button class="tab-btn" style="padding: 6px 14px">3 meses</button>
+              <button class="tab-btn" style="padding: 6px 14px">6 meses</button>
+              <button class="tab-btn" style="padding: 6px 14px">12 meses</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 flex-1 overflow-hidden">
+            <!-- Pie chart + categories -->
+            <div class="glass rounded-xl p-5 flex flex-col overflow-hidden">
+              <!-- Tabs Gastos/Ingresos -->
+              <div
+                class="flex gap-1 p-1 rounded-xl mb-4"
+                style="background: rgba(15, 23, 42, 0.5); width: fit-content"
+              >
+                <button class="tab-btn active-gasto" style="padding: 5px 16px">Gastos</button>
+                <button class="tab-btn" style="padding: 5px 16px">Ingresos</button>
+              </div>
+
+              <!-- Donut chart (SVG) -->
+              <div class="flex items-center gap-4 mb-4">
+                <div style="position: relative; width: 100px; height: 100px; flex-shrink: 0">
+                  <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="none"
+                      stroke="rgba(148,163,184,.1)"
+                      stroke-width="14"
+                    />
+                    <!-- Comida 40% -->
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="none"
+                      stroke="#ef4444"
+                      stroke-width="14"
+                      stroke-dasharray="95.5 238.76"
+                      stroke-dashoffset="0"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <!-- Transporte 25% -->
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="none"
+                      stroke="#f59e0b"
+                      stroke-width="14"
+                      stroke-dasharray="59.7 238.76"
+                      stroke-dashoffset="-95.5"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <!-- Servicios 20% -->
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="none"
+                      stroke="#3b82f6"
+                      stroke-width="14"
+                      stroke-dasharray="47.75 238.76"
+                      stroke-dashoffset="-155.2"
+                      transform="rotate(-90 50 50)"
+                    />
+                    <!-- Otros 15% -->
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="none"
+                      stroke="#a855f7"
+                      stroke-width="14"
+                      stroke-dasharray="35.8 238.76"
+                      stroke-dashoffset="-202.95"
+                      transform="rotate(-90 50 50)"
+                    />
+                  </svg>
+                  <div
+                    style="
+                      position: absolute;
+                      inset: 0;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <p style="font-size: 13px; font-weight: 800; color: #f8fafc">$32.8K</p>
+                    <p style="font-size: 9px; color: #475569">total</p>
+                  </div>
+                </div>
+                <div class="flex-1 space-y-1.5">
+                  <div class="flex items-center gap-2">
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 3px;
+                        background: #ef4444;
+                        flex-shrink: 0;
+                      "
+                    ></div>
+                    <span style="font-size: 11px; color: #94a3b8; flex: 1">Comida</span
+                    ><span style="font-size: 12px; font-weight: 600; color: #f87171">40%</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 3px;
+                        background: #f59e0b;
+                        flex-shrink: 0;
+                      "
+                    ></div>
+                    <span style="font-size: 11px; color: #94a3b8; flex: 1">Transporte</span
+                    ><span style="font-size: 12px; font-weight: 600; color: #fbbf24">25%</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 3px;
+                        background: #3b82f6;
+                        flex-shrink: 0;
+                      "
+                    ></div>
+                    <span style="font-size: 11px; color: #94a3b8; flex: 1">Servicios</span
+                    ><span style="font-size: 12px; font-weight: 600; color: #60a5fa">20%</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 3px;
+                        background: #a855f7;
+                        flex-shrink: 0;
+                      "
+                    ></div>
+                    <span style="font-size: 11px; color: #94a3b8; flex: 1">Otros</span
+                    ><span style="font-size: 12px; font-weight: 600; color: #c084fc">15%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Categories list (ordenadas por %) -->
+              <div class="section-label">Detalle por Categoría</div>
+              <div class="scroll-area flex-1 space-y-2">
+                <div
+                  style="
+                    background: rgba(239, 68, 68, 0.08);
+                    border-radius: 10px;
+                    padding: 8px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                  "
+                >
+                  <span style="font-size: 16px">🍕</span>
+                  <div class="flex-1">
+                    <div class="flex justify-between mb-1">
+                      <span style="font-size: 12px; font-weight: 500; color: #e2e8f0">Comida</span
+                      ><span style="font-size: 12px; font-weight: 600; color: #f87171"
+                        >$13.120</span
+                      >
+                    </div>
+                    <div
+                      style="height: 4px; background: rgba(148, 163, 184, 0.1); border-radius: 2px"
+                    >
+                      <div
+                        style="height: 4px; background: #ef4444; border-radius: 2px; width: 40%"
+                      ></div>
+                    </div>
+                  </div>
+                  <span style="font-size: 11px; color: #f87171; font-weight: 600">40%</span>
+                </div>
+                <div
+                  style="
+                    background: rgba(245, 158, 11, 0.08);
+                    border-radius: 10px;
+                    padding: 8px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                  "
+                >
+                  <span style="font-size: 16px">🚌</span>
+                  <div class="flex-1">
+                    <div class="flex justify-between mb-1">
+                      <span style="font-size: 12px; font-weight: 500; color: #e2e8f0"
+                        >Transporte</span
+                      ><span style="font-size: 12px; font-weight: 600; color: #fbbf24">$8.200</span>
+                    </div>
+                    <div
+                      style="height: 4px; background: rgba(148, 163, 184, 0.1); border-radius: 2px"
+                    >
+                      <div
+                        style="height: 4px; background: #f59e0b; border-radius: 2px; width: 25%"
+                      ></div>
+                    </div>
+                  </div>
+                  <span style="font-size: 11px; color: #fbbf24; font-weight: 600">25%</span>
+                </div>
+                <div
+                  style="
+                    background: rgba(59, 130, 246, 0.08);
+                    border-radius: 10px;
+                    padding: 8px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                  "
+                >
+                  <span style="font-size: 16px">💡</span>
+                  <div class="flex-1">
+                    <div class="flex justify-between mb-1">
+                      <span style="font-size: 12px; font-weight: 500; color: #e2e8f0"
+                        >Servicios</span
+                      ><span style="font-size: 12px; font-weight: 600; color: #60a5fa">$6.560</span>
+                    </div>
+                    <div
+                      style="height: 4px; background: rgba(148, 163, 184, 0.1); border-radius: 2px"
+                    >
+                      <div
+                        style="height: 4px; background: #3b82f6; border-radius: 2px; width: 20%"
+                      ></div>
+                    </div>
+                  </div>
+                  <span style="font-size: 11px; color: #60a5fa; font-weight: 600">20%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bar chart - evolución temporal -->
+            <div class="glass rounded-xl p-5 flex flex-col overflow-hidden">
+              <div class="flex items-center justify-between mb-4">
+                <p class="section-label mb-0">Ingresos vs Gastos</p>
+                <div class="flex gap-3 text-xs">
+                  <span class="flex items-center gap-1"
+                    ><span
+                      style="
+                        width: 8px;
+                        height: 8px;
+                        border-radius: 2px;
+                        background: #34d399;
+                        display: inline-block;
+                      "
+                    ></span
+                    ><span style="color: #94a3b8">Ingresos</span></span
+                  >
+                  <span class="flex items-center gap-1"
+                    ><span
+                      style="
+                        width: 8px;
+                        height: 8px;
+                        border-radius: 2px;
+                        background: #f87171;
+                        display: inline-block;
+                      "
+                    ></span
+                    ><span style="color: #94a3b8">Gastos</span></span
+                  >
+                </div>
+              </div>
+              <!-- Bar chart -->
+              <div class="flex items-end gap-3 flex-1 pb-6 relative" style="min-height: 200px">
+                <!-- Y-axis labels -->
+                <div
+                  style="
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 24px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    padding-right: 4px;
+                  "
+                >
+                  <span style="font-size: 9px; color: #475569">$90K</span>
+                  <span style="font-size: 9px; color: #475569">$60K</span>
+                  <span style="font-size: 9px; color: #475569">$30K</span>
+                  <span style="font-size: 9px; color: #475569">$0</span>
+                </div>
+                <!-- Bars -->
+                <div class="flex gap-2 flex-1 items-end ml-8 h-full">
+                  <div class="flex flex-col gap-1 items-center flex-1">
+                    <div class="w-full flex gap-0.5 items-end">
+                      <div
+                        class="bar flex-1"
+                        style="height: 68px; background: #34d399; opacity: 0.7"
+                      ></div>
+                      <div
+                        class="bar flex-1"
+                        style="height: 28px; background: #f87171; opacity: 0.7"
+                      ></div>
+                    </div>
+                    <span style="font-size: 9px; color: #475569">Oct</span>
+                  </div>
+                  <div class="flex flex-col gap-1 items-center flex-1">
+                    <div class="w-full flex gap-0.5 items-end">
+                      <div
+                        class="bar flex-1"
+                        style="height: 72px; background: #34d399; opacity: 0.7"
+                      ></div>
+                      <div
+                        class="bar flex-1"
+                        style="height: 32px; background: #f87171; opacity: 0.7"
+                      ></div>
+                    </div>
+                    <span style="font-size: 9px; color: #475569">Nov</span>
+                  </div>
+                  <div class="flex flex-col gap-1 items-center flex-1">
+                    <div class="w-full flex gap-0.5 items-end">
+                      <div
+                        class="bar flex-1"
+                        style="height: 78px; background: #34d399; opacity: 0.7"
+                      ></div>
+                      <div
+                        class="bar flex-1"
+                        style="height: 38px; background: #f87171; opacity: 0.7"
+                      ></div>
+                    </div>
+                    <span style="font-size: 9px; color: #475569">Dic</span>
+                  </div>
+                  <div class="flex flex-col gap-1 items-center flex-1">
+                    <div class="w-full flex gap-0.5 items-end">
+                      <div
+                        class="bar flex-1"
+                        style="height: 65px; background: #34d399; opacity: 0.7"
+                      ></div>
+                      <div
+                        class="bar flex-1"
+                        style="height: 30px; background: #f87171; opacity: 0.7"
+                      ></div>
+                    </div>
+                    <span style="font-size: 9px; color: #475569">Ene</span>
+                  </div>
+                  <div class="flex flex-col gap-1 items-center flex-1">
+                    <div class="w-full flex gap-0.5 items-end">
+                      <div
+                        class="bar flex-1"
+                        style="height: 70px; background: #34d399; opacity: 0.7"
+                      ></div>
+                      <div
+                        class="bar flex-1"
+                        style="height: 25px; background: #f87171; opacity: 0.7"
+                      ></div>
+                    </div>
+                    <span style="font-size: 9px; color: #475569">Feb</span>
+                  </div>
+                  <div class="flex flex-col gap-1 items-center flex-1">
+                    <div class="w-full flex gap-0.5 items-end">
+                      <div class="bar flex-1" style="height: 84px; background: #34d399"></div>
+                      <div class="bar flex-1" style="height: 33px; background: #f87171"></div>
+                    </div>
+                    <span style="font-size: 9px; color: #60a5fa; font-weight: 600">Mar</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Summary row -->
+              <div class="flex gap-4 pt-3 border-t border-slate-700/30">
+                <div class="flex-1 text-center">
+                  <p style="font-size: 10px; color: #475569">Promedio ingresos</p>
+                  <p style="font-size: 14px; font-weight: 700; color: #34d399">$72.400</p>
+                </div>
+                <div style="width: 1px; background: rgba(148, 163, 184, 0.1)"></div>
+                <div class="flex-1 text-center">
+                  <p style="font-size: 10px; color: #475569">Promedio gastos</p>
+                  <p style="font-size: 14px; font-weight: 700; color: #f87171">$31.000</p>
+                </div>
+                <div style="width: 1px; background: rgba(148, 163, 184, 0.1)"></div>
+                <div class="flex-1 text-center">
+                  <p style="font-size: 10px; color: #475569">Tasa de ahorro</p>
+                  <p style="font-size: 14px; font-weight: 700; color: #60a5fa">57%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 text-xs text-slate-500 text-right pr-4">
+        💡 <strong class="text-slate-400">Dirección E:</strong> Donut chart + lista categorías
+        ordenadas por % (patron Gestor de Gastos) + gráfico de barras temporal con resumen. Tabs
+        período e Ingresos/Gastos.
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- DIRECTION F: Mobile Navigation -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="screen-F" class="screen max-w-7xl mx-auto px-8 pb-12">
+      <div class="mb-4">
+        <h2 class="text-lg font-bold text-white">F — Navegación Mobile (Bottom Nav)</h2>
+        <p class="text-sm text-slate-400">
+          Adaptación responsive: sidebar reemplazado por barra de navegación inferior en mobile
+        </p>
+      </div>
+
+      <div class="flex gap-10 items-start">
+        <!-- Phone mockup -->
+        <div class="flex justify-center gap-8">
+          <!-- Home screen mobile -->
+          <div>
+            <p class="text-xs text-slate-500 text-center mb-2">Pantalla Inicio (mobile)</p>
+            <div
+              class="rounded-3xl overflow-hidden"
+              style="
+                width: 280px;
+                height: 560px;
+                background: #0f172a;
+                border: 2px solid rgba(148, 163, 184, 0.2);
+                position: relative;
+                display: flex;
+                flex-direction: column;
+              "
+            >
+              <!-- Header -->
+              <div class="p-4 border-b border-slate-700/30 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center text-xs"
+                  >
+                    💰
+                  </div>
+                  <span style="font-size: 14px; font-weight: 700">SmartPocket</span>
+                </div>
+                <div
+                  style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 8px;
+                    background: rgba(71, 85, 105, 0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                  "
+                >
+                  🔔
+                </div>
+              </div>
+
+              <!-- Content -->
+              <div class="flex-1 overflow-y-auto p-3 space-y-3">
+                <!-- Balance card -->
+                <div
+                  class="glass-strong rounded-xl p-4"
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      rgba(30, 41, 59, 0.8),
+                      rgba(59, 130, 246, 0.08)
+                    );
+                  "
+                >
+                  <p
+                    style="
+                      font-size: 10px;
+                      color: #475569;
+                      text-transform: uppercase;
+                      letter-spacing: 0.06em;
+                    "
+                  >
+                    Balance Total
+                  </p>
+                  <p style="font-size: 26px; font-weight: 800; color: #f8fafc; margin: 2px 0">
+                    $124.580
+                  </p>
+                  <div class="flex gap-3 mt-2">
+                    <div>
+                      <p style="font-size: 9px; color: #475569">Principal</p>
+                      <p style="font-size: 11px; font-weight: 600; color: #94a3b8">$98.200</p>
+                    </div>
+                    <div>
+                      <p style="font-size: 9px; color: #475569">Ahorro</p>
+                      <p style="font-size: 11px; font-weight: 600; color: #94a3b8">$26.380</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Metrics mini -->
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="glass rounded-xl p-3">
+                    <p style="font-size: 9px; color: #475569">Ingresos</p>
+                    <p style="font-size: 14px; font-weight: 700; color: #34d399">+$84.200</p>
+                  </div>
+                  <div class="glass rounded-xl p-3">
+                    <p style="font-size: 9px; color: #475569">Gastos</p>
+                    <p style="font-size: 14px; font-weight: 700; color: #f87171">-$32.800</p>
+                  </div>
+                </div>
+
+                <!-- Recent -->
+                <div class="glass rounded-xl p-3">
+                  <div class="flex justify-between items-center mb-2">
+                    <p
+                      style="
+                        font-size: 10px;
+                        color: #475569;
+                        text-transform: uppercase;
+                        letter-spacing: 0.06em;
+                      "
+                    >
+                      Recientes
+                    </p>
+                    <span style="font-size: 10px; color: #3b82f6">Ver →</span>
+                  </div>
+                  <div class="space-y-2">
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <div
+                        style="
+                          width: 26px;
+                          height: 26px;
+                          border-radius: 8px;
+                          background: rgba(239, 68, 68, 0.15);
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 12px;
+                          flex-shrink: 0;
+                        "
+                      >
+                        🍕
+                      </div>
+                      <div class="flex-1">
+                        <p style="font-size: 11px; font-weight: 500; color: #e2e8f0">Almuerzo</p>
+                      </div>
+                      <p style="font-size: 11px; font-weight: 600; color: #f87171">-$1.200</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <div
+                        style="
+                          width: 26px;
+                          height: 26px;
+                          border-radius: 8px;
+                          background: rgba(16, 185, 129, 0.15);
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 12px;
+                          flex-shrink: 0;
+                        "
+                      >
+                        💼
+                      </div>
+                      <div class="flex-1">
+                        <p style="font-size: 11px; font-weight: 500; color: #e2e8f0">Sueldo</p>
+                      </div>
+                      <p style="font-size: 11px; font-weight: 600; color: #34d399">+$84.200</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Upcoming -->
+                <div class="glass rounded-xl p-3">
+                  <p
+                    style="
+                      font-size: 10px;
+                      color: #475569;
+                      text-transform: uppercase;
+                      letter-spacing: 0.06em;
+                      margin-bottom: 8px;
+                    "
+                  >
+                    Próximos
+                  </p>
+                  <div
+                    style="
+                      background: rgba(239, 68, 68, 0.08);
+                      border: 1px solid rgba(239, 68, 68, 0.2);
+                      border-radius: 8px;
+                      padding: 8px;
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                    "
+                  >
+                    <span style="font-size: 14px">📱</span>
+                    <div class="flex-1">
+                      <p style="font-size: 11px; font-weight: 500; color: #e2e8f0">Internet</p>
+                      <p style="font-size: 9px; color: #475569">3 días</p>
+                    </div>
+                    <p style="font-size: 11px; font-weight: 600; color: #f87171">$4.500</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FAB -->
+              <div
+                style="
+                  position: absolute;
+                  bottom: 72px;
+                  right: 16px;
+                  width: 44px;
+                  height: 44px;
+                  border-radius: 50%;
+                  background: #3b82f6;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 20px;
+                  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+                  z-index: 10;
+                "
+              >
+                +
+              </div>
+
+              <!-- Bottom Nav -->
+              <div
+                class="glass-strong border-t border-slate-700/50"
+                style="display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 0 12px"
+              >
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    cursor: pointer;
+                  "
+                >
+                  <span style="font-size: 18px">🏠</span>
+                  <span style="font-size: 9px; color: #60a5fa; font-weight: 600">Inicio</span>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    cursor: pointer;
+                  "
+                >
+                  <span style="font-size: 18px">💸</span>
+                  <span style="font-size: 9px; color: #475569">Trans.</span>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    cursor: pointer;
+                  "
+                >
+                  <span style="font-size: 18px">💳</span>
+                  <span style="font-size: 9px; color: #475569">Cuentas</span>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    cursor: pointer;
+                  "
+                >
+                  <span style="font-size: 18px">📊</span>
+                  <span style="font-size: 9px; color: #475569">Panel</span>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    cursor: pointer;
+                  "
+                >
+                  <span style="font-size: 18px">⋯</span>
+                  <span style="font-size: 9px; color: #475569">Más</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction form mobile -->
+          <div>
+            <p class="text-xs text-slate-500 text-center mb-2">Formulario (mobile)</p>
+            <div
+              class="rounded-3xl overflow-hidden"
+              style="
+                width: 280px;
+                height: 560px;
+                background: #0f172a;
+                border: 2px solid rgba(148, 163, 184, 0.2);
+                position: relative;
+                display: flex;
+                flex-direction: column;
+              "
+            >
+              <div class="p-4 border-b border-slate-700/30 flex items-center gap-3">
+                <span style="font-size: 16px; color: #475569">←</span>
+                <span style="font-size: 14px; font-weight: 700">Nueva Transacción</span>
+              </div>
+              <div class="flex-1 overflow-y-auto p-4 space-y-3">
+                <div class="flex gap-1 p-1 rounded-xl" style="background: rgba(15, 23, 42, 0.5)">
+                  <button
+                    class="tab-btn active-gasto flex-1"
+                    style="padding: 7px 12px; font-size: 13px"
+                  >
+                    💸 Gasto
+                  </button>
+                  <button class="tab-btn flex-1" style="padding: 7px 12px; font-size: 13px">
+                    💰 Ingreso
+                  </button>
+                </div>
+                <div>
+                  <label class="section-label">Monto *</label>
+                  <div class="flex gap-2">
+                    <div class="flex-1 relative">
+                      <span
+                        style="
+                          position: absolute;
+                          left: 12px;
+                          top: 50%;
+                          transform: translateY(-50%);
+                          color: #475569;
+                          font-size: 15px;
+                          font-weight: 600;
+                        "
+                        >$</span
+                      >
+                      <input
+                        style="
+                          width: 100%;
+                          background: rgba(15, 23, 42, 0.6);
+                          border: 1px solid rgba(59, 130, 246, 0.4);
+                          border-radius: 10px;
+                          padding: 12px 12px 12px 28px;
+                          color: #f8fafc;
+                          font-size: 20px;
+                          font-weight: 700;
+                          font-family: monospace;
+                          outline: none;
+                        "
+                        value="600"
+                      />
+                    </div>
+                    <button
+                      style="
+                        background: rgba(59, 130, 246, 0.15);
+                        border: 1px solid rgba(59, 130, 246, 0.3);
+                        color: #60a5fa;
+                        border-radius: 10px;
+                        padding: 0 12px;
+                        font-size: 16px;
+                        cursor: pointer;
+                        flex-shrink: 0;
+                      "
+                    >
+                      🔢
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label class="section-label">Cuenta *</label>
+                  <div
+                    style="
+                      background: rgba(15, 23, 42, 0.6);
+                      border: 1px solid rgba(148, 163, 184, 0.2);
+                      border-radius: 10px;
+                      padding: 11px 12px;
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                      cursor: pointer;
+                    "
+                  >
+                    <div
+                      style="
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 5px;
+                        background: #3b82f6;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                      "
+                    >
+                      💳
+                    </div>
+                    <span style="font-size: 13px; font-weight: 500; color: #e2e8f0; flex: 1"
+                      >Cuenta Principal</span
+                    >
+                    <span style="color: #475569; font-size: 12px">▾</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="section-label">Categoría *</label>
+                  <div
+                    style="
+                      background: rgba(15, 23, 42, 0.6);
+                      border: 1px solid rgba(148, 163, 184, 0.2);
+                      border-radius: 10px;
+                      padding: 11px 12px;
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                      cursor: pointer;
+                    "
+                  >
+                    <span style="font-size: 16px">🍕</span>
+                    <span style="font-size: 13px; font-weight: 500; color: #e2e8f0; flex: 1"
+                      >Comida</span
+                    >
+                    <span style="color: #475569; font-size: 12px">▾</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="section-label">Fecha *</label>
+                  <div
+                    style="
+                      background: rgba(15, 23, 42, 0.6);
+                      border: 1px solid rgba(148, 163, 184, 0.2);
+                      border-radius: 10px;
+                      padding: 11px 12px;
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                      cursor: pointer;
+                    "
+                  >
+                    <span style="font-size: 16px">📅</span>
+                    <span style="font-size: 12px; font-weight: 500; color: #e2e8f0; flex: 1"
+                      >Hoy, 01/03/2026</span
+                    >
+                    <span style="color: #475569; font-size: 12px">▾</span>
+                  </div>
+                </div>
+                <input
+                  style="
+                    width: 100%;
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(148, 163, 184, 0.1);
+                    border-radius: 10px;
+                    padding: 10px 12px;
+                    color: #475569;
+                    font-size: 12px;
+                    outline: none;
+                  "
+                  placeholder="Descripción (opcional)"
+                />
+              </div>
+              <div class="p-4 border-t border-slate-700/30 flex gap-2">
+                <button
+                  style="
+                    flex: 1;
+                    padding: 11px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(148, 163, 184, 0.2);
+                    background: transparent;
+                    color: #94a3b8;
+                    font-size: 12px;
+                    font-weight: 600;
+                  "
+                >
+                  Cancelar
+                </button>
+                <button
+                  style="
+                    flex: 2;
+                    padding: 11px;
+                    border-radius: 10px;
+                    background: #3b82f6;
+                    color: #fff;
+                    font-size: 13px;
+                    font-weight: 700;
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                  "
+                >
+                  ✓ Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="flex-1 space-y-3">
+          <h4 class="font-semibold text-slate-300 text-sm">Decisiones de Navegación Mobile</h4>
+          <div class="text-xs space-y-3">
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Bottom Navigation (5 items)</span>
+              <p class="text-slate-400 mt-1">
+                Inicio · Transacciones · Cuentas · Dashboard · Más (⋯). "Más" despliega: Próximos
+                Pagos, Categorías, Configuración.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Header Simplificado</span>
+              <p class="text-slate-400 mt-1">
+                Sin sidebar en mobile. Header con logo + notificaciones. El sidebar desktop
+                desaparece en viewport pequeño.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">FAB Posicionado sobre Bottom Nav</span>
+              <p class="text-slate-400 mt-1">
+                FAB a bottom:72px para no solapar la barra de navegación. Accesible con pulgar
+                derecho.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Formulario: Pantalla Completa</span>
+              <p class="text-slate-400 mt-1">
+                En mobile el formulario de transacción es pantalla completa (no modal flotante). Más
+                espacio para tocar.
+              </p>
+            </div>
+            <div class="glass rounded-xl p-3">
+              <span class="text-blue-400 font-semibold">Sin Disparidad Funcional</span>
+              <p class="text-slate-400 mt-1">
+                Mismas features que desktop. Solo cambia el layout. Mini calculadora, dropdowns,
+                tags: todos accesibles.
+              </p>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4 border border-blue-500/20 mt-4">
+            <p class="text-blue-400 font-semibold text-xs mb-2">Breakpoints Propuestos</p>
+            <div class="text-xs text-slate-400 space-y-1">
+              <p>
+                • <span class="text-slate-300">Mobile (&lt;768px):</span> Bottom nav + pantalla
+                completa forms
+              </p>
+              <p>
+                • <span class="text-slate-300">Tablet (768-1024px):</span> Sidebar colapsable
+                (hamburger)
+              </p>
+              <p>
+                • <span class="text-slate-300">Desktop (&gt;1024px):</span> Sidebar fijo + modal
+                forms
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showDirection(id) {
+        document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
+        document.querySelectorAll(".dir-btn").forEach((b) => b.classList.remove("active"));
+        document.getElementById("screen-" + id).classList.add("active");
+        document.getElementById("btn-" + id).classList.add("active");
+      }
+    </script>
+  </body>
+</html>

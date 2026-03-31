@@ -15,5 +15,7 @@ namespace SmartPocket.Features.Categories.Get
         public bool IsIncome { get; set; }
 
         public bool IsDefault { get; set; }
+
+        public int SortOrder { get; set; }
     }
 }

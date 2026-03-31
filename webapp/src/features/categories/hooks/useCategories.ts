@@ -4,7 +4,10 @@
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { categoryService } from "@/api/services/categories/categoryService";
-import type { CategoryCreateCommand } from "@/api/services/categories/categoryTypes";
+import type {
+  CategoryCreateCommand,
+  CategoryReorderCommand,
+} from "@/api/services/categories/categoryTypes";
 
 // ============================================================================
 // Query Keys
@@ -89,6 +92,20 @@ export function useDeleteCategory() {
     mutationFn: (id: number) => categoryService.delete(id),
     onSuccess: () => {
       // Invalidar todas las queries de categorías (ambos tipos)
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+  });
+}
+
+/**
+ * Hook para reordenar categorías
+ */
+export function useReorderCategories() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CategoryReorderCommand) => categoryService.reorder(data),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all });
     },
   });

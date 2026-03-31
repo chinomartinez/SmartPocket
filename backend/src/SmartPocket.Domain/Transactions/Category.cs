@@ -19,6 +19,11 @@ namespace SmartPocket.Domain.Transactions
         /// </summary>
         public bool IsDefault { get; set; } = false;
 
+        /// <summary>
+        /// Orden de visualización dentro del tipo (Gastos o Ingresos). Menor valor = aparece primero.
+        /// </summary>
+        public int SortOrder { get; set; }
+
         protected Category()
         {
             //For EF Core

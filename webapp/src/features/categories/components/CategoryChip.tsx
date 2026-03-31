@@ -12,13 +12,14 @@ import { getIconSymbol } from "../utils/iconHelpers";
 interface CategoryChipProps {
   category: CategoryGetDTO;
   onEdit: (category: CategoryGetDTO) => void;
+  isReordering?: boolean;
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function CategoryChip({ category, onEdit }: CategoryChipProps) {
+export function CategoryChip({ category, onEdit, isReordering = false }: CategoryChipProps) {
   const iconSymbol = getIconSymbol(category.icon.code);
 
   // ============================================================================
@@ -26,6 +27,7 @@ export function CategoryChip({ category, onEdit }: CategoryChipProps) {
   // ============================================================================
 
   const handleClick = () => {
+    if (isReordering) return;
     // Solo permitir edición si NO es categoría default
     if (!category.isDefault) {
       onEdit(category);
@@ -36,7 +38,7 @@ export function CategoryChip({ category, onEdit }: CategoryChipProps) {
   // Render
   // ============================================================================
 
-  const isClickable = !category.isDefault;
+  const isClickable = !isReordering && !category.isDefault;
 
   return (
     <button

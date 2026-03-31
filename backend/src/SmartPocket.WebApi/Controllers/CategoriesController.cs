@@ -4,6 +4,7 @@ using SmartPocket.Features.Categories.Create;
 using SmartPocket.Features.Categories.Get;
 using SmartPocket.Features.Categories.GetById;
 using SmartPocket.Features.Categories.Remove;
+using SmartPocket.Features.Categories.Reorder;
 using SmartPocket.Features.Categories.Update;
 using SmartPocket.WebApi.Extensions;
 
@@ -84,6 +85,16 @@ namespace SmartPocket.WebApi.Controllers
 
             var request = new CategoryRemoveCommand { Id = id };
             var result = await categoryRemoveCommandHandler.Remove(request, cancellation);
+
+            return result.ToActionResult();
+        }
+
+        [HttpPut("reorder")]
+        public async Task<ActionResult> Reorder([FromBody] CategoryReorderCommand command,
+            [FromServices] CategoryReorderCommandHandler categoryReorderCommandHandler,
+            CancellationToken cancellation)
+        {
+            var result = await categoryReorderCommandHandler.Reorder(command, cancellation);
 
             return result.ToActionResult();
         }

@@ -36,3 +36,15 @@ export interface CategoryCreateCommand {
 export interface CategoryCreateResponse {
   id: number;
 }
+
+// ============================================================================
+// DTOs para Reorder
+// ============================================================================
+export interface CategoryReorderItem {
+  id: number;
+  sortOrder: number;
+}
+
+export interface CategoryReorderCommand {
+  items: CategoryReorderItem[];
+}

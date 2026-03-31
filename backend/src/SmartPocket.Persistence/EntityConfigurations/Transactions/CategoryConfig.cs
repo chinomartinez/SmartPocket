@@ -12,6 +12,9 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transactions
                 .HasMaxLength(200)
                 .IsRequired();
 
+            builder.Property(x => x.SortOrder)
+                .HasDefaultValue(0);
+
             builder.OwnsOne(x => x.Icon)
                 .ConfigureIcon();
         }

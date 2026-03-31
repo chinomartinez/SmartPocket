@@ -18,6 +18,8 @@ namespace SmartPocket.Features.Categories.Get
         {
             var list = await _smartPocketContext.Query<Category>()
                 .Where(x => x.IsIncome == request.IsIncome)
+                .OrderBy(x => x.SortOrder)
+                .ThenBy(x => x.Id)
                 .Select(x => new CategoryGetDTO
                 {
                     Icon = new()
@@ -29,6 +31,7 @@ namespace SmartPocket.Features.Categories.Get
                     IsDefault = x.IsDefault,
                     IsIncome = x.IsIncome,
                     Name = x.Name,
+                    SortOrder = x.SortOrder,
                 })
                 .ToListAsync(cancellationToken);
 

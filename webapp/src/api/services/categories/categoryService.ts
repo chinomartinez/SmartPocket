@@ -7,6 +7,7 @@ import type {
   CategoryByIdDTO,
   CategoryCreateCommand,
   CategoryCreateResponse,
+  CategoryReorderCommand,
 } from "./categoryTypes";
 import { spApiClient } from "@/api/spApiClient";
 
@@ -52,5 +53,12 @@ export const categoryService = {
    */
   delete: async (id: number) => {
     await spApiClient.delete(`${BASE_PATH}/${id}`);
+  },
+
+  /**
+   * Reordenar categorías (colección plana de {id, sortOrder})
+   */
+  reorder: async (data: CategoryReorderCommand) => {
+    await spApiClient.put(`${BASE_PATH}/reorder`, data);
   },
 };

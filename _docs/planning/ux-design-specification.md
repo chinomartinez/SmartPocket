@@ -1,8 +1,8 @@
 ---
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 inputDocuments:
-  - "_docs/planning-artifacts/product-brief-SmartPocket-2026-02-28.md"
-  - "_docs/planning-artifacts/prd.md"
+  - "_docs/planning/product-brief-SmartPocket-2026-02-28.md"
+  - "_docs/planning/prd.md"
   - "_docs/project-context.md"
   - "design-preview-2.html"
   - "webapp/ (estructura completa)"

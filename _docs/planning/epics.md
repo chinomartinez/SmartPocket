@@ -2,9 +2,9 @@
 stepsCompleted:
   ["step-01-validate-prerequisites", "step-02-design-epics", "step-03-create-stories-partial"]
 inputDocuments:
-  - "_docs/planning-artifacts/prd.md"
-  - "_docs/planning-artifacts/architecture.md"
-  - "_docs/planning-artifacts/ux-design-specification.md"
+  - "_docs/planning/prd.md"
+  - "_docs/planning/architecture.md"
+  - "_docs/planning/ux-design-specification.md"
 progressNotes:
   - "Epic 1: Account Management - ✅ 100% implementado (Fase 3 completada)"
   - "Epic 2: Category Management - Story 2.6 (Reordenamiento) definida"

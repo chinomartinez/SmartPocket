@@ -19,9 +19,8 @@ stepsCompleted:
     "step-e-03-edit",
   ]
 inputDocuments:
-  - "_docs/planning-artifacts/product-brief-SmartPocket-2026-02-28.md"
+  - "_docs/planning/product-brief-SmartPocket-2026-02-28.md"
   - "_docs/project-context.md"
-  - "_docs/planning-artifacts/prd-validation-report.md"
 workflowType: "prd"
 workflow: "edit"
 lastEdited: "2026-03-02"
@@ -53,7 +52,7 @@ vision:
 
 SmartPocket es una aplicación web de gestión financiera personal construida como herramienta de uso diario y proyecto final para la carrera de Analista de Sistemas. El producto resuelve la necesidad inmediata de reemplazar aplicaciones comerciales con anuncios intrusivos, paywalls y falta de control sobre datos sensibles, mientras sirve como fundación técnica para experimentar con funcionalidades innovadoras (OCR, IA, análisis predictivo) cuando el MVP esté consolidado.
 
-El proyecto combina stack moderno (React 19 + .NET 9 + Clean Architecture + CQRS) con filosofía pragmática (KISS sobre sobre-ingeniería), demostrando capacidad de arquitectura profesional, desarrollo acelerado con IA (GitHub Copilot + BMAD), y ejecución end-to-end completa. SmartPocket NO es un producto comercial — es artesanía de software personal: "como el carpintero que tiene su placard armado por él mismo", con libertad total de evolucionar según necesidades específicas del usuario-desarrollador.
+El proyecto combina stack moderno (React 19 + .NET 9 + Clean Architecture + CQRS) con filosofía pragmática (KISS sobre sobre-ingeniería), demostrando capacidad de arquitectura profesional, desarrollo acelerado con IA (GitHub Copilot), y ejecución end-to-end completa. SmartPocket NO es un producto comercial — es artesanía de software personal: "como el carpintero que tiene su placard armado por él mismo", con libertad total de evolucionar según necesidades específicas del usuario-desarrollador.
 
 El usuario objetivo es único: Chino (desarrollador que construye su propia herramienta), con criterio de adopción claro: cuando el MVP tenga paridad funcional completa con apps comerciales, se desinstalará definitivamente la alternativa externa. Actualmente el proyecto está en Fase 3 (12% completado) con módulo de Gestión de Cuentas implementado al 100%, siguiendo roadmap estructurado de 8 sub-fases (Cuentas → Categorías → Transacciones → Transferencias → Próximos Pagos → Dashboard → Gráficos → Pulido).
 
@@ -117,7 +116,7 @@ Cuando pueda hacer TODO lo que hacía en la app comercial, incluso en local sin 
 **Valor de Portfolio:**
 
 - Evidencia tangible de arquitectura limpia (Clean Architecture + CQRS)
-- Demostración de desarrollo acelerado con IA (GitHub Copilot + BMAD)
+- Demostración de desarrollo acelerado con IA (GitHub Copilot)
 - Proyecto completo end-to-end (no solo frontend o backend aislado)
 - Disponible para mostrar en contextos profesionales (si surge la oportunidad)
 
@@ -165,7 +164,7 @@ Cuando pueda hacer TODO lo que hacía en la app comercial, incluso en local sin 
 
 **Development Model:** Secuencial modular - cada sub-fase completa al 100% antes de continuar.
 
-**Resource Model:** Solo developer (Chino) + GitHub Copilot + BMAD Method.
+**Resource Model:** Solo developer (Chino) + GitHub Copilot
 
 **Current Progress:** 12% completado (1 de 8 sub-fases)
 

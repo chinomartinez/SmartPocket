@@ -2,8 +2,8 @@
 stepsCompleted: [1, 2, 3, 4, 5]
 inputDocuments:
   - "_docs/project-context.md"
-  - "_docs/backup/roadmap.md"
-  - "_docs/backup/mvp-requirements.md"
+  - "_docs/roadmap.md"
+  - "_docs/mvp-requirements.md"
 date: 2026-02-28
 author: Chino
 ---
@@ -71,7 +71,7 @@ SmartPocket es una aplicación web full-stack de gestión financiera personal qu
 - Feature-first organization (vertical slices)
 - TanStack Query para gestión de estado server-side
 - Testing automatizado (Vitest + xUnit)
-- Integración con IA para desarrollo acelerado (GitHub Copilot + BMAD)
+- Integración con IA para desarrollo acelerado (GitHub Copilot)
 
 **Visión Futura (Post-MVP):**
 
@@ -178,7 +178,7 @@ SmartPocket es un activo profesional que demuestra capacidades técnicas actuale
 
 1. **Arquitectura Moderna**: Clean Architecture + CQRS (sin MediatR), vertical slices, Result pattern
 2. **Full-Stack End-to-End**: .NET 9 + React 19, TypeScript strict, TanStack Query, testing >60%
-3. **Uso Efectivo de IA**: Desarrollo acelerado con GitHub Copilot + BMAD manteniendo estándares profesionales
+3. **Uso Efectivo de IA**: Desarrollo acelerado con GitHub Copilot manteniendo estándares profesionales
 4. **Producto Desplegado**: App en producción con CI/CD, documentación técnica profesional
 
 ### KPIs Críticos

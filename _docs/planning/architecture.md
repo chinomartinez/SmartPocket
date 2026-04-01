@@ -1,9 +1,9 @@
 ---
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
 inputDocuments:
-  - "_docs/planning-artifacts/prd.md"
-  - "_docs/planning-artifacts/product-brief-SmartPocket-2026-02-28.md"
-  - "_docs/planning-artifacts/ux-design-specification.md"
+  - "_docs/planning/prd.md"
+  - "_docs/planning/product-brief-SmartPocket-2026-02-28.md"
+  - "_docs/planning/ux-design-specification.md"
   - "_docs/project-context.md"
 workflowType: "architecture"
 project_name: "SmartPocket"
@@ -145,7 +145,7 @@ No se evalúan starters nuevos porque:
 
 **Code Organization:**
 
-- Monorepo: `webapp/` (frontend) + `backend/` (backend) + `_docs/` + `_bmad/`
+- Monorepo: `webapp/` (frontend) + `backend/` (backend)
 - Frontend: feature-first (`src/features/{feature}/`) + shared (`src/components/`, `src/hooks/`, `src/utils/`)
 - Backend: Clean Architecture en 4 capas (`Domain`, `Features`, `Persistence`, `WebApi`) + `BuildingBlocks` (SharedKernel, Features.Abstractions)
 - Feature-based vertical slices: `Features/{Entity}/{Operation}/`
@@ -514,7 +514,6 @@ SmartPocket es un monorepo sin workspace manager con separación física clara:
 | `webapp/src/`  | SPA cliente                                  | React 19, TypeScript, Vite 7 |
 | `_docs/`       | Artefactos de planificación e implementación | Markdown                     |
 | `docs/`        | Documentación de proyecto (knowledge base)   | Markdown                     |
-| `_bmad/`       | BMAD Method (workflows, agents, config)      | YAML/Markdown                |
 
 No hay dependencia de build entre `backend/` y `webapp/`. Se comunican exclusivamente via HTTP REST. En desarrollo, Vite proxea `/api` → `localhost:5000`.
 

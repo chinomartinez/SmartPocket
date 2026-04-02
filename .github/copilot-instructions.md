@@ -24,11 +24,12 @@ El MVP entrega paridad funcional completa con apps comerciales actuales: gestió
 2. Planning & especificaciones (épicas, historias de usuario, roadmap)
 3. Documentación técnica
 
-## Convenciones Generales
+## REGLAS CRITICAS!
 
-- **Código**: Inglés (variables, funciones, clases, archivos)
-- **Comentarios**: Español
-- **Comunicación**: Español (git commits, documentación, specs)
+- La IA solo trabaja con `webapp/` y `_docs/planning/`. Por el momento.
+- El código backend es manual. Solo intervenir en backend si se solicita explícitamente.
+- Si algo es ambiguo, preguntar antes de asumir.
+- No inventar endpoints. Si el backend no tiene un endpoint para algo, no lo hagas. En su lugar, pregunta cómo proceder.
 
 ## Prioridades del Proyecto
 
@@ -36,6 +37,22 @@ El MVP entrega paridad funcional completa con apps comerciales actuales: gestió
 2. Código mantenible y limpio
 3. Interfaz atractiva
 4. Performance
+
+## Convenciones Generales
+
+- **Código**: Inglés (variables, funciones, clases, archivos)
+- **Comentarios**: Español
+- **Comunicación**: Español (git commits, documentación, specs)
+
+## Decisiones Arquitectónicas Clave
+
+**Balance Calculation:** SUM on-the-fly (no stored balance en Account.cs)
+**Soft Delete:** `IsDeleted` + `HasQueryFilter` global (transparente)
+**Auth:** Sin autenticación en MVP (diferido post-MVP)
+**API Errors:** ProblemDetails (RFC 7807) end-to-end
+**DB:** SQLite actual → PostgreSQL probable futuro
+**Imports:** Named exports only (NO default exports)
+**Testing:** Coverage mínimo 60% MVP
 
 ## Estructura
 
@@ -64,12 +81,3 @@ _docs/
 ├── planning/      # Épicas, historias de usuario, roadmap
 ├── others/        # Documentación sin uso directo. Almacenamiento de referencia.
 ```
-
-## Reglas
-
-- La IA solo trabaja con `webapp/` y `_docs/planning/`. Por el momento.
-- El código backend es manual. Solo intervenir en backend si se solicita explícitamente.
-- Si algo es ambiguo, preguntar antes de asumir.
-- No inventar endpoints.
-
----

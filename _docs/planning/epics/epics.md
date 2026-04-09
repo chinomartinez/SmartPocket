@@ -1,8 +1,6 @@
 ---
 inputDocuments:
   - "_docs/planning/prd.md"
-  - "_docs/planning/architecture.md"
-  - "_docs/planning/ux-design-specification.md"
 progressNotes:
   - "Epic 1: Account Management - ✅ 100% implementado (Fase 3 completada)"
   - "Epic 2: Category Management - Story 2.6 (Reordenamiento) definida"
@@ -14,7 +12,11 @@ nextStep: "Continuar con Epic 3: Transaction Management (7 stories aprox) y rest
 
 ## Overview
 
-This document provides the complete epic and story breakdown for SmartPocket, decomposing the requirements from the PRD, UX Design, and Architecture requirements into implementable stories.
+Este documento proporciona el índice de épicas y mapeo de requerimientos funcionales para SmartPocket. La información técnica de implementación está disponible en:
+
+- [architecture.md](../architecture.md) - Patrones técnicos, estructuras backend/frontend
+- [ux-design-specification.md](../ux-design-specification.md) - Requisitos de UX y diseño visual
+- [prd.md](../prd.md) - Especificación completa de producto
 
 ## Requirements Inventory
 
@@ -154,103 +156,21 @@ This document provides the complete epic and story breakdown for SmartPocket, de
 
 **NFR18:** Las operaciones de soft delete deben preservar integridad referencial de datos
 
-**NFR19:** El código frontend debe mantener >60% de cobertura de tests
+**NFR19:** La aplicación debe estar desplegada y accesible 24/7 en producción
 
-**NFR20:** El código backend debe mantener >60% de cobertura de tests
+**NFR20:** El sistema debe requerir conexión a internet activa (online-only en MVP)
 
-**NFR21:** El código TypeScript debe cumplir 100% con modo strict (sin tipos `any`)
+**NFR21:** La aplicación debe ser completamente funcional en navegadores Chrome, Edge, y Brave (versiones modernas)
 
-**NFR22:** El código debe tener 0 errores de linting (ESLint en frontend, .NET Analyzer en backend)
+**NFR22:** La interfaz debe ser responsive y funcional en desktop (1920x1080, 1366x768), tablet (768-1024px), y mobile (375-428px)
 
-**NFR23:** La arquitectura Clean Architecture + CQRS debe estar documentada y validada
+**NFR23:** La UI debe ser touch-friendly en dispositivos móviles y tablets
 
-**NFR24:** Los tests E2E deben cubrir flujos críticos (registro transacciones, transferencias)
+**NFR24:** El usuario debe poder navegar completamente usando teclado (Tab, Shift+Tab, Enter, Escape)
 
-**NFR25:** La aplicación debe estar desplegada y accesible 24/7 en producción
+**NFR25:** Los elementos interactivos deben tener focus visible
 
-**NFR26:** El pipeline CI/CD debe ejecutar build → test → deploy de forma automatizada
-
-**NFR27:** El sistema debe requerir conexión a internet activa (online-only en MVP)
-
-**NFR28:** La base de datos SQLite debe funcionar correctamente en producción
-
-**NFR29:** La aplicación debe ser completamente funcional en navegadores Chrome, Edge, y Brave (versiones modernas)
-
-**NFR30:** La interfaz debe ser responsive y funcional en desktop (1920x1080, 1366x768), tablet (768-1024px), y mobile (375-428px)
-
-**NFR31:** La UI debe ser touch-friendly en dispositivos móviles y tablets
-
-**NFR32:** El usuario debe poder navegar completamente usando teclado (Tab, Shift+Tab, Enter, Escape)
-
-**NFR33:** Los elementos interactivos deben tener focus visible
-
-**NFR34:** Los formularios deben tener labels asociados a inputs correctamente
-
-### Additional Requirements
-
-**Architecture Requirements:**
-
-- **Proyecto Brownfield:** SmartPocket está en Fase 3 (12% completado) con módulo de Gestión de Cuentas implementado al 100%. No se requiere story de inicialización - el proyecto ya está operativo.
-
-- **Balance Calculation Strategy:** Balance on-the-fly via SUM query (InitialBalance + SUM transacciones). No se almacena balance calculado - se computa desde transacciones por precisión y simplicidad.
-
-- **Soft Delete Universal:** Campo `IsDeleted` en `BaseAuditEntity` + `HasQueryFilter` global filtra automáticamente soft-deleted. `SoftDeleteSaveChangesInterceptor` intercepta deletes.
-
-- **Transaccionalidad Multi-Entidad:** Transferencias requieren `IDbContextTransaction` explícito (2 transacciones + 2 updates de balance atómicamente). Editar transferencia = revertir original + aplicar nueva en una transacción.
-
-- **Cache Invalidation Cross-Feature:** Estrategia mixta (prefijo intra-feature + explícito cross-feature). Crear/editar/eliminar transacción → invalidar `['accounts']`, `['dashboard']`. Transferencias → invalidar ambas cuentas. Pagos recurrentes → múltiples invalidaciones.
-
-- **Query Key Factory Pattern:** Obligatorio por feature con estructura estandarizada (all, lists, list with filters, details, detail by id).
-
-- **Error Handling Pipeline:** Result pattern (backend) → ProblemDetails (API) → Axios interceptor → ApiError → TanStack Query toast automático → UI inline errors.
-
-- **Importación de Datos:** Feature dedicada con UI de upload (frontend) + endpoint API (backend) que procesa archivo Excel y crea transacciones en batch. Timing flexible: final del MVP o post-MVP.
-
-- **Sin Autenticación en MVP:** API sin auth middleware ni login. Single-user, acceso localhost o servidor propio. CORS configurado solo para orígenes conocidos.
-
-- **Persistencia:** SQLite actual con posible migración a PostgreSQL. EF Core abstrae DB provider. Restricción: evitar features SQLite-específicas.
-
-- **REST API Conventions:** URL pattern `/api/{entity}` (plural, lowercase). Sin versionado en MVP. Paginación flexible por feature. Filtros vía query string params.
-
-- **API Response Formats:** GET collection retorna `PagedListResponse<T>`. POST create retorna DTO con `ToActionResult()`. Errores vía `ApiProblemDetails` con `ErrorDetails Errors`.
-
-- **Formato de Fechas:** API JSON en ISO 8601. Frontend display en formato localizado español. Base de datos en TEXT (SQLite) o timestamp (PostgreSQL).
-
-- **Montos Financieros:** Backend usa `decimal`. API JSON como number. Frontend usa `number`. Display con separador de miles y 2 decimales (formato argentino).
-
-- **Feature Structure Pattern:** Backend sigue vertical slices en `Features/{Entity}/{Operation}/`. Frontend sigue feature-first en `features/{feature}/`. Checklists de archivos documentados en architecture.md.
-
-- **Loading & Empty States:** Todas las listas usan Skeleton de shadcn durante `isLoading`. Botones submit muestran spinner + "Guardando..." + disabled. Empty states con ícono + título + descripción + CTA.
-
-**UX Requirements:**
-
-- **Mini Calculadora Inline:** Mini-calculadora en modal de transacciones con operaciones básicas (+, -, ×, ÷). Botón visible pero no intrusivo. Resultado se inserta automáticamente al campo monto. Feature diferenciador crítico para velocidad de registro.
-
-- **Velocidad de Registro:** Target <30 segundos para registrar transacción completa (<20s ideal). Campos mínimos obligatorios: monto, fecha, cuenta, categoría. Campos opcionales: descripción, tags.
-
-- **Smart Defaults:** Fecha por defecto = HOY. Última cuenta usada o cuenta principal como default. Categorías ordenadas por frecuencia de uso.
-
-- **Responsive sin Disparidad Funcional:** Mobile NO es "versión lite - es la app completa. Adaptar layout por espacio de pantalla, nunca remover funcionalidad. Desktop (sidebar navigation, tablas completas) vs Mobile (bottom/hamburger navigation, cards adaptativas).
-
-- **Dark Mode Glassmorphism:** Sistema de diseño basado en dark mode desde día 1. Paleta vibrante: Primary Blue (#3b82f6), Success Green (#10b981), Accent Purple (#a855f7), Danger Red (#ef4444), Warning Orange (#f59e0b). Efectos glow en números financieros, depth en cards. Light mode como Growth Feature post-MVP.
-
-- **FAB (Floating Action Button):** FAB siempre visible en Home para nueva transacción. 1 clic → modal de transacción abierto. Atajos de teclado diferidos a post-MVP.
-
-- **Arquitectura Home vs Dashboard:**
-  - **Home (Operacional):** Balance consolidado, transacciones recientes (últimas 5-10), próximos pagos pendientes, acceso rápido a acciones frecuentes.
-  - **Dashboard (Analítico):** Gráficos de gastos por categoría, evolución temporal, métricas y reportes detallados.
-
-- **Balance Siempre Visible:** Balance total = suma de todas las cuentas activas. Siempre visible en Home. Animación counter al actualizarse. Feedback visual inmediato.
-
-- **Feedback Visual Inmediato:** Toast notifications centralizadas (Sonner). Balance con animación suave al cambiar. Confirmación visual de operaciones exitosas. Estados de carga con skeleton screens.
-
-- **Touch-Friendly UI:** Botones y formularios optimizados para touch en mobile y tablet. Dropdowns con iconos + colores personalizados. Targets táctiles mínimos cumplidos.
-
-- **Ordenamiento Personalizable:** Cuentas y categorías permiten reordenamiento manual por el usuario. Campo `SortOrder` persistido. Lógica de reordenamiento en handlers.
-
-- **Basarse en Patrones Probados:** No reinventar soluciones ya resueltas (date pickers, dropdowns). Inspirarse en apps existentes que funcionan bien. Innovar donde agrega valor real.
-
-- **Micro-Interacciones Financieras:** Balance con animación counter. Skeleton loaders consistentes. Badges de estado para próximos pagos (días restantes, recurrencia). Transiciones suaves sin perder contexto.
+**NFR26:** Los formularios deben tener labels asociados a inputs correctamente
 
 ### FR Coverage Map
 
@@ -328,4 +248,4 @@ This document provides the complete epic and story breakdown for SmartPocket, de
 - FR44: Acceso desde dispositivos tablet con layout responsive
 - FR45: Cumplir browser support, responsive design, touch-friendly UI
 - FR46: Conexión a internet activa requerida (online-only en MVP)
-- NFR1-NFR34: Performance, seguridad, integridad, testing, deployment, usabilidad
+- NFR1-NFR26: Performance, seguridad, integridad, deployment, usabilidad, accesibilidad

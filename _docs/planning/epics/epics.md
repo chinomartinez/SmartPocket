@@ -1,6 +1,4 @@
 ---
-stepsCompleted:
-  ["step-01-validate-prerequisites", "step-02-design-epics", "step-03-create-stories-partial"]
 inputDocuments:
   - "_docs/planning/prd.md"
   - "_docs/planning/architecture.md"
@@ -256,7 +254,7 @@ This document provides the complete epic and story breakdown for SmartPocket, de
 
 ### FR Coverage Map
 
-[**Epic 1: Account Management**](epics/epic-01-account-management.md) ✅ (Ya implementado 100%)
+[**Epic 1: Account Management**](./epic001/epic-01-account-management.md) ✅ (Ya implementado 100%)
 
 - FR1: Crear cuentas financieras con nombre, moneda, balance inicial
 - FR2: Ver lista de cuentas activas con balances actuales
@@ -264,7 +262,7 @@ This document provides the complete epic and story breakdown for SmartPocket, de
 - FR4: Eliminar cuentas con soft delete
 - FR5: Cálculo automático de balances desde transacciones/transferencias
 
-[**Epic 2: Category Management**](epics/epic-02-category-management.md) ⏳ (En proceso)
+[**Epic 2: Category Management**](./epic002/epic-02-category-management.md) ⏳ (En proceso)
 
 - FR6: Crear categorías con tipo (ingreso/gasto)
 - FR7: Asignar colores e íconos a categorías
@@ -273,7 +271,7 @@ This document provides the complete epic and story breakdown for SmartPocket, de
 - FR10: Ver lista de categorías organizadas por tipo
 - FR10b: Reordenar categorías manualmente
 
-[**Epic 3: Transaction Management**](epics/epic-03-transaction-management.md)
+[**Epic 3: Transaction Management**](./epic003/epic-03-transaction-management.md)
 
 - FR11: Registrar transacciones con fecha, monto, cuenta, categoría, descripción
 - FR12: Agregar tags opcionales a transacciones
@@ -284,7 +282,7 @@ This document provides the complete epic and story breakdown for SmartPocket, de
 - FR17: Ver historial de transacciones ordenado por fecha
 - FR17b: Usar mini calculadora integrada en modal de transacciones
 
-[**Epic 4: Inter-Account Transfers**](epics/epic-04-inter-account-transfers.md)
+[**Epic 4: Inter-Account Transfers**](./epic004/epic-04-inter-account-transfers.md)
 
 - FR18: Crear transferencias entre cuentas
 - FR19: Actualización automática de balances en ambas cuentas
@@ -293,7 +291,7 @@ This document provides the complete epic and story breakdown for SmartPocket, de
 - FR22: Eliminar transferencias con recalculación automática
 - FR23: Ver historial de transferencias
 
-[**Epic 5: Recurring Financial Events**](epics/epic-05-recurring-financial-events.md)
+[**Epic 5: Recurring Financial Events**](./epic005/epic-05-recurring-financial-events.md)
 
 - FR24: Crear próximos pagos con recurrencia
 - FR25: Crear próximos ingresos con recurrencia
@@ -303,25 +301,25 @@ This document provides the complete epic and story breakdown for SmartPocket, de
 - FR29: Eliminar entradas de próximos pagos/ingresos
 - FR30: Ver lista de próximos eventos financieros
 
-[**Epic 6: Financial Overview Dashboard**](epics/epic-06-financial-overview-dashboard.md)
+[**Epic 6: Financial Overview Dashboard**](./epic006/epic-06-financial-overview-dashboard.md)
 
 - FR31: Ver tarjetas de resumen financiero consolidado
 - FR32: Ver transacciones recientes de todas las cuentas
 - FR33: Ver próximos pagos/ingresos en dashboard
 - FR34: Filtrar datos de dashboard por rangos de fecha
 
-[**Epic 7: Data Visualization & Analytics**](epics/epic-07-data-visualization-analytics.md)
+[**Epic 7: Data Visualization & Analytics**](./epic007/epic-07-data-visualization-analytics.md)
 
 - FR35: Ver desglose de gastos por categoría en gráfico torta/donut
 - FR36: Ver evolución financiera temporal en gráficos líneas/barras
 - FR37: Seleccionar rango de fecha para visualizaciones de gráficos
 
-[**Epic 8: Data Import & Migration**](epics/epic-08-data-import-migration.md)
+[**Epic 8: Data Import & Migration**](./epic008/epic-08-data-import-migration.md)
 
 - FR38: Importar datos financieros históricos desde Excel
 - FR39: Validar integridad de datos durante importación
 
-[**Epic 9: System Quality & User Experience Polish**](epics/epic-09-system-quality-ux-polish.md)
+[**Epic 9: System Quality & User Experience Polish**](./epic009/epic-09-system-quality-ux-polish.md)
 
 - FR40: Manejar 1000-2000 transacciones sin degradación de performance
 - FR41: Preservar datos financieros con soft delete

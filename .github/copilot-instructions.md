@@ -54,6 +54,30 @@ El MVP entrega paridad funcional completa con apps comerciales actuales: gestió
 **Imports:** Named exports only (NO default exports)
 **Testing:** Coverage mínimo 60% MVP
 
+## Frontend Security Considerations
+
+**Logging seguro:**
+
+```typescript
+// ✅ Logging safe en development
+if (import.meta.env.DEV) {
+  console.log("[API] Request:", config.url); // Solo URL
+  // ❌ NO loguear: headers, tokens, passwords, API keys
+}
+```
+
+**Validación:**
+
+- Backend valida SIEMPRE (source of truth)
+- Frontend usa Zod para validación optimista (UX)
+- Nunca confiar en input del usuario sin validar
+
+**Storage:**
+
+- ❌ NO guardar datos sensibles en localStorage sin encriptación
+- ❌ NO loguear API tokens/passwords en console
+- ❌ NO exponer API keys en código cliente
+
 ## Estructura
 
 - Frontend: Feature-first architecture en `webapp/src/features/`

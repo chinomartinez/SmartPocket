@@ -1,5 +1,4 @@
 ---
-stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
 inputDocuments:
   - "_docs/planning/prd.md"
   - "_docs/planning/product-brief-SmartPocket-2026-02-28.md"
@@ -16,38 +15,44 @@ completedAt: "2026-03-01"
 
 # Architecture Decision Document
 
-_This document builds collaboratively through step-by-step discovery. Sections are appended as we work through each architectural decision together._
+## Definición y Propósito
+
+Este documento registra las **decisiones arquitectónicas** que dan forma a SmartPocket: qué tecnologías elegimos, cómo estructuramos el código, qué patrones aplicamos, y **por qué** tomamos cada decisión.
+
+**Qué contiene:**
+
+- Stack técnico con versiones específicas y rationale
+- Patrones de arquitectura (Clean Architecture, CQRS, vertical slices)
+- Decisiones críticas (balance calculation, soft delete, error handling)
+- Convenciones de naming, estructura y comunicación
+- Boundaries entre capas y módulos
+- Trade-offs y decisiones diferidas
+
+**Qué NO contiene:**
+
+- Especificación de requerimientos (ver [prd.md](prd.md))
+- Planning de épicas/historias (ver [epics.md](epics/epics.md))
+- Diseño UX/visual (ver [ux-design-specification.md](ux-design-specification.md))
+
+**Audiencia:** Desarrolladores (humanos + IA) que implementan features, manteniendo consistencia arquitectónica.
+
+---
 
 ## Project Context Analysis
 
-### Requirements Overview
+### Requirements Context
 
-**Functional Requirements:**
-46 requerimientos funcionales organizados en 8 dominios:
+_Ver [prd.md](prd.md) para especificación completa de requerimientos_
 
-- **Gestión de Cuentas (FR1-FR5):** CRUD completo, múltiples monedas, soft delete, balance auto-calculado desde transacciones/transferencias. Ya implementado al 100%.
-- **Gestión de Categorías (FR6-FR10b):** CRUD con tipo ingreso/gasto, color/ícono, reordenamiento manual. Validación de categorías asociadas antes de eliminar.
-- **Gestión de Transacciones (FR11-FR17):** CRUD con tags, calculadora integrada, filtros avanzados (fecha, categoría, cuenta, tipo), búsqueda en tiempo real debounced. Módulo con mayor complejidad funcional.
-- **Gestión de Transferencias (FR18-FR23):** CRUD completo (crear, editar, eliminar), operación atómica dual (egreso + ingreso), validación de saldo suficiente, actualización automática de balances en ambas cuentas. Editar = revertir operación original + aplicar nueva, todo en una transacción.
-- **Pagos Recurrentes (FR24-FR30):** CRUD con patrones de recurrencia (diario/semanal/mensual/anual), conversión a transacción al marcar como pagado, generación automática de siguiente instancia.
-- **Dashboard Financiero (FR31-FR34):** Tarjetas de resumen (balance total, ingresos, gastos, ahorro), transacciones recientes, próximos pagos pendientes.
-- **Visualización de Datos (FR35-FR37):** Gráficos de torta/donut (gastos por categoría) y barras/líneas (evolución temporal), selección de períodos.
-- **Multi-Dispositivo (FR42-FR46):** Responsive completo sin disparidad funcional. Online-only en MVP.
+**Alcance funcional:** 46 requerimientos organizados en 8 módulos (Cuentas, Categorías, Transacciones, Transferencias, Pagos Recurrentes, Dashboard, Gráficos, Importación)
 
-**Non-Functional Requirements:**
+**Drivers arquitectónicos clave:**
 
-- **Performance:** Carga <2s, API <500ms, TTI <3s, LCP <2.5s, UI <100ms, 60FPS scroll
-- **Integridad de Datos:** Operaciones financieras ACID, balances 100% precisos, soft delete preservando integridad referencial
-- **Calidad de Código:** Testing >60% (frontend + backend), TypeScript strict 100%, 0 errores linting, Clean Architecture + CQRS documentada
-- **Seguridad (MVP):** HTTPS en producción, validación y sanitización de inputs, datos protegidos contra acceso no autorizado
-- **Deployment:** Aplicación desplegada 24/7, CI/CD automatizado, SQLite en producción (con posible migración a PostgreSQL)
-- **Usabilidad:** Navegación completa por teclado, focus visible, labels en inputs, responsive en desktop/tablet/mobile
-
-**Scale & Complexity:**
-
-- Primary domain: Full-stack web application (SPA + REST API)
-- Complexity level: Medium
-- Estimated architectural components: ~15 (8 feature modules + shared kernel + persistence + API layer + frontend layout + routing + state management + design system)
+- **Volume:** 1000-2000 transacciones sin degradación de performance
+- **Performance:** API <500ms, UI <100ms, carga inicial <2s
+- **Integridad:** Operaciones ACID, balances 100% precisos, soft delete universal
+- **Multi-device:** Responsive completo sin disparidad funcional (desktop/tablet/mobile)
+- **Complexity:** Full-stack SPA + REST API, ~15 componentes arquitectónicos, Clean Architecture + CQRS
 
 ### Technical Constraints & Dependencies
 
@@ -716,20 +721,19 @@ User Action
 
 ### Requirements Coverage ✅
 
-**Functional Requirements (FR1-FR46):** 100% cubiertos.
+**Functional Requirements:** 100% cubiertos arquitectónicamente.
 
-- Todos los 8 módulos del MVP tienen soporte arquitectónico documentado (vertical slices, patterns, cache invalidation).
-- FR21 (Transferencias editables): corregido — editar = revertir original + aplicar nueva en IDbContextTransaction.
-- FR38-FR39 (Importación datos): arquitectura definida (upload + batch), timing flexible (final MVP o post-MVP).
+- 8 módulos MVP con soporte completo (vertical slices, patterns, cache invalidation)
+- Transferencias editables: arquitectura atómica de reversión + aplicación
+- Importación de datos: upload + batch processing (timing flexible)
 
-**Non-Functional Requirements (NFR1-NFR34):** Cubiertos con decisiones diferidas documentadas.
+**Non-Functional Requirements:** Cubiertos con decisiones diferidas documentadas.
 
-- NFR1-NFR8 (Performance): Vite build, lazy loading, paginación, SUM query eficiente.
-- NFR9-NFR13 (Seguridad): HTTPS prod, CORS, validación/sanitización inputs. Auth diferido a post-MVP.
-- NFR14-NFR18 (Integridad): ACID via IDbContextTransaction, SUM on-the-fly, soft delete pipeline.
-- NFR19-NFR24 (Testing): Vitest + xUnit, >60% coverage. E2E framework diferido a Sub-fase 8.
-- NFR25-NFR28 (Deployment): Hosting y CI/CD diferidos (documentados como pendientes).
-- NFR29-NFR34 (Usabilidad): shadcn/ui + Radix (accesibilidad nativa), responsive, keyboard nav.
+- **Performance:** Vite build, paginación, queries eficientes
+- **Seguridad:** HTTPS, CORS, validación. Auth diferido post-MVP
+- **Integridad:** ACID, SUM on-the-fly, soft delete pipeline
+- **Deployment:** Diferido (ver Gaps section)
+- **Compatibilidad/Accesibilidad:** Stack moderno + shadcn/ui (Radix nativo)
 
 ### Implementation Readiness ✅
 

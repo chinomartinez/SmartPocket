@@ -1,7 +1,6 @@
 ---
 name: planning-user-stories
-description: Create or edit functional user stories for SmartPocket epics based on FRs. Use when breaking down epics into user-focused stories, mapping FRs to user stories, writing acceptance criteria in Given-When-Then format, or reviewing story quality. Purely functional - no technical implementation details. Includes states (pending/active/completed), templates, validation rules.
-license: Complete terms in LICENSE.txt
+description: Crea o edita historias de usuario funcionales para épicas de SmartPocket basadas en FRs. Úsala al descomponer épicas en historias enfocadas al usuario, mapear FRs a historias, escribir acceptance criteria en formato Given-When-Then, o revisar calidad. Sugiere FRs inteligentemente basándose en valor entregable. Puramente funcional - sin detalles técnicos. Incluye estados (pending/active/completed), guardado automático, validación post-guardado.
 ---
 
 # SmartPocket - User Story Creation (Functional)
@@ -32,33 +31,263 @@ Skill para crear y editar historias de usuario **puramente funcionales** para é
 
 ## Prerequisites
 
-Antes de crear una historia de usuario funcional, asegúrate de tener acceso a:
+Los siguientes documentos se leen automáticamente en Step 0:
 
-- **Epic document** (en `_docs/planning/epics/epic-XX-*.md`) - Contexto de la épica
-- **Functional Requirements** (en `_docs/planning/epics.md`) - Lista completa de FRs del proyecto
-- **Product Requirements Document (PRD)** (en `_docs/planning/prd.md`) - Requisitos funcionales detallados y contexto del producto
+- **Epic document** (en `_docs/planning/epics.md`) - Listado de FRs con markers `[x]`/`[]` y épicas
+- **Product Requirements Document (PRD)** (en `_docs/planning/prd.md`) - Contexto de valor de negocio
+- **User Stories Folder** (en `_docs/planning/user-stories/epic000X/`) - Historias existentes (para numeración)
 - **Project context** (en `.github/copilot-instructions.md`) - Convenciones generales
 
 ---
 
 ## Step-by-Step Workflow
 
-### Step 1: Identificar el FR y contexto funcional
+### Step 0: Preparar Contexto (Ejecución Automática)
 
-1. Lee el **epic document** para entender el módulo/feature
-2. Identifica el **Functional Requirement (FR)** específico que vas a cubrir
-3. Confirma que el FR no está ya cubierto por otra historia en la épica
-4. Identifica el **valor de usuario** o **problema** que resuelve el FR
+La skill ejecuta automáticamente:
 
-**Ejemplo:**
+1. **Leer `_docs/planning/epics.md`**
+   - Identificar FRs pendientes (marker `[]`) vs cubiertos (marker `[x]`)
+   - Listar épicas disponibles con su estado (✅ Completado / ⏳ Pendiente)
+   - Detectar FRs agrupables por valor entregable (ej: FR11+FR12+FR13 = CRUD completo)
+
+2. **Leer `_docs/planning/prd.md`**
+   - Obtener contexto de valor de negocio para FRs
+   - Entender prioridades y flujos de usuario
+
+3. **Leer carpeta `_docs/planning/user-stories/epic000X/`**
+   - Contar archivos existentes para calcular numeración (ej: 2 archivos → siguiente es X.3)
+   - Verificar FRs ya cubiertos para evitar duplicados
+
+4. **Mostrar resumen:**
+   ```
+   ✓ Leído epics.md (9 épicas, 38 FRs pendientes [])
+   ✓ Leído prd.md (contexto de valor de negocio)
+   ✓ Leído epic0003/ (2 historias existentes, siguiente: 3.3)
+   ```
+
+**Output:** Contexto completo cargado → Continuar a Step 1
+
+---
+
+### Step 1: Identificar Épica, FRs y Sugerir
+
+La skill detecta el escenario y actúa según el input del usuario:
+
+#### **Escenario A: "Crea la siguiente historia" (sin épica específica)**
+
+**Input:** `"Crea la siguiente historia"` o `"Siguiente historia a realizar"`
+
+**Acción:**
+
+1. Buscar épica con FRs pendientes `[]` y estado ⏳ (prioridad según orden en epics.md)
+2. Sugerir épica prioritaria + FRs agrupables por valor entregable
+
+**Ejemplo de sugerencia:**
 
 ```
-FR10b: El usuario puede reordenar categorías manualmente para priorizar
-       las más utilizadas en selección de transacciones
+📋 Épica sugerida: Epic 3 (Transaction Management) - ⏳ Pendiente
 
-Valor: Acelerar el registro de transacciones al tener categorías frecuentes primero
-Problema: Usuario pierde tiempo buscando categorías en una lista larga
+FRs pendientes agrupables por valor entregable:
+
+Opción 1 (RECOMENDADO - CRUD Completo):
+  - FR11: Registrar transacciones con fecha, monto, cuenta, categoría
+  - FR12: Agregar tags opcionales a transacciones
+  - FR13: Editar detalles de transacción
+  - FR14: Eliminar transacciones con soft delete
+  Valor entregable: Gestión completa de transacciones (crear/editar/eliminar)
+
+Opción 2 (Búsqueda y Filtros):
+  - FR15: Filtrar transacciones por períodos, rango, cuenta, categoría
+  - FR16: Buscar transacciones en tiempo real
+  Valor entregable: Capacidad de encontrar transacciones históricas
+
+Opción 3 (Features individuales):
+  - FR17: Ver historial ordenado por fecha
+  - FR17b: Mini calculadora integrada
+
+¿Qué opción prefieres? (1/2/3 o especifica FRs)
 ```
+
+**Usuario responde** → Aplicar Escenario C con FRs seleccionados
+
+---
+
+#### **Escenario B: "Crea historia para Epic X"**
+
+**Input:** `"Crea historia para Epic 3"` o `"Historia para Transaction Management"`
+
+**Acción:**
+
+1. Filtrar FRs pendientes `[]` de la épica especificada
+2. Sugerir FRs agrupables por valor entregable (similar a Escenario A pero solo para esa épica)
+
+**Ejemplo de sugerencia:**
+
+```
+📋 Epic 3: Transaction Management
+
+FRs pendientes []:
+  - FR11, FR12, FR13, FR14 (CRUD completo - RECOMENDADO)
+  - FR15, FR16 (Búsqueda y filtros)
+  - FR17, FR17b (Historial y calculadora)
+
+¿Qué FRs quieres cubrir en esta historia?
+Ejemplo: "FR11, FR12, FR13" o "solo FR11"
+```
+
+**Usuario responde** → Aplicar Escenario C con FRs seleccionados
+
+---
+
+#### **Escenario C: "Crea historia para FR11, FR12, FR13"**
+
+**Input:** `"Crea historia para FR11"` o `"Historia para FR11, FR12, FR13"`
+
+**Acción:**
+
+1. Validar que los FRs existen en epics.md
+2. Validar que los FRs están pendientes `[]` (no `[x]`)
+3. Determinar épica desde epics.md
+4. Calcular numeración desde conteo en carpeta `epic000X/`
+
+**Validaciones:**
+
+```
+✓ FR11 existe en epics.md
+✓ FR11 está pendiente [] (no cubierto)
+✓ FR11 pertenece a Epic 3 (Transaction Management)
+✓ Carpeta epic0003/ tiene 2 historias → siguiente: Story 3.3
+```
+
+**Si validación falla:**
+
+```
+❌ Error: FR99 no existe en epics.md
+❌ Error: FR10b ya está cubierto [x] por Story 2.6
+❌ Error: FRs de épicas diferentes (FR11 es Epic 3, FR18 es Epic 4)
+```
+
+**Output exitoso:**
+
+```
+✅ Validación exitosa
+   Épica: Epic 3 (Transaction Management)
+   FRs: FR11, FR12, FR13
+   Numeración: Story 3.3
+   Carpeta: _docs/planning/user-stories/epic0003/
+```
+
+→ Continuar a Step 2
+
+---
+
+#### **Escenario D: Sin contexto o descripción libre**
+
+**Input:** `"Crea historia"` o `"Quiero filtrar transacciones por fecha"`
+
+**Acción:** ERROR claro sin procesar
+
+```
+❌ Error: Falta información requerida
+
+Debes especificar épica o FRs explícitamente:
+
+Ejemplos válidos:
+  - "Crea la siguiente historia" (sugerencia automática)
+  - "Crea historia para Epic 3"
+  - "Crea historia para FR11"
+  - "Historia para FR11, FR12, FR13"
+
+❌ NO válido:
+  - Descripciones libres ("filtrar transacciones")
+  - Sin contexto ("crea historia")
+
+Ve FRs disponibles en: _docs/planning/epics.md
+```
+
+**DETENER** - No continuar a Step 2
+
+---
+
+#### **Batch Mode: "Crea todas las historias de Epic 3"**
+
+**Input:** `"Crea todas las historias para Epic 3"` o `"Genera todas las stories pendientes"`
+
+**Acción:** Preguntar confirmación antes de loop
+
+```
+⚠️ Batch Mode Detectado
+
+Epic 3 tiene 8 FRs pendientes []:
+  - FR11, FR12, FR13, FR14, FR15, FR16, FR17, FR17b
+
+Sugerencias agrupadas:
+  - Historia 1: FR11, FR12, FR13, FR14 (CRUD)
+  - Historia 2: FR15, FR16 (Búsqueda)
+  - Historia 3: FR17, FR17b (Historial + Calculadora)
+
+¿Ejecutar batch para crear 3 historias automáticamente? (sí/no)
+Si prefieres control granular, responde "no" y crea una a la vez.
+```
+
+**Si usuario confirma:** Loop ejecutando Steps 2-7 para cada grupo sugerido
+**Si usuario rechaza:** Volver a Step 1 esperando input específico
+
+---
+
+#### **Escenario E: "Edita Story X.Y"**
+
+**Input:** `"Edita Story 3.1"` o `"Mejora Story 3.2 - agregar edge cases"`
+
+**Acción:**
+
+1. Extraer número de historia (ej: 3.1 → épica 3, secuencia 1)
+2. Buscar archivo en carpeta correspondiente (ej: `epic0003/3_1_*.md`)
+3. Leer contenido actual de la historia
+4. Identificar secciones a mejorar según input del usuario
+
+**Validaciones:**
+
+```
+✓ Story 3.1 existe en epic0003/
+✓ Archivo encontrado: 3_1_registro-transacciones.md
+✓ Contenido actual leído (título, estado, AC, FRs)
+```
+
+**Si validación falla:**
+
+```
+❌ Error: Story 3.1 no existe en epic0003/
+❌ Error: Múltiples archivos 3_1_*.md encontrados (inconsistencia)
+```
+
+**Output exitoso:**
+
+```
+✅ Historia encontrada para edición
+   Archivo: _docs/planning/user-stories/epic0003/3_1_registro-transacciones.md
+   Estado actual: Pending
+   FRs cubiertos: FR11, FR12, FR13
+
+¿Qué quieres editar?
+- Título (Step 2)
+- User Story statement (Step 3)
+- Acceptance Criteria (Step 4)
+- FRs cubiertos (Step 5)
+- Estado (Step 6)
+- Todo (regenerar completo)
+```
+
+**Usuario especifica qué editar** → Ejecutar Steps correspondientes → **Sobrescribir archivo** (NO cambiar markers en epics.md)
+
+---
+
+- ✅ FRs identificados (ej: FR11, FR12, FR13)
+- ✅ Numeración calculada (ej: Story 3.3)
+- ✅ Carpeta de guardado (ej: `_docs/planning/user-stories/epic0003/`)
+
+→ Continuar a Step 2
 
 ### Step 2: Escribir el título de la historia
 
@@ -194,6 +423,95 @@ Ver sección "Story States" abajo para ciclo de vida completo.
 
 ---
 
+### Step 7: Guardar Historia en Ubicación Correcta
+
+**Proceso de guardado:**
+
+1. **Construir nombre de archivo**
+   - Formato: `{epic}_{seq}_{slug}.md`
+   - Ejemplos:
+     - Story 3.1: Registro de Transacciones → `3_1_registro-transacciones.md`
+     - Story 3.2: Búsqueda y Filtros → `3_2_busqueda-filtros.md`
+     - Story 4.1: Crear Transferencias → `4_1_crear-transferencias.md`
+
+2. **Derivar slug de título**
+   - Tomar acción principal del título (sin "Story X.Y:")
+   - Convertir a kebab-case (lowercase, guiones)
+   - Eliminar artículos (el, la, los, las, de, y)
+   - Máximo 50 caracteres
+
+3. **Verificar carpeta**
+   - Ruta: `_docs/planning/user-stories/epic{XXXX}/` (con padding: epic0003)
+   - Si no existe → crear carpeta automáticamente
+
+4. **Guardar archivo**
+   - Contenido completo con secciones Steps 2-6
+   - Formato markdown limpio
+
+5. **Distinguir entre creación y edición**
+
+   **Caso A: Nueva historia (Escenarios A-D en Step 1)**
+   - Crear archivo nuevo con nombre construido
+   - Continuar a paso 6 (actualizar markers)
+
+   **Caso B: Editar historia existente (Escenario E en Step 1)**
+   - Sobrescribir archivo existente (mismo nombre)
+   - **NO** continuar a paso 6 (FRs ya estaban marcados)
+   - **Excepción:** Si se agregaron nuevos FRs en Step 5 → actualizar solo los nuevos markers `[] → [x]`
+   - **No revertir:** Si se quitaron FRs → NO cambiar markers (un FR puede estar cubierto por múltiples historias)
+
+6. **Post-guardado: Marcar FRs como cubiertos en epics.md** (solo Caso A o FRs nuevos)
+   - Cambiar markers de `[]` a `[x]` para FRs cubiertos
+   - Actualizar estado de épica si todos los FRs están `[x]`
+   - Ejemplo:
+     ```diff
+     - [ ] FR11: Registrar transacciones...
+     + [x] FR11: Registrar transacciones...
+     ```
+
+7. **Confirmación al usuario**
+
+**Para nueva historia (Caso A):**
+
+```
+✅ Historia creada exitosamente
+
+📁 Ubicación: _docs/planning/user-stories/epic0003/3_1_registro-transacciones.md
+📊 Estado: Pending
+🎯 FRs cubiertos: FR11, FR12, FR13
+✓ Markers actualizados en epics.md ([] → [x])
+
+Próximos pasos:
+- Revisar y refinar AC si es necesario
+- Cambiar estado a Active cuando comiences implementación (manual/otra skill)
+```
+
+**Para historia editada (Caso B):**
+
+```
+✅ Historia actualizada exitosamente
+
+📁 Ubicación: _docs/planning/user-stories/epic0003/3_1_registro-transacciones.md
+📊 Estado: [mantiene estado actual o modificado en Step 6]
+🎯 FRs cubiertos: FR11, FR12, FR13
+⚠️ Markers NO actualizados (historia existente, FRs ya cubiertos previamente)
+
+Próximos pasos:
+- Revisar cambios realizados
+- Validar que AC sigue cumpliendo Definition of Ready
+```
+
+**Reglas de slug:**
+
+| Título Original                        | Slug Derivado                  |
+| -------------------------------------- | ------------------------------ |
+| Registro de Transacciones              | registro-transacciones         |
+| Búsqueda y Filtros de Transacciones    | busqueda-filtros-transacciones |
+| Edición y Eliminación de Transacciones | edicion-eliminacion            |
+| Mini Calculadora Integrada             | mini-calculadora-integrada     |
+
+---
+
 ## Story States
 
 ### Ciclo de Vida de una Historia
@@ -229,6 +547,8 @@ Antes de considerar una historia funcional como "lista para pasar a implementaci
 ---
 
 ## User Story Template
+
+La skill usa esta plantilla automáticamente en Steps 2-6 para generar la estructura completa:
 
 ```
 # Epic X: [Epic Name]
@@ -526,13 +846,36 @@ El usuario puede crear transacciones.
 
 ---
 
+### Problema: Descripción libre sin épica/FR
+
+**Síntoma:** Usuario dice "quiero filtrar transacciones" o "agregar calculadora" sin especificar FR
+
+**Solución:**
+
+La skill rechaza con error claro:
+
+```
+❌ No se aceptan descripciones libres
+
+Especifica épica o FRs:
+- "Crea la siguiente historia" (sugerencia automática)
+- "Crea historia para Epic 3"
+- "Historia para FR15, FR16"
+
+Ve FRs en: _docs/planning/epics.md
+```
+
+No intentar "adivinar" qué FR corresponde - forzar input explícito.
+
+---
+
 ## References
 
 ### Internal Documents
 
-- [Epic Breakdown](../../../_docs/planning/epics/epics.md) - FRs completos y requiremientos del proyecto
-- [Epics Folder](../../../_docs/planning/epics/) - Documentos de épicas individuales con historias existentes
-- [PRD](../../../_docs/planning/prd.md) - Product Requirements Document completo
+- [Epic Breakdown](../../../_docs/planning/epics.md) - FRs con markers `[x]`/`[]` y épicas
+- [User Stories Folder](../../../_docs/planning/user-stories/) - Historias guardadas por épica (epic000X/)
+- [PRD](../../../_docs/planning/prd.md) - Product Requirements Document y contexto de valor de negocio
 
 ### External Resources
 

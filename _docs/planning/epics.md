@@ -162,21 +162,21 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **NFR26:** Los formularios deben tener labels asociados a inputs correctamente
 
-## Epicas - FR Coverage Map
+## Epicas - [] FR Coverage Map
 
 ### Epic 1: Account Management
 
-**Estado:** ✅ **Ya implementado 100% (Fase 3 completada)**
+**Estado:** ✅ **Ya implementado 100%**
 
 **Resultado de Usuario:** El usuario puede gestionar múltiples cuentas financieras con diferentes monedas, ver balances actualizados automáticamente, y mantener control completo sobre sus cuentas activas/inactivas.
 
-**FRs cubiertos:**
+**FRs**
 
-- FR1: Crear cuentas financieras con nombre, moneda, balance inicial
-- FR2: Ver lista de cuentas activas con balances actuales
-- FR3: Editar detalles de cuenta (nombre, moneda)
-- FR4: Eliminar cuentas con soft delete
-- FR5: Cálculo automático de balances desde transacciones/transferencias
+- [x] FR1: Crear cuentas financieras con nombre, moneda, balance inicial
+- [x] FR2: Ver lista de cuentas activas con balances actuales
+- [x] FR3: Editar detalles de cuenta (nombre, moneda)
+- [x] FR4: Eliminar cuentas con soft delete
+- [x] FR5: Cálculo automático de balances desde transacciones/transferencias
 
 **Referencias:**
 
@@ -186,18 +186,18 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 ### Epic 2: Category Management
 
-**Estado:** ✅ **Ya implementado 100% (Fase 3 completada)**
+**Estado:** ✅ **Ya implementado 100%**
 
 **Resultado de Usuario:** El usuario puede organizar sus transacciones con categorías personalizadas, asignar colores e íconos para identificación visual rápida, y priorizar categorías frecuentes mediante reordenamiento manual.
 
-**FRs cubiertos:**
+**FRs**
 
-- FR6: Crear categorías con tipo (ingreso/gasto)
-- FR7: Asignar colores e íconos a categorías
-- FR8: Editar detalles de categoría
-- FR9: Eliminar categorías con soft delete y validación
-- FR10: Ver lista de categorías organizadas por tipo
-- FR10b: Reordenar categorías manualmente
+- [x] FR6: Crear categorías con tipo (ingreso/gasto)
+- [x] FR7: Asignar colores e íconos a categorías
+- [x] FR8: Editar detalles de categoría
+- [x] FR9: Eliminar categorías con soft delete y validación
+- [x] FR10: Ver lista de categorías organizadas por tipo
+- [x] FR10b: Reordenar categorías manualmente
 
 **Referencias:**
 
@@ -211,16 +211,16 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **Resultado de Usuario:** El usuario puede registrar ingresos y gastos diarios con velocidad (<30s), usar mini calculadora integrada para sumar componentes de gastos compuestos, filtrar y buscar transacciones históricas, y gestionar sus finanzas con tags opcionales y descripciones.
 
-**FRs cubiertos:**
+**FRs**
 
-- FR11: Registrar transacciones con fecha, monto, cuenta, categoría, descripción
-- FR12: Agregar tags opcionales a transacciones
-- FR13: Editar detalles de transacción
-- FR14: Eliminar transacciones con soft delete y recalculación de balances
-- FR15: Filtrar transacciones por períodos, rango fecha, cuenta, categoría, tags
-- FR16: Buscar transacciones en tiempo real
-- FR17: Ver historial de transacciones ordenado por fecha
-- FR17b: Usar mini calculadora integrada en modal de transacciones
+- [] FR11: Registrar transacciones con fecha, monto, cuenta, categoría, descripción
+- [] FR12: Agregar tags opcionales a transacciones
+- [] FR13: Editar detalles de transacción
+- [] FR14: Eliminar transacciones con soft delete y recalculación de balances
+- [] FR15: Filtrar transacciones por períodos, rango fecha, cuenta, categoría, tags
+- [] FR16: Buscar transacciones en tiempo real
+- [] FR17: Ver historial de transacciones ordenado por fecha
+- [] FR17b: Usar mini calculadora integrada en modal de transacciones
 
 ---
 
@@ -230,14 +230,14 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **Resultado de Usuario:** El usuario puede mover dinero entre sus cuentas de forma segura, con validación de saldo suficiente, actualización automática de balances, y capacidad de editar/eliminar transferencias con recalculación correcta.
 
-**FRs cubiertos:**
+**FRs:**
 
-- FR18: Crear transferencias entre cuentas
-- FR19: Actualización automática de balances en ambas cuentas
-- FR20: Validar balance suficiente en cuenta origen
-- FR21: Editar transferencias con recalculación automática
-- FR22: Eliminar transferencias con recalculación automática
-- FR23: Ver historial de transferencias
+- [] FR18: Crear transferencias entre cuentas
+- [] FR19: Actualización automática de balances en ambas cuentas
+- [] FR20: Validar balance suficiente en cuenta origen
+- [] FR21: Editar transferencias con recalculación automática
+- [] FR22: Eliminar transferencias con recalculación automática
+- [] FR23: Ver historial de transferencias
 
 ---
 
@@ -247,15 +247,15 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **Resultado de Usuario:** El usuario puede planificar pagos e ingresos recurrentes (facturas, salarios, suscripciones), marcarlos como pagados para convertirlos en transacciones, y gestionar patrones de recurrencia automática (diario, semanal, mensual, anual).
 
-**FRs cubiertos:**
+**FRs:**
 
-- FR24: Crear próximos pagos con recurrencia
-- FR25: Crear próximos ingresos con recurrencia
-- FR26: Marcar próximos pagos/ingresos como pagado
-- FR27: Generación automática de entradas recurrentes
-- FR28: Editar detalles de próximo pago/ingreso
-- FR29: Eliminar entradas de próximos pagos/ingresos
-- FR30: Ver lista de próximos eventos financieros
+- [] FR24: Crear próximos pagos con recurrencia
+- [] FR25: Crear próximos ingresos con recurrencia
+- [] FR26: Marcar próximos pagos/ingresos como pagado
+- [] FR27: Generación automática de entradas recurrentes
+- [] FR28: Editar detalles de próximo pago/ingreso
+- [] FR29: Eliminar entradas de próximos pagos/ingresos
+- [] FR30: Ver lista de próximos eventos financieros
 
 ---
 
@@ -265,12 +265,12 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **Resultado de Usuario:** El usuario puede ver su estado financiero consolidado de un vistazo (balance total, ingresos, gastos, ahorros), revisar transacciones recientes, ver próximos pagos pendientes, y filtrar datos por rangos de fecha para análisis operacional rápido.
 
-**FRs cubiertos:**
+**FRs:**
 
-- FR31: Ver tarjetas de resumen financiero consolidado
-- FR32: Ver transacciones recientes de todas las cuentas
-- FR33: Ver próximos pagos/ingresos en dashboard
-- FR34: Filtrar datos de dashboard por rangos de fecha
+- [] FR31: Ver tarjetas de resumen financiero consolidado
+- [] FR32: Ver transacciones recientes de todas las cuentas
+- [] FR33: Ver próximos pagos/ingresos en dashboard
+- [] FR34: Filtrar datos de dashboard por rangos de fecha
 
 ---
 
@@ -280,11 +280,11 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **Resultado de Usuario:** El usuario puede analizar sus patrones de gastos por categoría con gráficos de torta/donut, visualizar evolución temporal de ingresos/gastos con gráficos de líneas/barras, y seleccionar períodos de análisis (mensual, trimestral, anual) para tomar decisiones financieras informadas.
 
-**FRs cubiertos:**
+**FRs:**
 
-- FR35: Ver desglose de gastos por categoría en gráfico torta/donut
-- FR36: Ver evolución financiera temporal en gráficos líneas/barras
-- FR37: Seleccionar rango de fecha para visualizaciones de gráficos
+- [] FR35: Ver desglose de gastos por categoría en gráfico torta/donut
+- [] FR36: Ver evolución financiera temporal en gráficos líneas/barras
+- [] FR37: Seleccionar rango de fecha para visualizaciones de gráficos
 
 ---
 
@@ -294,10 +294,10 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **Resultado de Usuario:** El usuario puede importar sus datos financieros históricos desde archivos Excel con validación automática de integridad, permitiendo migrar desde otras herramientas sin pérdida de información.
 
-**FRs cubiertos:**
+**FRs:**
 
-- FR38: Importar datos financieros históricos desde Excel
-- FR39: Validar integridad de datos durante importación
+- [] FR38: Importar datos financieros históricos desde Excel
+- [] FR39: Validar integridad de datos durante importación
 
 ---
 
@@ -307,13 +307,13 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **Resultado de Usuario:** El usuario experimenta una aplicación pulida y confiable con performance óptima (1000-2000 transacciones sin degradación), acceso multi-dispositivo responsive (desktop/tablet/mobile), navegación por teclado completa, y 0 bugs críticos para adopción definitiva.
 
-**FRs cubiertos:**
+**FRs:**
 
-- FR40: Manejar 1000-2000 transacciones sin degradación de performance
-- FR41: Preservar datos financieros con soft delete
-- FR42: Acceso desde navegadores desktop (Chrome, Edge, Brave)
-- FR43: Acceso desde navegadores móviles con interfaz touch-optimized
-- FR44: Acceso desde dispositivos tablet con layout responsive
-- FR45: Cumplir browser support, responsive design, touch-friendly UI
-- FR46: Conexión a internet activa requerida (online-only en MVP)
-- NFR1-NFR26: Performance, seguridad, integridad, deployment, usabilidad, accesibilidad
+- [] FR40: Manejar 1000-2000 transacciones sin degradación de performance
+- [] FR41: Preservar datos financieros con soft delete
+- [] FR42: Acceso desde navegadores desktop (Chrome, Edge, Brave)
+- [] FR43: Acceso desde navegadores móviles con interfaz touch-optimized
+- [] FR44: Acceso desde dispositivos tablet con layout responsive
+- [] FR45: Cumplir browser support, responsive design, touch-friendly UI
+- [] FR46: Conexión a internet activa requerida (online-only en MVP)
+- [] NFR1-NFR26: Performance, seguridad, integridad, deployment, usabilidad, accesibilidad

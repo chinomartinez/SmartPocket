@@ -21,6 +21,9 @@ Skill para crear y editar historias de usuario **puramente funcionales** para é
 - Revisar calidad funcional de historias (completitud, claridad, testability)
 - Cambiar estado de historias (pending → active → completed)
 
+**⚠️ Nota importante:**  
+Esta skill puede hacerte **preguntas sobre detalles funcionales** (campos de formulario, validaciones, comportamiento esperado, edge cases) cuando necesita aclarar para escribir **Acceptance Criteria completos**. Es mejor preguntar que adivinar/inventar comportamiento.
+
 **NO usar esta skill para:**
 
 - Decisiones técnicas (arquitectura, endpoints, componentes, librerías)
@@ -286,6 +289,118 @@ Si prefieres control granular, responde "no" y crea una a la vez.
 - ✅ FRs identificados (ej: FR11, FR12, FR13)
 - ✅ Numeración calculada (ej: Story 3.3)
 - ✅ Carpeta de guardado (ej: `_docs/planning/user-stories/epic0003/`)
+
+→ Continuar a Step 1.5
+
+---
+
+### Step 1.5: Validar Contexto Funcional Suficiente
+
+**Propósito:** Antes de generar la historia, verificar que tienes contexto funcional suficiente para escribir **Acceptance Criteria completos y específicos** (happy path + edge cases + error handling).
+
+**Los FRs en epics.md son de alto nivel** - necesitas detalles funcionales para escribir AC útiles.
+
+#### Preguntas clave a validar internamente:
+
+**1. Sobre inputs del usuario:**
+
+- ¿Qué datos necesita ingresar el usuario? (campos de formulario, filtros, parámetros)
+- ¿Cuáles son obligatorios vs opcionales?
+- ¿Hay validaciones o restricciones? (ej: longitud máxima, formato, valores permitidos)
+
+**2. Sobre outputs del sistema:**
+
+- ¿Qué información debe mostrar el sistema como respuesta?
+- ¿Qué debe aparecer en la UI? (listados, tarjetas, gráficos, mensajes)
+- ¿Cómo se visualizan los datos? (tabla, cards, lista, dashboard)
+
+**3. Sobre comportamiento esperado:**
+
+- ¿Qué debe pasar en el happy path?
+- ¿Qué edge cases son relevantes? (datos vacíos, lista vacía, límites, duplicados, conflictos)
+- ¿Cómo debe manejar errores? (validaciones, mensajes al usuario, recuperación)
+
+**4. Sobre reglas de negocio:**
+
+- ¿Hay restricciones del dominio? (ej: no permitir balance negativo, categorías obligatorias)
+- ¿Qué debe persistir? ¿Qué es transitorio o calculado?
+- ¿Cómo afecta a otras entidades? (ej: eliminar una cuenta con transacciones asociadas)
+
+---
+
+#### Si falta contexto → PREGUNTAR AL USUARIO
+
+**Regla de oro:**
+
+- ✅ **Pregunta sobre QUÉ debe hacer el sistema** (comportamiento observable para el usuario)
+- ❌ **NO preguntar sobre CÓMO implementarlo técnicamente** (eso no va en historias funcionales)
+
+---
+
+**Ejemplos de preguntas VÁLIDAS:**
+
+```markdown
+❓ Para escribir Acceptance Criteria completos, necesito aclarar algunos detalles funcionales:
+
+1. **Formulario de Transacciones:**
+   - ¿Qué campos debe incluir? (Monto, Categoría, Cuenta, Fecha, Nota... ¿alguno más?)
+   - ¿Todos son obligatorios o hay opcionales?
+
+2. **Validaciones:**
+   - ¿Debe permitirse crear una transacción sin categoría o es obligatoria?
+   - Si el usuario ingresa una nota muy larga (ej: 500 caracteres), ¿debe truncarse o rechazarse?
+
+3. **Comportamiento:**
+   - ¿El formulario debe mostrar errores en tiempo real o solo al intentar guardar?
+   - Si falla el guardado, ¿qué mensaje debe ver el usuario?
+
+4. **Edge cases:**
+   - ¿Qué pasa si el usuario intenta crear una transacción con fecha futura?
+   - ¿Debe haber un monto mínimo/máximo permitido?
+```
+
+---
+
+**Ejemplos de preguntas INVÁLIDAS (NO hacer):**
+
+```markdown
+❌ ¿Debo usar React Hook Form o Formik para el formulario?
+→ Decisión de implementación técnica, NO va en historia funcional
+
+❌ ¿La API debe ser REST o GraphQL?
+→ Arquitectura backend, NO va en historia funcional
+
+❌ ¿Guardamos el estado en Redux o Context API?
+→ Decisión de implementación, NO va en historia funcional
+
+❌ ¿Usamos Zod o Yup para validación?
+→ Librería técnica, NO va en historia funcional
+```
+
+---
+
+#### Flujo de decisión:
+
+**✅ Si tienes contexto funcional suficiente:**
+
+- Continuar directamente a Step 2
+
+**❌ Si falta contexto funcional:**
+
+1. Listar preguntas específicas al usuario (formato arriba)
+2. **Esperar respuestas del usuario**
+3. Integrar respuestas al contexto mental
+4. **Ahora sí** continuar a Step 2
+
+---
+
+**Nota importante:** Es MEJOR preguntar 2-3 detalles clave que inventar/adivinar comportamiento. Historias con AC vagos o incorrectos causan:
+
+- 🚨 Implementación incorrecta (no cumple expectativa del usuario)
+- 🚨 Re-trabajo (hay que rehacer la historia)
+- 🚨 Bugs en producción (comportamiento no especificado)
+
+---
 
 → Continuar a Step 2
 

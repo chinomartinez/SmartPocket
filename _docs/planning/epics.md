@@ -1,22 +1,12 @@
----
-inputDocuments:
-  - "_docs/planning/prd.md"
-progressNotes:
-  - "Epic 1: Account Management - ✅ 100% implementado (Fase 3 completada)"
-  - "Epic 2: Category Management - Story 2.6 (Reordenamiento) definida"
-  - "Epic 3-9: Pendientes de crear historias en próxima sesión"
-nextStep: "Continuar con Epic 3: Transaction Management (7 stories aprox) y resto de épicas"
----
-
 # SmartPocket - Epic Breakdown
 
 ## Overview
 
 Este documento proporciona el índice de épicas y mapeo de requerimientos funcionales para SmartPocket. La información técnica de implementación está disponible en:
 
-- [architecture.md](../architecture.md) - Patrones técnicos, estructuras backend/frontend
-- [ux-design-specification.md](../ux-design-specification.md) - Requisitos de UX y diseño visual
-- [prd.md](../prd.md) - Especificación completa de producto
+- [architecture.md](./architecture.md) - Patrones técnicos, estructuras backend/frontend
+- [ux-design-specification.md](./ux-design-specification.md) - Requisitos de UX y diseño visual
+- [prd.md](./prd.md) - Especificación completa de producto
 
 ## Requirements Inventory
 
@@ -172,9 +162,15 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 
 **NFR26:** Los formularios deben tener labels asociados a inputs correctamente
 
-### FR Coverage Map
+## Epicas - FR Coverage Map
 
-[**Epic 1: Account Management**](./epic001/epic-01-account-management.md) ✅ (Ya implementado 100%)
+### Epic 1: Account Management
+
+**Estado:** ✅ **Ya implementado 100% (Fase 3 completada)**
+
+**Resultado de Usuario:** El usuario puede gestionar múltiples cuentas financieras con diferentes monedas, ver balances actualizados automáticamente, y mantener control completo sobre sus cuentas activas/inactivas.
+
+**FRs cubiertos:**
 
 - FR1: Crear cuentas financieras con nombre, moneda, balance inicial
 - FR2: Ver lista de cuentas activas con balances actuales
@@ -182,7 +178,19 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 - FR4: Eliminar cuentas con soft delete
 - FR5: Cálculo automático de balances desde transacciones/transferencias
 
-[**Epic 2: Category Management**](./epic002/epic-02-category-management.md) ⏳ (En proceso)
+**Referencias:**
+
+- Sirve como base para Epic 3 (Transaction Management) y Epic 4 (Inter-Account Transfers)
+
+---
+
+### Epic 2: Category Management
+
+**Estado:** ✅ **Ya implementado 100% (Fase 3 completada)**
+
+**Resultado de Usuario:** El usuario puede organizar sus transacciones con categorías personalizadas, asignar colores e íconos para identificación visual rápida, y priorizar categorías frecuentes mediante reordenamiento manual.
+
+**FRs cubiertos:**
 
 - FR6: Crear categorías con tipo (ingreso/gasto)
 - FR7: Asignar colores e íconos a categorías
@@ -191,7 +199,19 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 - FR10: Ver lista de categorías organizadas por tipo
 - FR10b: Reordenar categorías manualmente
 
-[**Epic 3: Transaction Management**](./epic003/epic-03-transaction-management.md)
+**Referencias:**
+
+- Sirve como base para Epic 3 (Transaction Management) y Epic 4 (Inter-Account Transfers)
+
+---
+
+### Epic 3: Transaction Management
+
+**Estado:** ⏳ Pendiente de crear historias
+
+**Resultado de Usuario:** El usuario puede registrar ingresos y gastos diarios con velocidad (<30s), usar mini calculadora integrada para sumar componentes de gastos compuestos, filtrar y buscar transacciones históricas, y gestionar sus finanzas con tags opcionales y descripciones.
+
+**FRs cubiertos:**
 
 - FR11: Registrar transacciones con fecha, monto, cuenta, categoría, descripción
 - FR12: Agregar tags opcionales a transacciones
@@ -202,7 +222,15 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 - FR17: Ver historial de transacciones ordenado por fecha
 - FR17b: Usar mini calculadora integrada en modal de transacciones
 
-[**Epic 4: Inter-Account Transfers**](./epic004/epic-04-inter-account-transfers.md)
+---
+
+### Epic 4: Inter-Account Transfers
+
+**Estado:** ⏳ Pendiente de crear historias
+
+**Resultado de Usuario:** El usuario puede mover dinero entre sus cuentas de forma segura, con validación de saldo suficiente, actualización automática de balances, y capacidad de editar/eliminar transferencias con recalculación correcta.
+
+**FRs cubiertos:**
 
 - FR18: Crear transferencias entre cuentas
 - FR19: Actualización automática de balances en ambas cuentas
@@ -211,7 +239,15 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 - FR22: Eliminar transferencias con recalculación automática
 - FR23: Ver historial de transferencias
 
-[**Epic 5: Recurring Financial Events**](./epic005/epic-05-recurring-financial-events.md)
+---
+
+### Epic 5: Recurring Financial Events
+
+**Estado:** ⏳ Pendiente de crear historias
+
+**Resultado de Usuario:** El usuario puede planificar pagos e ingresos recurrentes (facturas, salarios, suscripciones), marcarlos como pagados para convertirlos en transacciones, y gestionar patrones de recurrencia automática (diario, semanal, mensual, anual).
+
+**FRs cubiertos:**
 
 - FR24: Crear próximos pagos con recurrencia
 - FR25: Crear próximos ingresos con recurrencia
@@ -221,25 +257,57 @@ Este documento proporciona el índice de épicas y mapeo de requerimientos funci
 - FR29: Eliminar entradas de próximos pagos/ingresos
 - FR30: Ver lista de próximos eventos financieros
 
-[**Epic 6: Financial Overview Dashboard**](./epic006/epic-06-financial-overview-dashboard.md)
+---
+
+### Epic 6: Financial Overview Dashboard
+
+**Estado:** ⏳ Pendiente de crear historias
+
+**Resultado de Usuario:** El usuario puede ver su estado financiero consolidado de un vistazo (balance total, ingresos, gastos, ahorros), revisar transacciones recientes, ver próximos pagos pendientes, y filtrar datos por rangos de fecha para análisis operacional rápido.
+
+**FRs cubiertos:**
 
 - FR31: Ver tarjetas de resumen financiero consolidado
 - FR32: Ver transacciones recientes de todas las cuentas
 - FR33: Ver próximos pagos/ingresos en dashboard
 - FR34: Filtrar datos de dashboard por rangos de fecha
 
-[**Epic 7: Data Visualization & Analytics**](./epic007/epic-07-data-visualization-analytics.md)
+---
+
+### Epic 7: Data Visualization & Analytics
+
+**Estado:** ⏳ Pendiente de crear historias
+
+**Resultado de Usuario:** El usuario puede analizar sus patrones de gastos por categoría con gráficos de torta/donut, visualizar evolución temporal de ingresos/gastos con gráficos de líneas/barras, y seleccionar períodos de análisis (mensual, trimestral, anual) para tomar decisiones financieras informadas.
+
+**FRs cubiertos:**
 
 - FR35: Ver desglose de gastos por categoría en gráfico torta/donut
 - FR36: Ver evolución financiera temporal en gráficos líneas/barras
 - FR37: Seleccionar rango de fecha para visualizaciones de gráficos
 
-[**Epic 8: Data Import & Migration**](./epic008/epic-08-data-import-migration.md)
+---
+
+### Epic 8: Data Import & Migration
+
+**Estado:** ⏳ Pendiente de crear historias
+
+**Resultado de Usuario:** El usuario puede importar sus datos financieros históricos desde archivos Excel con validación automática de integridad, permitiendo migrar desde otras herramientas sin pérdida de información.
+
+**FRs cubiertos:**
 
 - FR38: Importar datos financieros históricos desde Excel
 - FR39: Validar integridad de datos durante importación
 
-[**Epic 9: System Quality & User Experience Polish**](./epic009/epic-09-system-quality-ux-polish.md)
+---
+
+### Epic 9: System Quality & User Experience Polish
+
+**Estado:** ⏳ Pendiente de crear historias
+
+**Resultado de Usuario:** El usuario experimenta una aplicación pulida y confiable con performance óptima (1000-2000 transacciones sin degradación), acceso multi-dispositivo responsive (desktop/tablet/mobile), navegación por teclado completa, y 0 bugs críticos para adopción definitiva.
+
+**FRs cubiertos:**
 
 - FR40: Manejar 1000-2000 transacciones sin degradación de performance
 - FR41: Preservar datos financieros con soft delete

@@ -1,6 +1,7 @@
 ---
 name: frontend-component-architecture
-description: Component structure and best practices for SmartPocket React app. Use when organizing components, naming conventions, feature-first structure, code quality principles (KISS, early returns), accessibility basics, empty states, or render patterns. Includes performance anti-patterns.
+description: "Component structure and best practices for SmartPocket React app. **Use when** organizing features, naming files/folders, implementing code quality patterns (KISS, early returns, DRY), handling empty states, conditional rendering, accessibility basics, or troubleshooting re-renders and structure issues. Includes performance anti-patterns and React.memo patterns."
+argument-hint: 'Component name or area (e.g., "AccountCard" or "empty states")'
 ---
 
 # SmartPocket - Component Architecture & Best Practices
@@ -88,25 +89,6 @@ src/features/transactions/
 | **Files**            | camelCase                | `accountService.ts`        | Consistencia          |
 | **Folders**          | camelCase                | `src/features/accounts/`   | Consistencia          |
 
-### Ejemplos correctos
-
-```typescript
-// ✅ Component
-export function AccountCard() {}
-
-// ✅ Hook
-export function useAccounts() {}
-
-// ✅ Type
-export type Account = {};
-
-// ✅ Function
-export function formatCurrency(amount: number) {}
-
-// ✅ Constant
-export const MAX_TRANSACTIONS_PER_PAGE = 50;
-```
-
 ---
 
 ## Code Quality Principles
@@ -115,26 +97,6 @@ export const MAX_TRANSACTIONS_PER_PAGE = 50;
 
 **Filosofía:** Solución más simple que funciona es la mejor.
 
-```typescript
-// ❌ MAL - over-engineering para "flexibilidad futura"
-interface AccountStrategy {
-  validate(): boolean;
-  transform(): Account;
-}
-
-class SavingsAccountStrategy implements AccountStrategy {
-  // 50 líneas de abstracción innecesaria
-}
-
-// ✅ BIEN - simple y directo
-function createAccount(data: AccountFormValues): Account {
-  return {
-    ...data,
-    createdAt: new Date(),
-  };
-}
-```
-
 **Reglas KISS:**
 
 - NO abstraer hasta que haya 3+ casos de uso similares
@@ -142,31 +104,19 @@ function createAccount(data: AccountFormValues): Account {
 - NO patterns complejos (Factory, Builder) para app personal
 - Refactorizar cuando duele, NO en anticipación
 
+```typescript
+// ✅ Simple function > clase compleja
+function createAccount(data: AccountFormValues): Account {
+  return { ...data, createdAt: new Date() };
+}
+```
+
 ### Early Returns
 
 Evitar nesting profundo. Salir temprano para casos edge.
 
 ```typescript
-// ❌ MAL - nesting profundo
-function AccountCard({ account }: { account?: Account }) {
-  if (account) {
-    if (account.isActive) {
-      if (account.balance > 0) {
-        return <div>{account.name}</div>;
-      } else {
-        return <ZeroBalanceWarning />;
-      }
-    } else {
-      return <InactiveAccountBadge />;
-    }
-  } else {
-    return <Skeleton />;
-  }
-}
-```
-
-```typescript
-// ✅ BIEN - early returns
+// ✅ Early returns - limpio y legible
 function AccountCard({ account }: { account?: Account }) {
   if (!account) return <Skeleton />;
   if (!account.isActive) return <InactiveAccountBadge />;
@@ -194,17 +144,7 @@ function Component() {
 Usar constants con nombres descriptivos.
 
 ```typescript
-// ❌ MAL - números mágicos
-function TransactionList() {
-  const slice = transactions.slice(0, 10);
-  if (transactions.length > 50) {
-    // ¿Por qué 50?
-  }
-}
-```
-
-```typescript
-// ✅ BIEN - constants nombradas
+// ✅ Constants nombradas
 const MAX_VISIBLE_TRANSACTIONS = 10;
 const TRANSACTION_LIMIT_WARNING = 50;
 
@@ -254,10 +194,7 @@ function AccountList() {
 interface EmptyStateProps {
   title: string;
   description?: string;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
+  action?: { label: string; onClick: () => void };
 }
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
@@ -265,24 +202,10 @@ export function EmptyState({ title, description, action }: EmptyStateProps) {
     <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
       <h3 className="text-lg font-semibold">{title}</h3>
       {description && <p className="text-muted-foreground mt-2">{description}</p>}
-      {action && (
-        <Button onClick={action.onClick} className="mt-4">
-          {action.label}
-        </Button>
-      )}
+      {action && <Button onClick={action.onClick} className="mt-4">{action.label}</Button>}
     </div>
   );
 }
-
-// Uso
-<EmptyState
-  title="No accounts yet"
-  description="Create your first account to get started"
-  action={{
-    label: "Create Account",
-    onClick: () => setCreateModalOpen(true),
-  }}
-/>;
 ```
 
 ### Safe access con optional chaining
@@ -382,141 +305,27 @@ Usar elementos HTML semánticos, NO `<div>` genérico para todo.
 
 ## Anti-Patterns Críticos
 
-### ❌ TypeScript Strict Mode Gotchas
+Ver [Anti-Patterns detallados](./references/anti-patterns.md) para ejemplos completos y explicaciones profundas.
 
-#### Non-null assertions sin validación
+**Quick reference:**
+
+- ❌ **Non-null assertions sin validación** - `account!.name` crash si undefined
+- ❌ **Uso de `any` type** - Rompe type safety completamente
+- ❌ **Inline function props** - Re-renders innecesarios en lists
+- ❌ **Missing React.memo** - Components expensive sin optimización
+- ❌ **Destructuring excesivo** - Dificulta debug y lectura
+- ❌ **Mutation de state** - React no detecta cambios
 
 ```typescript
-// ❌ MAL - ! sin verificar existencia
-const account = accounts.find((a) => a.id === id)!;
-account.name; // Runtime error si no existe
-```
-
-```typescript
-// ✅ BIEN - optional chaining o early return
+// ✅ Safe access pattern
 const account = accounts.find((a) => a.id === id);
 if (!account) return null;
 return account.name;
 
-// O
-return accounts.find((a) => a.id === id)?.name;
-```
-
-#### Uso de `any`
-
-```typescript
-// ❌ MAL - any rompe type safety
-function process(data: any) {
-  return data.value; // No type checking
-}
-```
-
-```typescript
-// ✅ BIEN - generics o union types
-function process<T>(data: T): T {
-  return data;
-}
-
-function handle(error: Error | ApiError) {
-  // Type safe
-}
-```
-
-### ❌ Performance Issues
-
-#### Inline function props (re-renders)
-
-```typescript
-// ❌ MAL - nueva función en cada render
-{
-  accounts.map((account) => (
-    <AccountCard
-      key={account.id}
-      account={account}
-      onClick={() => handleClick(account.id)} // Nueva función cada vez
-    />
-  ));
-}
-```
-
-```typescript
-// ✅ BIEN - extract callback
-functionAccountList() {
-  const handleAccountClick = (id: number) => {
-    handleClick(id);
-  };
-
-  return (
-    <>
-      {accounts.map((account) => (
-        <AccountCard
-          key={account.id}
-          account={account}
-          onClick={() => handleAccountClick(account.id)}
-        />
-      ))}
-    </>
-  );
-}
-
-// O usar useCallback
-const handleAccountClick = useCallback(
-  (id: number) => {
-    handleClick(id);
-  },
-  [handleClick]
-);
-```
-
-#### Missing React.memo para expensive components
-
-```typescript
-// ❌ MAL - re-render innecesario en CADA list update
-function ExpensiveCard({ account }: { account: Account }) {
-  // Cálculos pesados...
-  return <div>{/* ... */}</div>;
-}
-```
-
-```typescript
-// ✅ BIEN - memo para evitar re-renders
-export const ExpensiveCard = memo(function ExpensiveCard({
-  account,
-}: {
-  account: Account;
-}) {
-  // Solo re-render si `account` cambia
+// ✅ React.memo para expensive components
+export const ExpensiveCard = memo(function ExpensiveCard({ account }: Props) {
   return <div>{/* ... */}</div>;
 });
-```
-
-**Regla:** Usar `memo` solo si:
-
-1. Component es expensive (cálculos pesados, muchos children)
-2. Props cambian poco
-3. Profiling muestra problema de performance
-
-NO usar `memo` prematuramente. Medir primero.
-
-### ❌ Destructuring excesivo
-
-```typescript
-// ❌ MAL - destructuring excesivo dificulta lectura
-const {
-  account: {
-    name,
-    balance,
-    currency: { symbol },
-  },
-} = props;
-```
-
-```typescript
-// ✅ BIEN - balance entre concisión y claridad
-const { account } = props;
-const name = account.name;
-const balance = account.balance;
-const symbol = account.currency?.symbol ?? "$";
 ```
 
 ---
@@ -536,46 +345,14 @@ const symbol = account.currency?.symbol ?? "$";
 
 ## Component Composition Patterns
 
-### Container/Presentational
+Ver [Component Patterns](./references/component-patterns.md) para patterns avanzados de composición.
 
-```typescript
-// Container - maneja lógica y data
-function AccountListContainer() {
-  const { data: accounts, isLoading } = useAccounts();
+**Patterns disponibles:**
 
-  if (isLoading) return <Skeleton />;
-
-  return <AccountListView accounts={accounts} />;
-}
-
-// Presentational - solo UI
-interface AccountListViewProps {
-  accounts: Account[];
-}
-
-function AccountListView({ accounts }: AccountListViewProps) {
-  return (
-    <div>
-      {accounts.map((account) => (
-        <AccountCard key={account.id} account={account} />
-      ))}
-    </div>
-  );
-}
-```
-
-### Compound Components (shadcn pattern)
-
-```typescript
-// Flexible composition
-<Card>
-  <CardHeader>
-    <CardTitle>Account Details</CardTitle>
-  </CardHeader>
-  <CardContent>{/* ... */}</CardContent>
-  <CardFooter>{/* ... */}</CardFooter>
-</Card>
-```
+- **Container/Presentational** - Separar lógica (data fetching) de UI
+- **Compound Components** - Composición flexible (shadcn pattern)
+- **Render Props** - Control de render vía función
+- **HOC** (legacy) - Preferir hooks en código nuevo
 
 ---
 

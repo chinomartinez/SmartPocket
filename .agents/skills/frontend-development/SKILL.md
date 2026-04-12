@@ -1,6 +1,6 @@
 ---
 name: frontend-development
-description: SmartPocket React 19 development overview and skill index. Lists available specialized skills for data fetching, forms, testing, routing, and architecture patterns. Use this for general frontend questions or to discover which specialized skill to use.
+description: Overview de desarrollo React 19 de SmartPocket e índice de skills. Lista skills especializados disponibles para data fetching, forms, testing, routing, y architecture patterns. Usar para preguntas generales de frontend o descubrir qué skill especializado usar.
 ---
 
 # SmartPocket - Frontend Development

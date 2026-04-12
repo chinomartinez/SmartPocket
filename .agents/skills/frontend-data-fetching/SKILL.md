@@ -1,6 +1,6 @@
 ---
 name: frontend-data-fetching
-description: TanStack Query patterns for SmartPocket React app. Use when implementing API calls, data fetching, mutations, cache invalidation, server state, query hooks, or working with useQuery/useMutation. Includes service layer patterns, query key factories, and common anti-patterns.
+description: Patrones de TanStack Query para SmartPocket React app. Usar al implementar llamadas API, data fetching, mutations, invalidación de caché, server state, query hooks, o trabajar con useQuery/useMutation. Incluye patterns de service layer, query key factories, y anti-patterns comunes.
 ---
 
 # SmartPocket - Data Fetching (TanStack Query)

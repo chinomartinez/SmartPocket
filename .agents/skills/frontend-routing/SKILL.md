@@ -1,6 +1,6 @@
 ---
 name: frontend-routing
-description: React Router v7 navigation patterns for SmartPocket. Use when implementing navigation, routes, links, active states, route constants, or working with React Router. Includes Link vs button anti-patterns.
+description: Patrones de navegación con React Router v7 para SmartPocket. Usar al implementar navegación, rutas, links, estados activos, constantes de rutas, o trabajar con React Router. Incluye anti-patterns de Link vs button.
 ---
 
 # SmartPocket - Routing (React Router v7)
@@ -183,33 +183,16 @@ function Sidebar() {
 // src/router/AppRouter.tsx
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { RootLayout } from "@/layout/RootLayout";
-import { HomePage } from "@/features/home/HomePage";
-import { AccountsPage } from "@/features/accounts/AccountsPage";
-import { AccountDetailPage } from "@/features/accounts/AccountDetailPage";
-import { TransactionsPage } from "@/features/transactions/TransactionsPage";
 import { ROUTES } from "./routes";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />, // Layout wrapper con Outlet
+    element: <RootLayout />, // Layout con Outlet
     children: [
-      {
-        path: ROUTES.HOME,
-        element: <HomePage />,
-      },
-      {
-        path: ROUTES.ACCOUNTS,
-        element: <AccountsPage />,
-      },
-      {
-        path: ROUTES.ACCOUNT_DETAIL,
-        element: <AccountDetailPage />,
-      },
-      {
-        path: ROUTES.TRANSACTIONS,
-        element: <TransactionsPage />,
-      },
+      { path: ROUTES.HOME, element: <HomePage /> },
+      { path: ROUTES.ACCOUNTS, element: <AccountsPage /> },
+      { path: ROUTES.ACCOUNT_DETAIL, element: <AccountDetailPage /> },
     ],
   },
 ]);
@@ -224,20 +207,16 @@ export function AppRouter() {
 ```typescript
 // src/layout/RootLayout.tsx
 import { Outlet } from "react-router-dom";
-import { Header } from "./Header";
-import { Sidebar } from "./Sidebar";
 
 export function RootLayout() {
   return (
-    <div className="flex h-screen">
+    <>
+      <Header />
       <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 overflow-auto p-6">
-          <Outlet /> {/* Routes hijos renderizan aquí */}
-        </main>
-      </div>
-    </div>
+      <main>
+        <Outlet /> {/* Routes hijos renderizan aquí */}
+      </main>
+    </>
   );
 }
 ```
@@ -276,24 +255,14 @@ import { useSearchParams } from "react-router-dom";
 function TransactionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Leer params
   const filter = searchParams.get("filter"); // "active" | null
   const page = searchParams.get("page") ?? "1";
 
-  const handleFilterChange = (newFilter: string) => {
-    setSearchParams({ filter: newFilter, page: "1" }); // Reset page al cambiar filtro
+  // Actualizar params
+  const updateFilter = (newFilter: string) => {
+    setSearchParams({ filter: newFilter, page: "1" });
   };
-
-  return (
-    <>
-      <select value={filter ?? ""} onChange={(e) => handleFilterChange(e.target.value)}>
-        <option value="">All</option>
-        <option value="active">Active</option>
-        <option value="completed">Completed</option>
-      </select>
-
-      <TransactionList filter={filter} page={Number(page)} />
-    </>
-  );
 }
 ```
 
@@ -324,22 +293,13 @@ function DeleteAccountButton({ accountId }: { accountId: number }) {
 ### Navigate con state (pasar data entre rutas)
 
 ```typescript
-// From page
-navigate(ROUTES.ACCOUNT_DETAIL.replace(":id", String(id)), {
-  state: { from: "create-flow" },
-});
+// Enviar state
+navigate("/accounts/123", { state: { from: "create-flow" } });
 
-// To page
+// Leer state
 import { useLocation } from "react-router-dom";
-
-function AccountDetailPage() {
-  const location = useLocation();
-  const from = location.state?.from; // "create-flow"
-
-  if (from === "create-flow") {
-    // Mostrar onboarding especial
-  }
-}
+const location = useLocation();
+const from = location.state?.from; // "create-flow"
 ```
 
 ### Navigate back (history)
@@ -356,31 +316,13 @@ function BackButton() {
 
 ## Protected Routes (Post-MVP)
 
-Para authentication (diferido post-MVP, pero pattern útil):
+Para authentication (diferido post-MVP):
 
 ```typescript
-// src/router/ProtectedRoute.tsx
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/features/auth/useAuth";
-
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <>{children}</>;
-}
-
-// Uso en router
-{
-  path: ROUTES.ACCOUNTS,
-  element: (
-    <ProtectedRoute>
-      <AccountsPage />
-    </ProtectedRoute>
-  ),
 }
 ```
 
@@ -405,13 +347,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 ```typescript
 // ❌ MAL - typo difícil de detectar
 <Link to="/accoutns">Accounts</Link>
-navigate("/transactoins");
-```
 
-```typescript
 // ✅ BIEN - type-safe
 <Link to={ROUTES.ACCOUNTS}>Accounts</Link>
-navigate(ROUTES.TRANSACTIONS);
 ```
 
 ### ❌ Usar `<a>` en vez de `<Link>`
@@ -419,10 +357,8 @@ navigate(ROUTES.TRANSACTIONS);
 ```typescript
 // ❌ MAL - full page reload
 <a href="/accounts">Accounts</a>
-```
 
-```typescript
-// ✅ BIEN - SPA navigation (no reload)
+// ✅ BIEN - SPA navigation
 <Link to={ROUTES.ACCOUNTS}>Accounts</Link>
 ```
 
@@ -431,13 +367,10 @@ navigate(ROUTES.TRANSACTIONS);
 ```typescript
 // ❌ MAL - state local, se pierde en refresh
 const [filter, setFilter] = useState("active");
-```
 
-```typescript
 // ✅ BIEN - state en URL, persistente
 const [searchParams, setSearchParams] = useSearchParams();
 const filter = searchParams.get("filter") ?? "all";
-const setFilter = (f: string) => setSearchParams({ filter: f });
 ```
 
 ### ❌ Navigate en render (infinite loop)
@@ -446,26 +379,17 @@ const setFilter = (f: string) => setSearchParams({ filter: f });
 // ❌ MAL - navigate en render causa loop
 function AccountDetail() {
   const { id } = useParams();
-
-  if (!id) {
-    navigate(ROUTES.ACCOUNTS); // ❌ Ejecuta en cada render
-  }
+  if (!id) navigate(ROUTES.ACCOUNTS); // ❌ Cada render
 }
-```
 
-```typescript
 // ✅ BIEN - navigate en useEffect
 function AccountDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!id) {
-      navigate(ROUTES.ACCOUNTS);
-    }
+    if (!id) navigate(ROUTES.ACCOUNTS);
   }, [id, navigate]);
-
-  if (!id) return null; // O
 }
 ```
 

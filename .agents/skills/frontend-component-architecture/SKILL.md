@@ -1,6 +1,6 @@
 ---
 name: frontend-component-architecture
-description: "Component structure and best practices for SmartPocket React app. **Use when** organizing features, naming files/folders, implementing code quality patterns (KISS, early returns, DRY), handling empty states, conditional rendering, accessibility basics, or troubleshooting re-renders and structure issues. Includes performance anti-patterns and React.memo patterns."
+description: "Estructura de componentes y mejores prácticas para SmartPocket React app. **Usar al** organizar features, nombrar archivos/carpetas, implementar patterns de calidad de código (KISS, early returns, DRY), manejar empty states, conditional rendering, accesibilidad básica, o troubleshooting de re-renders y problemas de estructura. Incluye anti-patterns de performance y patterns de React.memo."
 argument-hint: 'Component name or area (e.g., "AccountCard" or "empty states")'
 ---
 

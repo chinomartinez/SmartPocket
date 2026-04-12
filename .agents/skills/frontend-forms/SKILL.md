@@ -1,6 +1,6 @@
 ---
 name: frontend-forms
-description: React Hook Form + Zod validation patterns for SmartPocket forms. Use when building forms, schema validation, handling form submissions, displaying validation errors, input fields, or working with react-hook-form. Includes error display patterns and coercion gotchas.
+description: Patrones de React Hook Form + Zod validation para forms de SmartPocket. Usar al construir formularios, validación de schemas, manejar form submissions, mostrar errores de validación, input fields, o trabajar con react-hook-form. Incluye patterns de error display y gotchas de coercion.
 ---
 
 # SmartPocket - Forms (React Hook Form + Zod)

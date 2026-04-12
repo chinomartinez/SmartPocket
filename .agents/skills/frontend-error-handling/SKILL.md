@@ -1,6 +1,6 @@
 ---
 name: frontend-error-handling
-description: Centralized error handling for SmartPocket React app. Use when handling API errors, toast notifications, ErrorBoundary setup, try-catch patterns, RFC 7807 Problem Details, or global error management. Includes when to use manual vs automatic toasts.
+description: Manejo centralizado de errores para SmartPocket React app. Usar al manejar errores de API, toast notifications, configurar ErrorBoundary, patterns try-catch, RFC 7807 Problem Details, o gestión global de errores. Incluye cuándo usar toasts manuales vs automáticos.
 ---
 
 # SmartPocket - Error Handling (Centralizado)
@@ -44,23 +44,13 @@ import { toast } from "sonner";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: (error: Error) => {
-      // Todos los errores de useQuery muestran toast automáticamente
-      toast.error(error.message || "Failed to fetch data");
-    },
+    onError: (error: Error) => toast.error(error.message || "Failed to fetch data"),
   }),
   mutationCache: new MutationCache({
-    onError: (error: Error) => {
-      // Todos los errores de useMutation muestran toast automáticamente
-      toast.error(error.message || "Operation failed");
-    },
+    onError: (error: Error) => toast.error(error.message || "Operation failed"),
   }),
   defaultOptions: {
-    queries: {
-      retry: 1, // Reintentar 1 vez antes de fallar
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutos
-    },
+    queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 5 * 60 * 1000 },
   },
 });
 
@@ -68,7 +58,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster position="top-right" richColors />
-      {/* ... */}
+      <AppRouter />
     </QueryClientProvider>
   );
 }
@@ -147,30 +137,19 @@ Captura crashes de React (errores no manejados en render, lifecycle, event handl
 ```typescript
 // src/components/ErrorBoundary.tsx
 import { Component, type ReactNode } from "react";
-import { errorLogger } from "@/utils/errorLogger";
 
-interface Props {
-  children: ReactNode;
-}
-
-interface State {
-  hasError: boolean;
-  error?: Error;
-}
+interface Props { children: ReactNode; }
+interface State { hasError: boolean; error?: Error; }
 
 export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+  state = { hasError: false, error: undefined };
 
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: unknown) {
-    // Log a servicio externo (ej: Sentry) o console en dev
-    errorLogger.log(error, errorInfo);
+    console.error("ErrorBoundary:", error, errorInfo);
   }
 
   render() {
@@ -179,17 +158,17 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="flex h-screen items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold">Something went wrong</h1>
-            <p className="text-muted-foreground">Please refresh the page</p>
             <Button onClick={() => window.location.reload()}>Refresh</Button>
           </div>
         </div>
       );
     }
-
     return this.props.children;
   }
 }
 ```
+
+**Ver [error-components.md](./references/error-components.md) para implementación completa con fallbacks y dev mode.**
 
 ### Uso en App
 
@@ -209,9 +188,7 @@ function App() {
 
 ## Try-Catch Patterns
 
-### ❌ Evitar try-catch cuando sea posible
-
-TanStack Query ya maneja errores automáticamente. NO duplicar lógica:
+### ❌ Evitar try-catch (TanStack Query maneja automáticamente)
 
 ```typescript
 // ❌ MAL - try-catch innecesario
@@ -220,13 +197,11 @@ const fetchAccounts = async () => {
     const response = await api.get("/accounts");
     return response.data;
   } catch (error) {
-    console.error(error); // Ya se loguea globalmente
-    toast.error("Failed to fetch"); // Ya se muestra toast automáticamente
+    console.error(error); // Ya se loguea
+    toast.error("Failed"); // Ya se muestra
   }
 };
-```
 
-```typescript
 // ✅ BIEN - dejar que TanStack Query maneje
 const fetchAccounts = async () => {
   const response = await api.get("/accounts");
@@ -236,47 +211,40 @@ const fetchAccounts = async () => {
 
 ### ✅ Usar try-catch SOLO para:
 
-#### 1. Chains de `mutateAsync` secuenciales
+**1. Chains de `mutateAsync` secuenciales**
 
 ```typescript
-const handleComplexOperation = async () => {
+const handleComplexOp = async () => {
   try {
     const account = await createAccountMutation.mutateAsync(accountData);
-    await createTransactionMutation.mutateAsync({
-      accountId: account.id,
-      amount: 100,
-    });
+    await createTransactionMutation.mutateAsync({ accountId: account.id, amount: 100 });
     toast.success("Account created with initial transaction");
   } catch (error) {
-    // Error ya logueado y mostrado, pero podemos cleanup
     console.error("Complex operation failed:", error);
   }
 };
 ```
 
-#### 2. Lógica de recuperación específica
+**2. Lógica de recuperación custom**
 
 ```typescript
 const syncData = async () => {
   try {
     await syncMutation.mutateAsync();
-  } catch (error) {
-    // ✅ Lógica custom de fallback
+  } catch {
     console.warn("Sync failed, using cached data");
     return getCachedData();
   }
 };
 ```
 
-#### 3. Errores non-API que necesitan manejo custom
+**3. Errores non-API**
 
 ```typescript
 const processFile = async (file: File) => {
   try {
-    const data = await parseCSV(file);
-    return data;
-  } catch (error) {
-    // ✅ Error de parsing, no API - manejar custom
+    return await parseCSV(file);
+  } catch {
     toast.error("Invalid CSV format");
     return null;
   }
@@ -287,76 +255,24 @@ const processFile = async (file: File) => {
 
 ## API Response Structure (RFC 7807)
 
-Backend SmartPocket retorna **Problem Details** siguiendo RFC 7807:
-
-### Estructura
-
-```typescript
-interface ApiError {
-  type: string; // URL a documentación del error
-  title: string; // Título human-readable
-  status: number; // HTTP status code
-  errors?: Array<{
-    message: string; // Mensaje del error
-    severity: "Error" | "Warning" | "Info";
-    propertyName?: string | null; // Campo específico (puede ser null)
-  }>;
-}
-```
-
-### Ejemplo de response
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc7807",
-  "title": "Validation Error",
-  "status": 400,
-  "errors": [
-    {
-      "message": "Name is required",
-      "severity": "Error",
-      "propertyName": "name"
-    },
-    {
-      "message": "Balance must be positive",
-      "severity": "Error",
-      "propertyName": "balance"
-    },
-    {
-      "message": "Account limit reached",
-      "severity": "Warning",
-      "propertyName": null
-    }
-  ]
-}
-```
+Backend retorna **Problem Details** (RFC 7807). Ver [rfc7807-structure.md](./references/rfc7807-structure.md) para estructura completa.
 
 ### Safe Access Patterns
 
-**❌ MAL - acceso directo sin safe guards:**
+**Siempre usar optional chaining + nullish coalescing:**
 
 ```typescript
-const errorMessages = error.errors.map((e) => e.message); // Crash si errors es undefined
-```
+// ❌ MAL - crash si errors es undefined
+const errorMessages = error.errors.map((e) => e.message);
 
-**✅ BIEN - optional chaining + nullish coalescing:**
-
-```typescript
+// ✅ BIEN - safe access
 const errorMessages = error.errors?.map((e) => e.message) ?? [];
 const firstError = error.errors?.[0]?.message ?? "Unknown error";
 const hasFieldErrors = error.errors?.some((e) => e.propertyName) ?? false;
-```
 
-### Filtrar errores por tipo
-
-```typescript
-// Errores globales (sin propertyName)
+// Filtrar por tipo
 const globalErrors = error.errors?.filter((e) => !e.propertyName) ?? [];
-
-// Errores por campo específico
 const nameErrors = error.errors?.filter((e) => e.propertyName === "name") ?? [];
-
-// Solo errores críticos (no warnings)
 const criticalErrors = error.errors?.filter((e) => e.severity === "Error") ?? [];
 ```
 
@@ -367,30 +283,10 @@ const criticalErrors = error.errors?.filter((e) => e.severity === "Error") ?? []
 ### Errores globales - `<ErrorAlert>`
 
 ```typescript
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+// Mostrar errores sin propertyName (no asociados a campo)
+const globalErrors = error.errors?.filter((e) => !e.propertyName) ?? [];
 
-interface ErrorAlertProps {
-  error: ApiError;
-}
-
-export function ErrorAlert({ error }: ErrorAlertProps) {
-  const globalErrors = error.errors?.filter((e) => !e.propertyName) ?? [];
-
-  if (globalErrors.length === 0) return null;
-
-  return (
-    <Alert variant="destructive">
-      <AlertTitle>{error.title}</AlertTitle>
-      <AlertDescription>
-        <ul className="list-disc pl-4">
-          {globalErrors.map((err, i) => (
-            <li key={i}>{err.message}</li>
-          ))}
-        </ul>
-      </AlertDescription>
-    </Alert>
-  );
-}
+<ErrorAlert error={{ ...error, errors: globalErrors }} />
 ```
 
 ### Errores por campo - React Hook Form
@@ -399,7 +295,6 @@ export function ErrorAlert({ error }: ErrorAlertProps) {
 const onSubmit = (data: FormValues) => {
   createMutation.mutate(data, {
     onError: (error: ApiError) => {
-      // Errores con propertyName → mostrar debajo del input
       error.errors?.forEach((err) => {
         if (err.propertyName) {
           form.setError(err.propertyName as keyof FormValues, {
@@ -409,21 +304,18 @@ const onSubmit = (data: FormValues) => {
         }
       });
 
-      // Errores sin propertyName → mostrar globales
       const globalErrors = error.errors?.filter((e) => !e.propertyName) ?? [];
-      if (globalErrors.length > 0) {
-        setApiError({ ...error, errors: globalErrors });
-      }
+      if (globalErrors.length > 0) setApiError({ ...error, errors: globalErrors });
     },
   });
 };
 ```
 
+**Ver [error-components.md](./references/error-components.md) para implementaciones completas (ErrorAlert, ErrorBoundary, FieldError, etc.).**
+
 ---
 
 ## Axios Interceptor (spApiClient)
-
-El error handling centralizado se configura en `spApiClient`:
 
 ```typescript
 // src/api/spApiClient.ts
@@ -433,26 +325,20 @@ export const spApiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
 });
 
-// Response interceptor - transforma errors a formato consistente
 spApiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.data) {
-      // Backend retornó RFC 7807 - usar tal cual
-      return Promise.reject(error.response.data);
+      return Promise.reject(error.response.data); // RFC 7807 del backend
     }
 
-    // Network error o timeout - crear error genérico
+    // Network error - normalizar a RFC 7807
     return Promise.reject({
       type: "network-error",
       title: "Network Error",
       status: 0,
       errors: [
-        {
-          message: error.message || "Failed to connect to server",
-          severity: "Error",
-          propertyName: null,
-        },
+        { message: error.message || "Failed to connect", severity: "Error", propertyName: null },
       ],
     });
   },

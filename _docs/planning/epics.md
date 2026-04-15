@@ -4,6 +4,7 @@
 
 Este documento proporciona el índice de épicas y mapeo de requerimientos funcionales para SmartPocket. La información técnica de implementación está disponible en:
 
+- [prd.md](./prd.md) - Especificación completa de producto
 - [architecture.md](./architecture.md) - Patrones técnicos, estructuras backend/frontend
 - [ux-design-specification.md](./ux-design-specification.md) - Requisitos de UX y diseño visual
 - [prd.md](./prd.md) - Especificación completa de producto

@@ -1,7 +1,5 @@
 ---
-stepsCompleted: [1, 2, 3, 4, 5]
 inputDocuments:
-  - "_docs/project-context.md"
   - "_docs/roadmap.md"
   - "_docs/mvp-requirements.md"
 date: 2026-02-28
@@ -95,6 +93,7 @@ SmartPocket es una aplicación web full-stack de gestión financiera personal qu
 - Platform propia: cualquier feature es implementable
 - Sin limitaciones de vendor o paywalls
 - Arquitectura extensible diseñada para evolución
+- Artesanía de software personal
 
 **3. Proyecto de Portfolio Profesional**
 
@@ -115,8 +114,6 @@ SmartPocket es una aplicación web full-stack de gestión financiera personal qu
 - Decisiones técnicas basadas en necesidad real, no en hype
 - Desarrollo acelerado con herramientas de IA manteniendo calidad
 
-SmartPocket no compite con otras finance apps de GitHub porque no es un proyecto académico o de estudio: es una herramienta real para uso diario que simultáneamente sirve como demostración profesional de capacidades técnicas actuales.
-
 ---
 
 ## Target Users
@@ -131,18 +128,6 @@ SmartPocket no compite con otras finance apps de GitHub porque no es un proyecto
 - Maneja 2 cuentas bancarias con múltiples métodos de pago
 - Necesita acceso desktop (trabajo) + mobile (fuera de casa)
 
-**Problema Actual:**
-
-- App con anuncios intrusivos y esperas forzadas
-- Sin versión desktop, funcionalidades bloqueadas tras paywall
-- Cero control sobre datos y personalización
-
-**Criterio de Adopción:**
-
-- Paridad funcional completa: cuentas, categorías, transacciones, transferencias, reportes/gráficos
-- Migración exitosa de datos históricos desde Excel
-- Sin anuncios, carga rápida, responsive desktop + mobile
-
 ### User Journey
 
 - **Adopción**: Validar que MVP tiene paridad funcional completa con app actual
@@ -150,6 +135,15 @@ SmartPocket no compite con otras finance apps de GitHub porque no es un proyecto
 - **Validación**: Uso paralelo (1-2 semanas) confirmando confiabilidad sin bugs críticos
 - **Uso Exclusivo**: Desinstalar app comercial, SmartPocket es la única herramienta financiera
 - **Steady State**: Registro diario desktop/mobile según contexto + revisión bimestral de gráficos
+
+**Patrones de Uso:**
+
+- Días laborales: 2-4 transacciones (cafetería, almuerzo, transporte)
+- Días de pago (10-15): 10-15 transacciones (servicios, pagos recurrentes)
+- Transferencias: 1-2/mes (ahorro)
+- Análisis gráficos: Bimestral/mensual
+
+**Evolución Post-MVP:** Con MVP estable, apertura a features experimentales (OCR, análisis predictivo con IA, conexión bancaria propia).
 
 **Quote del Usuario:**
 
@@ -180,6 +174,15 @@ SmartPocket es un activo profesional que demuestra capacidades técnicas actuale
 2. **Full-Stack End-to-End**: .NET 9 + React 19, TypeScript strict, TanStack Query, testing >60%
 3. **Uso Efectivo de IA**: Desarrollo acelerado con GitHub Copilot manteniendo estándares profesionales
 4. **Producto Desplegado**: App en producción con CI/CD, documentación técnica profesional
+
+### Objetivo Académico
+
+**Proyecto Final Analista de Sistemas (En Evaluación):**
+
+- Potencial presentación como proyecto final para carrera de Analista de Sistemas
+- Documentación técnica completa preparada (arquitectura, casos de uso, especificaciones)
+- Decisión a tomar en coordinación con profesores cuando corresponda
+- **No bloqueante para MVP** — evaluación posterior a consolidación funcional
 
 ### KPIs Críticos
 
@@ -220,15 +223,6 @@ SmartPocket es un activo profesional que demuestra capacidades técnicas actuale
 
 ## MVP Scope
 
-### Out of Scope for MVP
-
-**Diferido para Post-MVP:**
-
-- **Innovación con IA**: OCR de tickets, análisis predictivo, comparaciones inteligentes, asesoramiento financiero con IA
-- **Integraciones Avanzadas**: Conexión bancaria (Open Banking), importación automática (CSV, OFX)
-- **Features Empresariales**: Autenticación multi-usuario, presupuestos y metas, notificaciones push/email, exportación PDF/Excel
-- **Optimizaciones Futuras**: Tema oscuro/claro, modo offline PWA, gestión avanzada de cuotas
-
 ### Core Features
 
 **Leyenda:** ✅ Completado | 🔵 Pendiente
@@ -236,7 +230,7 @@ SmartPocket es un activo profesional que demuestra capacidades técnicas actuale
 | Feature                      | Status        | Descripción                                                                                           |
 | ---------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
 | **Gestión de Cuentas**       | ✅ Completado | CRUD completo, múltiples monedas, íconos personalizados, balance automático                           |
-| **Gestión de Categorías**    | 🔵 Pendiente  | CRUD completo para ingresos/gastos, color e ícono personalizado                                       |
+| **Gestión de Categorías**    | ✅ Completado | CRUD completo para ingresos/gastos, color e ícono personalizado                                       |
 | **Gestión de Transacciones** | 🔵 Pendiente  | CRUD con tags editables, calculadora integrada, búsqueda avanzada, filtros múltiples                  |
 | **Transferencias**           | 🔵 Pendiente  | CRUD entre cuentas propias, validación de saldo, actualización automática de balances                 |
 | **Próximos Pagos**           | 🔵 Pendiente  | CRUD con recurrencia (mensual/semanal/anual), marcar como pagado, indicadores visuales                |
@@ -244,14 +238,45 @@ SmartPocket es un activo profesional que demuestra capacidades técnicas actuale
 | **Reportes/Gráficos**        | 🔵 Pendiente  | Gastos por categoría (torta), evolución temporal (líneas/barras), selector de período                 |
 | **UX/Pulido**                | 🔵 Pendiente  | Loading states, estados vacíos, error handling, validación consistente, responsive completo           |
 
-**Detalles técnicos completos de implementación:** Ver [PRD](prd.md) para especificaciones técnicas detalladas
-
 ---
 
 ## Future Vision
 
-- **Post-MVP (IA)**: OCR de tickets con categorización automática, análisis predictivo de flujo de efectivo 3-6 meses, asesoramiento financiero personalizado
-- **Escalabilidad (Multi-Usuario)**: Autenticación segura, aislamiento de datos, modelo SaaS opcional si hay demanda validada
-- **Integración (Bancaria)**: Conexión segura con Open Banking APIs, sincronización automática de transacciones, dashboard consolidado de patrimonio
+**Innovación con IA:**
+
+- 🤖 OCR inteligente de tickets de supermercado con categorización automática
+- 📊 Análisis predictivo: proyecciones de flujo de efectivo 3-6 meses
+- 💡 Asesoramiento financiero personalizado con IA (patrones históricos)
+- 🔍 Comparaciones inteligentes de precios entre supermercados
+
+**Integraciones Avanzadas:**
+
+- 🏦 Conexión bancaria segura (Open Banking APIs)
+- 💳 Gestión avanzada de cuotas de tarjetas de crédito
+
+**Optimizaciones Futuras**:
+
+- Tema oscuro/claro, modo offline PWA, gestión avanzada de cuotas
+
+**Escalabilidad (Opcional):**
+
+- 👥 Multi-usuario con autenticación JWT
+- 🌐 Modelo SaaS (si se valida demanda real)
+- 💰 Presupuestos y metas financieras
+- 🔔 Sistema de notificaciones
 
 **Diferenciación a largo plazo**: Control total de datos (hosting propio), IA personalizada adaptada al usuario, innovación rápida sin vendor lock-in, portfolio evolutivo que demuestra capacidades técnicas actuales.
+
+Si el producto evoluciona hacia las siguientes capacidades, se activarán **requisitos completos de compliance fintech**:
+
+**Compliance Requirements (Phase 3):**
+
+- **Regulatory**: GDPR/CCPA (datos personales), PCI-DSS (si procesamiento de pagos), SOC2 (multi-usuario)
+- **Security Architecture**: Autenticación/autorización robusta, encriptación end-to-end, threat modeling
+- **Audit & Fraud Prevention**: Logging de auditoría, audit trails, detección de actividad sospechosa
+
+**Fundación Actual:**
+
+Los Non-Functional Requirements de seguridad actuales (protección de datos, HTTPS, sanitización de inputs, prevención SQL injection) establecen base técnica sólida para evolución futura. Phase 3 requerirá documentación técnica dedicada antes de implementar features reguladas.
+
+---

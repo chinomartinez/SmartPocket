@@ -3,7 +3,6 @@ inputDocuments:
   - "_docs/planning/prd.md"
   - "_docs/planning/product-brief-SmartPocket-2026-02-28.md"
   - "_docs/planning/ux-design-specification.md"
-  - "_docs/project-context.md"
 workflowType: "architecture"
 project_name: "SmartPocket"
 user_name: "Chino"
@@ -31,7 +30,7 @@ Este documento registra las **decisiones arquitectónicas** que dan forma a Smar
 **Qué NO contiene:**
 
 - Especificación de requerimientos (ver [prd.md](prd.md))
-- Planning de épicas/historias (ver [epics.md](epics/epics.md))
+- Planning de épicas/historias (ver [epics.md](epics.md)
 - Diseño UX/visual (ver [ux-design-specification.md](ux-design-specification.md))
 
 **Audiencia:** Desarrolladores (humanos + IA) que implementan features, manteniendo consistencia arquitectónica.

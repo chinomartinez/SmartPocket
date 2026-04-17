@@ -29,8 +29,6 @@ Este documento registra las **decisiones arquitectónicas** que dan forma a Smar
 
 **Qué NO contiene:**
 
-- Especificación de requerimientos (ver [prd.md](prd.md))
-- Planning de épicas/historias (ver [epics.md](epics.md)
 - Diseño UX/visual (ver [ux-design-specification.md](ux-design-specification.md))
 
 **Audiencia:** Desarrolladores (humanos + IA) que implementan features, manteniendo consistencia arquitectónica.
@@ -39,13 +37,7 @@ Este documento registra las **decisiones arquitectónicas** que dan forma a Smar
 
 ## Project Context Analysis
 
-### Requirements Context
-
-_Ver [prd.md](prd.md) para especificación completa de requerimientos_
-
-**Alcance funcional:** 46 requerimientos organizados en 8 módulos (Cuentas, Categorías, Transacciones, Transferencias, Pagos Recurrentes, Dashboard, Gráficos, Importación)
-
-**Drivers arquitectónicos clave:**
+### Drivers arquitectónicos clave
 
 - **Volume:** 1000-2000 transacciones sin degradación de performance
 - **Performance:** API <500ms, UI <100ms, carga inicial <2s

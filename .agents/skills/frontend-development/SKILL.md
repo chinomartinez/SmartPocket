@@ -1,6 +1,6 @@
 ---
 name: frontend-development
-description: Overview de desarrollo React 19 de SmartPocket e índice de skills. Lista skills especializados disponibles para data fetching, forms, testing, routing, y architecture patterns. Usar para preguntas generales de frontend o descubrir qué skill especializado usar.
+description: Overview de desarrollo React 19 de SmartPocket e índice de skills. Lista skills especializados disponibles para data fetching, forms, testing, routing, architecture patterns, y visual/financial display. Usar para preguntas generales de frontend o descubrir qué skill especializado usar.
 ---
 
 # SmartPocket - Frontend Development
@@ -68,6 +68,16 @@ React Router v7 navigation
 - URL params, query strings
 - Active states
 
+### **frontend-financial-display**
+
+Patterns visuales reutilizables
+
+- Color semántico (ingreso/gasto/transferencia)
+- Glassmorphism effects (`.glass-card`, `.glass-card-hover`)
+- Typography financiera (`font-mono`, number glow)
+- Formateo de montos y símbolos de moneda
+- Hover states, timing de animaciones
+
 ---
 
 ## Stack Crítico
@@ -120,6 +130,7 @@ React Router v7 navigation
 - Estructura / organización → **frontend-component-architecture**
 - Tests → **frontend-testing**
 - Navegación / rutas → **frontend-routing**
+- **Estilos financieros / colores / glassmorphism → frontend-financial-display**
 - TypeScript rules → `.github/instructions/typescript.instructions.md`
 - Tailwind v4 → `.github/instructions/tailwind.instructions.md`
 

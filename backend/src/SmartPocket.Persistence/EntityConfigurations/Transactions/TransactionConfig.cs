@@ -21,14 +21,11 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transactions
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.OwnsOne(x => x.AccountMoney, moneyBuilder =>
+            builder.ComplexProperty(x => x.AccountMoney, moneyBulder =>
             {
-                moneyBuilder.Property(m => m.Amount)
-                    .HasColumnName("AccountMoney_Amount");
-
-                moneyBuilder.Property(m => m.CurrencyCode)
-                    .CurrencyCodeMap()
-                    .HasColumnName("AccountMoney_CurrencyCode");
+                moneyBulder.Property(m => m.CurrencyCode)
+                    .IsRequired()
+                    .HasMaxLength(3);
             });
 
             string sql = "CASE WHEN IsIncome = 1 THEN AccountMoney_Amount ELSE -AccountMoney_Amount END";

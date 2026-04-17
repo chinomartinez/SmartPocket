@@ -10,8 +10,7 @@ using SmartPocket.WebApi.Setup;
 namespace SmartPocket.Tests.Infrastructures
 {
     public class IntegrationTestFixture : IAsyncLifetime
-    {        private readonly bool _isPostgreSql;
-
+    {        
         private SqliteConnection? _connection;
         private ServiceProvider? _serviceProvider;
 

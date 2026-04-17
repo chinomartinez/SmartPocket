@@ -19,7 +19,7 @@ namespace SmartPocket.Domain.Transactions
         /// Campo calculado que devuelve el monto positivo para ingresos y negativo para gastos.
         /// </summary>
         public decimal SignedAmount { 
-            get => IsIncome ? (AccountMoney?.Amount ?? 0) : -(AccountMoney?.Amount ?? 0); 
+            get => IsIncome ? AccountMoney.Amount : -AccountMoney.Amount; 
             private set { } 
         }
 
@@ -54,7 +54,7 @@ namespace SmartPocket.Domain.Transactions
             AccountId = accountId.GetIfNotNegativeOrZero(nameof(accountId));
             CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
 
-            AccountMoney = accountMoney ?? throw new ArgumentNullException(nameof(accountMoney));
+            AccountMoney = accountMoney;
 
             EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
             IsIncome = isIncome;

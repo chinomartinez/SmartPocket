@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartPocket.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Inital : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,11 +18,11 @@ namespace SmartPocket.Persistence.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    Icon_Code = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Icon_ColorHex = table.Column<string>(type: "TEXT", maxLength: 7, nullable: false),
                     CurrencyCode = table.Column<string>(type: "TEXT", maxLength: 3, nullable: false),
                     InitialBalance = table.Column<decimal>(type: "TEXT", nullable: false),
                     IncludeInBalanceGlobal = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Icon_Code = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Icon_ColorHex = table.Column<string>(type: "TEXT", maxLength: 7, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "datetime('now', 'utc')"),
                     LastModifiedAt = table.Column<DateTime>(type: "TEXT", nullable: true, defaultValueSql: "datetime('now', 'utc')"),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
@@ -39,10 +39,11 @@ namespace SmartPocket.Persistence.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    Icon_Code = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Icon_ColorHex = table.Column<string>(type: "TEXT", maxLength: 7, nullable: false),
                     IsIncome = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsDefault = table.Column<bool>(type: "INTEGER", nullable: false),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false, defaultValue: 0),
+                    Icon_Code = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Icon_ColorHex = table.Column<string>(type: "TEXT", maxLength: 7, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "datetime('now', 'utc')"),
                     LastModifiedAt = table.Column<DateTime>(type: "TEXT", nullable: true, defaultValueSql: "datetime('now', 'utc')"),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
@@ -78,13 +79,13 @@ namespace SmartPocket.Persistence.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     AccountId = table.Column<int>(type: "INTEGER", nullable: false),
                     CategoryId = table.Column<int>(type: "INTEGER", nullable: true),
-                    AccountMoney_Amount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    AccountMoney_CurrencyCode = table.Column<string>(type: "TEXT", maxLength: 3, nullable: false),
                     SignedAmount = table.Column<decimal>(type: "TEXT", nullable: false, computedColumnSql: "CASE WHEN IsIncome = 1 THEN AccountMoney_Amount ELSE -AccountMoney_Amount END", stored: true),
                     EffectiveDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 300, nullable: true),
                     IsIncome = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsSystemAdjustment = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AccountMoney_Amount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    AccountMoney_CurrencyCode = table.Column<string>(type: "TEXT", maxLength: 3, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "datetime('now', 'utc')"),
                     LastModifiedAt = table.Column<DateTime>(type: "TEXT", nullable: true, defaultValueSql: "datetime('now', 'utc')"),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)

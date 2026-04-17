@@ -37,7 +37,7 @@ namespace SmartPocket.Domain.Transactions
         public void Update(string name, Icon icon, bool isIncome)
         {
             Name = name.GetIfNotNullOrWhiteSpace(nameof(name));
-            Icon = icon ?? throw new ArgumentNullException(nameof(icon));
+            Icon = icon;
             IsIncome = isIncome;
         }
     }

@@ -15,8 +15,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transactions
             builder.Property(x => x.SortOrder)
                 .HasDefaultValue(0);
 
-            builder.OwnsOne(x => x.Icon)
-                .ConfigureIcon();
+            builder.ConfigureIcon(x => x.Icon);
         }
     }
 }

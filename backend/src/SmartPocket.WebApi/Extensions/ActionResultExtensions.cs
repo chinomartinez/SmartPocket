@@ -9,9 +9,15 @@ namespace SmartPocket.WebApi.Extensions
     {
         internal static ActionResult<T> ToActionResult<T, E>(this IResult<T, E> result)
         {
+            return result.ToActionResult(r => r);
+        }
+
+        internal static ActionResult<TValue> ToActionResult<T, E, TValue>(this IResult<T, E> result,
+            Func<T, TValue> factory)
+        {
             return result.IsSuccess
-                ? new OkObjectResult(result.Value)
-                : new BadRequestObjectResult(result.Error);
+                ? new OkObjectResult(factory(result.Value))
+                : new BadRequestResult();
         }
 
         internal static ActionResult ToActionResult<E>(this IResult<E> result)

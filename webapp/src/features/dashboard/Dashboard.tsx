@@ -57,13 +57,13 @@ export default function Dashboard() {
       {/* Floating Action Button (FAB) para crear transacción */}
       <Button
         onClick={() => setTransactionModalOpen(true)}
+        variant="success"
         size="lg"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl 
-          glass-card glass-card-hover
-          bg-sp-blue-600 hover:bg-sp-blue-500
-          border-2 border-sp-blue-400/30
+        className="fixed bottom-8 right-14 h-18 w-18 rounded-full shadow-2xl 
+          backdrop-blur-sm
+          border-2 border-emerald-400/30
           transition-all duration-300 ease-out
-          hover:scale-110 hover:shadow-sp-blue-500/50
+          hover:scale-110 hover:shadow-emerald-500/50 hover:border-emerald-400/50
           z-50
           group"
         title="Nueva Transacción"
@@ -71,12 +71,14 @@ export default function Dashboard() {
         <Plus className="h-6 w-6 transition-transform duration-300 group-hover:rotate-90" />
       </Button>
 
-      {/* Modal de creación de transacción */}
-      <TransactionFormModal
-        mode="create"
-        open={transactionModalOpen}
-        onOpenChange={setTransactionModalOpen}
-      />
+      {/* Modal de creación de transacción (montado solo cuando está abierto) */}
+      {transactionModalOpen && (
+        <TransactionFormModal
+          mode="create"
+          open={transactionModalOpen}
+          onOpenChange={setTransactionModalOpen}
+        />
+      )}
     </>
   );
 }

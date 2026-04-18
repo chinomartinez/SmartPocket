@@ -231,7 +231,7 @@ export function TransactionFormModal({
                       </Button>
                       <Button
                         type="button"
-                        variant={field.value === true ? "default" : "outline"}
+                        variant={field.value === true ? "success" : "outline"}
                         onClick={() => {
                           field.onChange(true);
                           setSelectedType(true);

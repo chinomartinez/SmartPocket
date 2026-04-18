@@ -23,11 +23,11 @@ Estructura de componentes, naming conventions, code quality principles, y access
 
 ---
 
-## Feature-First Structure (Flat by Default)
+## CRITICO - Feature-First Structure (Flat by Default)
 
 ### Filosofía
 
-**Mantener FLAT por defecto**. Solo organizar en subcarpetas si el conteo de archivos dificulta navegación visual (>10 archivos).
+**Mantener FLAT por defecto**. Para evitar nesting innecesario, cada feature debe ser una carpeta con sus componentes, hooks, types, etc. en raíz.
 
 ```
 src/features/{feature}/
@@ -55,21 +55,21 @@ src/features/accounts/
 
 ### Cuándo crear subcarpetas
 
-Si feature crece >10 archivos, organizar por tipo:
+**IMPORTANTE!** Solo crear subcarpeta si el conteo de archivos de un tipo especifico es igual o mayor a 4 (ej: 4+ components, 4+ hooks, etc). Esto mantiene la estructura simple y evita nesting innecesario.
 
 ```
 src/features/transactions/
   ├── components/
   │   ├── TransactionCard.tsx
   │   ├── TransactionForm.tsx
-  │   └── TransactionFilters.tsx
-  ├── hooks/
-  │   ├── useTransactions.ts
-  │   └── useTransactionFilters.ts
-  ├── types/
-  │   └── transactionTypes.ts
-  └── utils/
-      └── formatTransaction.ts
+  │   ├── TransactionFilters.tsx
+  │   └── TransactionModal.tsx
+  ├── useTransactions.ts
+  ├── useTransactionFilters.ts
+  ├── transactionTypes.ts
+  ├── formatTransaction.ts
+  └── TransactionDetails.tsx // Pagina de detalles, no es un component común, por eso va en raíz
+
 ```
 
 **Regla:** Refactorizar cuando sea necesario, NO en anticipación.

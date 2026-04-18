@@ -5,7 +5,7 @@
  */
 
 import { useState } from "react";
-import { TransactionFormModal } from "./components/TransactionFormModal";
+import { TransactionFormModal } from "./TransactionFormModal";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, Filter } from "lucide-react";
 

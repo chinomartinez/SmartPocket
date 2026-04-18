@@ -6,10 +6,10 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateTransaction, useUpdateTransaction } from "../hooks/useTransactions";
+import { useCreateTransaction, useUpdateTransaction } from "./useTransactions";
 import { useAccounts } from "@/features/accounts/hooks/useAccounts";
 import { useCategories } from "@/features/categories/hooks/useCategories";
-import { transactionSchema, type TransactionFormValues } from "../schemas/transactionSchema";
+import { transactionSchema, type TransactionFormValues } from "./transactionSchema";
 import type { TransactionGetByIdDTO } from "@/api/services/transactions/transactionTypes";
 import type { ApiError } from "@/api/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

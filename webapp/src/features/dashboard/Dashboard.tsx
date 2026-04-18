@@ -2,7 +2,7 @@ import { useState } from "react";
 import FinancialCards from "@/features/dashboard/financialCards/FinancialCards";
 import RecentTransactions from "@/features/dashboard/recentTransactions/RecentTransactions";
 import UpcomingPayments from "@/features/dashboard/upcomingPayments/UpcomingPayments";
-import { TransactionFormModal } from "@/features/transactions/components/TransactionFormModal";
+import { TransactionFormModal } from "@/features/transactions/TransactionFormModal";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 

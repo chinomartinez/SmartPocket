@@ -34,9 +34,9 @@ import { z } from "zod";
 
 export const accountSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
-  balance: z.coerce.number().min(0, "Balance must be positive"),
-  currencyId: z.coerce.number().int().positive("Currency is required"),
-  iconId: z.coerce.number().int().positive().optional(),
+  balance: z.number("El saldo debe ser un número").min(0, "Balance must be positive"),
+  currencyId: z.number("Debe seleccionar una moneda").int().positive("Currency is required"),
+  iconId: z.number().int().positive().optional(),
   colorHex: z
     .string()
     .regex(/^#[0-9A-F]{6}$/i, "Invalid color format")
@@ -49,7 +49,7 @@ export type AccountFormValues = z.infer<typeof accountSchema>;
 
 **Key features:**
 
-- `z.coerce.number()` - Convierte string → number (útil para inputs HTML)
+- `z.number("mensaje")` - Validación de tipo number (conversión manual en component, ver Step 4)
 - `.optional()` - Campo no requerido
 - `.min()`, `.max()`, `.regex()` - Validaciones built-in
 - Custom messages para UX
@@ -147,7 +147,13 @@ function AccountForm() {
             <FormItem>
               <FormLabel>Initial Balance</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -161,6 +167,70 @@ function AccountForm() {
     </Form>
   );
 }
+```
+
+---
+
+## SmartPocket Pattern: Number Fields
+
+### ⚠️ IMPORTANTE: NO usar z.coerce.number() en este proyecto
+
+**SmartPocket usa conversión MANUAL, NO z.coerce:**
+
+```typescript
+// ✅ Pattern correcto de SmartPocket
+// 1. Schema: z.number() directo
+const transactionSchema = z.object({
+  amount: z.number("El monto debe ser un número").positive("Debe ser mayor a 0"),
+  accountId: z.number("Debe seleccionar una cuenta").int().positive(),
+});
+
+// 2. Component: conversión manual en onChange
+<FormField
+  control={form.control}
+  name="amount"
+  render={({ field }) => (
+    <FormControl>
+      <Input
+        type="number"
+        step="0.01"
+        {...field}
+        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+      />
+    </FormControl>
+  )}
+/>
+```
+
+**¿Por qué NO z.coerce.number()?**
+
+1. **API incompatible:** `z.coerce.number()` NO acepta `required_error` ni `invalid_type_error` props
+2. **Consistencia:** Todo el proyecto usa este pattern (ver `accountSchema.ts`, `categorySchema.ts`)
+3. **Control explícito:** Conversión visible en component, más fácil debuggear
+
+```typescript
+// ❌ MAL - causa errores de TypeScript
+amount: z.coerce.number({
+  required_error: "...", // ❌ No existe en z.coerce API
+  invalid_type_error: "...", // ❌ No existe en z.coerce API
+});
+
+// ✅ BIEN - message directo + manual conversion
+amount: z.number("El monto debe ser un número").positive();
+// + onChange={(e) => field.onChange(parseFloat(e.target.value))}
+```
+
+**Para integers (IDs):**
+
+```typescript
+// Schema
+accountId: z.number("Debe seleccionar una cuenta").int().positive(),
+
+// Component
+<Select
+  onValueChange={(value) => field.onChange(parseInt(value))}
+  {...field}
+/>
 ```
 
 ---
@@ -292,7 +362,7 @@ const transactionSchema = z.object({
     .array(
       z.object({
         description: z.string().min(1),
-        amount: z.coerce.number().positive(),
+        amount: z.number("Debe ser un número").positive(),
       })
     )
     .min(1, "At least one item required"),
@@ -325,7 +395,7 @@ function TransactionForm() {
 const accountSchema = z
   .object({
     type: z.enum(["savings", "credit"]),
-    creditLimit: z.coerce.number().optional(),
+    creditLimit: z.number("Debe ser un número").optional(),
   })
   .refine(
     (data) => {
@@ -364,16 +434,24 @@ function AccountForm() {
 
 ## Anti-Patterns Críticos
 
-### ❌ Coerce sin validación
+### ❌ Usar z.coerce.number() en SmartPocket
 
 ```typescript
-// ❌ MAL - acepta strings vacíos → 0
-balance: z.coerce.number();
+// ❌ MAL - NO usar z.coerce en este proyecto
+balance: z.coerce.number().min(0, "Balance must be positive");
 ```
 
 ```typescript
-// ✅ BIEN - validar después de coercion
-balance: z.coerce.number().min(0, "Balance must be positive");
+// ✅ BIEN - z.number() + conversión manual
+// Schema:
+balance: z.number("El saldo debe ser un número").min(0, "Balance must be positive");
+
+// Component:
+<Input
+  type="number"
+  {...field}
+  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+/>
 ```
 
 ### ❌ Validación solo client-side
@@ -471,14 +549,14 @@ colorHex: z.string().regex(/^#[0-9A-F]{6}$/i);
 
 ## Troubleshooting
 
-| Problema                                        | Causa                                   | Solución                                     |
-| ----------------------------------------------- | --------------------------------------- | -------------------------------------------- |
-| "A component is changing an uncontrolled input" | Falta `defaultValues`                   | Definir `defaultValues` en `useForm()`       |
-| Validación no ejecuta                           | Falta `resolver`                        | Agregar `resolver: zodResolver(schema)`      |
-| Edit form no pre-popula                         | Usar `defaultValues` en vez de `values` | Cambiar a `values` para reactive updates     |
-| Números se guardan como strings                 | No usar `z.coerce.number()`             | Aplicar coercion en schema                   |
-| Form no limpia después de submit                | Falta `form.reset()`                    | Llamar `reset()` en `onSuccess`              |
-| Errores de API no aparecen                      | No capturar `onError`                   | Agregar `onError` callback con `setApiError` |
+| Problema                                        | Causa                                   | Solución                                                               |
+| ----------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------- |
+| "A component is changing an uncontrolled input" | Falta `defaultValues`                   | Definir `defaultValues` en `useForm()`                                 |
+| Validación no ejecuta                           | Falta `resolver`                        | Agregar `resolver: zodResolver(schema)`                                |
+| Edit form no pre-popula                         | Usar `defaultValues` en vez de `values` | Cambiar a `values` para reactive updates                               |
+| Números se guardan como strings                 | Falta conversión en `onChange`          | Agregar `onChange={(e) => field.onChange(parseFloat(e.target.value))}` |
+| Form no limpia después de submit                | Falta `form.reset()`                    | Llamar `reset()` en `onSuccess`                                        |
+| Errores de API no aparecen                      | No capturar `onError`                   | Agregar `onError` callback con `setApiError`                           |
 
 ---
 
@@ -487,6 +565,5 @@ colorHex: z.string().regex(/^#[0-9A-F]{6}$/i);
 - [React Hook Form Docs](https://react-hook-form.com/)
 - [Zod Docs](https://zod.dev/)
 - [shadcn Form Component](https://ui.shadcn.com/docs/components/form)
-- SmartPocket: [Example form](webapp/src/features/accounts/AccountForm.tsx)
 
 ---

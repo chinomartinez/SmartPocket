@@ -10,6 +10,7 @@ import Dashboard from "@/features/dashboard/Dashboard";
 import { PlaceholderPage } from "@/components/PlaceholderPage";
 import { AccountsList } from "@/features/accounts/components/AccountsList";
 import { CategoriesList } from "@/features/categories/components/CategoriesList";
+import { Transactions } from "@/features/transactions/Transactions";
 import { TestErrors } from "@/components/TestErrors";
 import { ROUTES } from "./routes";
 import SmartPocketLayout from "@/layout/SmartPocketLayout";
@@ -28,8 +29,8 @@ export function AppRouter() {
           {/* Accounts - Gestión de Cuentas */}
           <Route path={ROUTES.ACCOUNTS} element={<AccountsList />} />
 
-          {/* Placeholder: Transactions (Fase 3) */}
-          <Route path={ROUTES.TRANSACTIONS} element={<PlaceholderPage title="Transacciones" />} />
+          {/* Transactions - Gestión de Transacciones */}
+          <Route path={ROUTES.TRANSACTIONS} element={<Transactions />} />
 
           {/* Categories - Gestión de Categorías */}
           <Route path={ROUTES.CATEGORIES} element={<CategoriesList />} />

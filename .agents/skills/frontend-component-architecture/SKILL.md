@@ -361,6 +361,5 @@ Ver [Component Patterns](./references/component-patterns.md) para patterns avanz
 - [React Docs - Components](https://react.dev/learn/your-first-component)
 - [React Docs - Accessibility](https://react.dev/learn/accessibility)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
-- SmartPocket: [Feature structure](webapp/src/features/accounts/)
 
 ---

@@ -453,7 +453,7 @@ const onSubmit = (data: FormData) => {
 
 - [TanStack Query Docs](https://tanstack.com/query/latest/docs/react/overview)
 - [Query Keys Guide](https://tkdodo.eu/blog/effective-react-query-keys)
-- SmartPocket: [spApiClient.ts](webapp/src/api/spApiClient.ts)
-- SmartPocket: [Example service](webapp/src/api/services/accounts/accountService.ts)
+- SmartPocket: [spApiClient.ts](/webapp/src/api/spApiClient.ts)
+- SmartPocket: [Example service](/webapp/src/api/services/accounts/accountService.ts)
 
 ---

@@ -4,7 +4,7 @@
  */
 import { useState, useRef, useCallback } from "react";
 import { PlusIcon, ArrowsUpDownIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useCategories, useReorderCategories } from "../hooks/useCategories";
+import { useCategories, useReorderCategories } from "./useCategories";
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";
 import type { CategoryReorderItem } from "@/api/services/categories/categoryTypes";
 import { CategoryChip } from "./CategoryChip";
@@ -12,7 +12,7 @@ import { CategoryChipSkeleton } from "./CategoryChipSkeleton";
 import { CategoryFormModal } from "./CategoryFormModal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { SortableContainer, SortableItem, moveItem } from "../dnd";
+import { SortableContainer, SortableItem, moveItem } from "./dnd";
 
 // ============================================================================
 // Types

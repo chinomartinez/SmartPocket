@@ -8,8 +8,8 @@
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import Dashboard from "@/features/dashboard/Dashboard";
 import { PlaceholderPage } from "@/components/PlaceholderPage";
-import { AccountsList } from "@/features/accounts/components/AccountsList";
-import { CategoriesList } from "@/features/categories/components/CategoriesList";
+import { AccountsList } from "@/features/accounts/AccountsList";
+import { CategoriesList } from "@/features/categories/CategoriesList";
 import { Transactions } from "@/features/transactions/Transactions";
 import { TestErrors } from "@/components/TestErrors";
 import { ROUTES } from "./routes";

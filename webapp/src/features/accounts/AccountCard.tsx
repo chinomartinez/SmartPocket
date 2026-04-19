@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatCurrency } from "@/utils/formatters";
-import { getIconSymbol } from "../utils/iconHelpers";
+import { getIconSymbol } from "./iconHelpers";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";
 
 interface AccountCardProps {

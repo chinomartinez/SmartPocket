@@ -3,7 +3,7 @@
  * Componente circular compacto para mostrar categorías
  */
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";
-import { getIconSymbol } from "../utils/iconHelpers";
+import { getIconSymbol } from "./iconHelpers";
 
 // ============================================================================
 // Types

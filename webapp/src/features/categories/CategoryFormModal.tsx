@@ -11,8 +11,8 @@ import {
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
-} from "@/features/categories/hooks/useCategories";
-import { categorySchema, type CategoryFormValues } from "../schemas/categorySchema";
+} from "@/features/categories/useCategories";
+import { categorySchema, type CategoryFormValues } from "./categorySchema";
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";
 import type { ApiError } from "@/api/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -37,7 +37,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { getIconsByType, getOrDefaultIconOption } from "../utils/iconHelpers";
+import { getIconsByType, getOrDefaultIconOption } from "./iconHelpers";
 
 // ============================================================================
 // Types

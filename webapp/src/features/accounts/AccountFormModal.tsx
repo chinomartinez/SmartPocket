@@ -6,9 +6,9 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateAccount, useUpdateAccount } from "@/features/accounts/hooks/useAccounts";
+import { useCreateAccount, useUpdateAccount } from "@/features/accounts/useAccounts";
 import { useCurrencies } from "@/hooks/useCurrencies";
-import { accountSchema, type AccountFormValues } from "../schemas/accountSchema";
+import { accountSchema, type AccountFormValues } from "./accountSchema";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";
 import type { ApiError } from "@/api/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { getAllIconOptions, getOrDefaultIconOption } from "../utils/iconHelpers";
+import { getAllIconOptions, getOrDefaultIconOption } from "./iconHelpers";
 
 // ============================================================================
 // Types

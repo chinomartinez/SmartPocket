@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { AccountCard } from "./AccountCard";
 import { AccountCardSkeleton } from "./AccountCardSkeleton";
 import { AccountFormModal } from "./AccountFormModal";
-import { useAccounts, useDeleteAccount } from "../hooks/useAccounts";
+import { useAccounts, useDeleteAccount } from "./useAccounts";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";
 
 export function AccountsList() {

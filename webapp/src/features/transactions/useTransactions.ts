@@ -3,7 +3,7 @@
  * Hooks con TanStack Query para operaciones CRUD de transacciones
  */
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { transactionService } from "@/api/services/transactions/transactionService";
 import type { TransactionCreateCommand } from "@/api/services/transactions/transactionTypes";
 
@@ -13,27 +13,47 @@ import type { TransactionCreateCommand } from "@/api/services/transactions/trans
 
 export const transactionKeys = {
   all: ["transactions"] as const,
-  detail: (id: number) => ["transactions", id] as const,
+  lists: () => [...transactionKeys.all, "list"] as const,
+  recents: (count: number) => [...transactionKeys.all, "recents", count] as const,
+  details: () => [...transactionKeys.all, "detail"] as const,
+  detail: (id: number) => [...transactionKeys.details(), id] as const,
 };
 
 // ============================================================================
 // Queries
 // ============================================================================
 
+/**
+ * Hook para obtener una transacción por ID
+ * @param id ID de la transacción
+ * @param options Opciones adicionales para useQuery
+ * @returns Query con datos de transacción
+ */
+export function useTransaction(id: number, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: transactionKeys.detail(id),
+    queryFn: () => transactionService.getById(id),
+    enabled: options?.enabled !== undefined ? options.enabled : !!id,
+  });
+}
+
+/**
+ * Hook para obtener transacciones recientes
+ * @param count Cantidad de transacciones a obtener (default: 5)
+ * @returns Query con lista de transacciones recientes
+ */
+export function useRecentTransactions(count: number = 5) {
+  return useQuery({
+    queryKey: transactionKeys.recents(count),
+    queryFn: () => transactionService.getRecents(count),
+  });
+}
+
 // TODO: Implementar cuando backend exponga GET /transactions
 // export function useTransactions(filters?) {
 //   return useQuery({
-//     queryKey: transactionKeys.all,
+//     queryKey: transactionKeys.lists(),
 //     queryFn: () => transactionService.getAll(filters),
-//   });
-// }
-
-// TODO: Implementar cuando backend exponga GET /transactions/{id}
-// export function useTransaction(id: number) {
-//   return useQuery({
-//     queryKey: transactionKeys.detail(id),
-//     queryFn: () => transactionService.getById(id),
-//     enabled: !!id,
 //   });
 // }
 
@@ -51,7 +71,7 @@ export function useCreateTransaction() {
   return useMutation({
     mutationFn: transactionService.create,
     onSuccess: () => {
-      // Invalidar lista de transacciones para refrescar cuando exista
+      // Invalidar todas las queries de transacciones (lista, recents, etc.)
       queryClient.invalidateQueries({ queryKey: transactionKeys.all });
       // También invalidar accountKeys para actualizar balances
       queryClient.invalidateQueries({ queryKey: ["accounts"] });

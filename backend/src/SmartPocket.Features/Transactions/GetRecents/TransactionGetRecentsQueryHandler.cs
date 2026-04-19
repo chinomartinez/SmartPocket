@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.Transactions;
+using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Persistence;
 
 namespace SmartPocket.Features.Transactions.GetRecents
 {
-    public class TransactionGetRecentsQueryHandler
+    public class TransactionGetRecentsQueryHandler : IHandler
     {
         private readonly ISmartPocketContext _smartPocketContext;
 

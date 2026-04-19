@@ -6,11 +6,10 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateTransaction, useUpdateTransaction } from "./useTransactions";
+import { useCreateTransaction, useUpdateTransaction, useTransaction } from "./useTransactions";
 import { useAccounts } from "@/features/accounts/hooks/useAccounts";
 import { useCategories } from "@/features/categories/hooks/useCategories";
 import { transactionSchema, type TransactionFormValues } from "./transactionSchema";
-import type { TransactionGetByIdDTO } from "@/api/services/transactions/transactionTypes";
 import type { ApiError } from "@/api/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -40,7 +39,7 @@ import { Calendar } from "lucide-react";
 
 interface TransactionFormModalProps {
   mode: "create" | "edit";
-  transaction?: TransactionGetByIdDTO;
+  transactionId?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -66,7 +65,7 @@ const DEFAULT_FORM_VALUES: TransactionFormValues = {
 
 export function TransactionFormModal({
   mode,
-  transaction,
+  transactionId,
   open,
   onOpenChange,
 }: TransactionFormModalProps) {
@@ -74,6 +73,9 @@ export function TransactionFormModal({
   const [selectedType, setSelectedType] = useState<boolean>(false); // false=gasto, true=ingreso
 
   // Hooks
+  const { data: transaction, isLoading: fetchingTransaction } = useTransaction(transactionId!, {
+    enabled: mode === "edit" && !!transactionId && open,
+  });
   const { data: accounts, isLoading: accountsLoading } = useAccounts();
   const { data: categories, isLoading: categoriesLoading } = useCategories(selectedType);
   const createMutation = useCreateTransaction();
@@ -167,9 +169,9 @@ export function TransactionFormModal({
           setApiError(error);
         },
       });
-    } else if (mode === "edit" && transaction) {
+    } else if (mode === "edit" && transactionId) {
       updateMutation.mutate(
-        { id: transaction.id, data: payload },
+        { id: transactionId, data: payload },
         {
           onSuccess: () => {
             onOpenChange(false);
@@ -193,6 +195,22 @@ export function TransactionFormModal({
   // ============================================================================
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
+
+  // Loading state mientras fetches transaction en modo edit
+  if (mode === "edit" && fetchingTransaction) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Cargando transacción...</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sp-blue-600"></div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -16,6 +16,36 @@ export interface MoneyDTO {
   currencyCode: string;
 }
 
+/**
+ * DTO para íconos con código y color
+ * Alineado con IconDTO.cs del backend
+ */
+export interface IconDTO {
+  code: string;
+  colorHex: string;
+}
+
+/**
+ * DTO para cuenta en transacciones recientes
+ * Alineado con AccountRecentTransactionItemDTO.cs del backend
+ */
+export interface AccountRecentTransactionItemDTO {
+  id: number;
+  name: string;
+  icon: IconDTO;
+}
+
+/**
+ * DTO para categoría en transacciones recientes
+ * Alineado con CategoryRecentTransactionItemDTO.cs del backend
+ */
+export interface CategoryRecentTransactionItemDTO {
+  id: number;
+  name: string;
+  isIncome: boolean;
+  icon: IconDTO;
+}
+
 // ============================================================================
 // DTOs para Querys
 // ============================================================================
@@ -32,6 +62,20 @@ export interface TransactionGetByIdDTO {
   accountId: number;
   categoryId: number;
   isIncome: boolean;
+}
+
+/**
+ * DTO para item de transacción reciente
+ * Alineado con RecentTransactionItemDTO.cs del backend
+ */
+export interface RecentTransactionItemDTO {
+  id: number;
+  account: AccountRecentTransactionItemDTO;
+  category: CategoryRecentTransactionItemDTO;
+  description?: string;
+  effectiveDate: string; // ISO 8601 date string
+  isIncome: boolean;
+  money: MoneyDTO;
 }
 
 // ============================================================================

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SmartPocket.Persistence.Interceptors;
-using SmartPocket.Persistence.PagedQuery;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -65,7 +64,7 @@ namespace SmartPocket.Persistence
             {
                 //El argumento bool del delegado indica si se realizó alguna
                 //operación de administración de tienda
-                if (ctx is ISmartPocketContext spCtx && wasSeed)
+                if (ctx is ISmartPocketContext spCtx)
                     await SmartPocketSeeder.SeedAsync(spCtx, cancellationToken);
             });
 
@@ -77,7 +76,7 @@ namespace SmartPocket.Persistence
             {
                 options.UseSeeding((ctx, wasSeed) =>
                 {
-                    if (ctx is ISmartPocketContext spCtx && wasSeed)
+                    if (ctx is ISmartPocketContext spCtx)
                         SmartPocketSeeder.SeedAsync(spCtx, CancellationToken.None).GetAwaiter().GetResult();
                 });
             }

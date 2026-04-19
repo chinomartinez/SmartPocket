@@ -4,6 +4,6 @@
 
     public abstract class BaseEntity<T> : BaseEntity
     {
-        public T Id { get; set; } = default!;
+        public T Id { get; init; } = default!;
     }
 }

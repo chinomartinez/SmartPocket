@@ -2,7 +2,7 @@
 using SmartPocket.Domain;
 using SmartPocket.Domain.Transactions;
 
-namespace SmartPocket.Persistence.PagedQuery
+namespace SmartPocket.Persistence
 {
     public static class SmartPocketSeeder
     {
@@ -16,9 +16,9 @@ namespace SmartPocket.Persistence.PagedQuery
             var any = await context
                 .Query<Category>()
                 .Where(x => x.IsDefault)
-                .AnyAsync(cancellation);
+                .CountAsync(cancellation);
 
-            if (any) return;
+            if (any > 0) return;
 
             var defaultCategories = new Category[]
             {

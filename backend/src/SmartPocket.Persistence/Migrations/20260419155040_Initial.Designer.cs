@@ -12,7 +12,7 @@ using SmartPocket.Persistence;
 namespace SmartPocket.Persistence.Migrations
 {
     [DbContext(typeof(SmartPocketContext))]
-    [Migration("20260417231607_Initial")]
+    [Migration("20260419155040_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

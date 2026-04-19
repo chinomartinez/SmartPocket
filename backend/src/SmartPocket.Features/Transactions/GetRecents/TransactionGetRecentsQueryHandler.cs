@@ -23,11 +23,16 @@ namespace SmartPocket.Features.Transactions.GetRecents
                     Id = t.Id,
                     Description = t.Description,
                     EffectiveDate = t.EffectiveDate,
-                    IsIncome = t.IsIncome,
-                    Money = new MoneyDTO
+                    IsIncome = t.IsIncome,                    
+                    Account =  new AccountRecentTransactionItemDTO
                     {
-                        Amount = t.AccountMoney.Amount,
-                        CurrencyCode = t.AccountMoney.CurrencyCode,
+                        Id = t.Account.Id,
+                        Name = t.Account.Name,
+                        Icon = new()
+                        {
+                            Code = t.Account.Icon.Code,
+                            ColorHex = t.Account.Icon.ColorHex,
+                        },
                     },
                     Category = new CategoryRecentTransactionItemDTO
                     {
@@ -39,7 +44,12 @@ namespace SmartPocket.Features.Transactions.GetRecents
                             ColorHex = t.Category.Icon.ColorHex,
                         },
                         IsIncome = t.Category.IsIncome,
-                    },                    
+                    },
+                    Money = new MoneyDTO
+                    {
+                        Amount = t.AccountMoney.Amount,
+                        CurrencyCode = t.AccountMoney.CurrencyCode,
+                    },
                 })
                 .OrderByDescending(t => t.EffectiveDate)
                 .Take(request.Count)

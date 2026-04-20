@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { Calendar } from "lucide-react";
+import { IconBox } from "@/components/iconBoxes/IconBox";
 
 // ============================================================================
 // Types
@@ -291,8 +292,17 @@ export function TransactionFormModal({
                     <SelectContent>
                       {accounts?.map((account) => (
                         <SelectItem key={account.id} value={account.id.toString()}>
-                          {account.icon.code && <span className="mr-2">{account.icon.code}</span>}
-                          {account.name} ({account.currency.code})
+                          <div className="flex items-center gap-2">
+                            <IconBox
+                              icon={account.icon}
+                              size="xs"
+                              shape="rounded"
+                              backgroundOpacity={20}
+                            />
+                            <span>
+                              {account.name} ({account.currency.code})
+                            </span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -327,8 +337,15 @@ export function TransactionFormModal({
                     <SelectContent>
                       {categories?.map((category) => (
                         <SelectItem key={category.id} value={category.id.toString()}>
-                          <span className="mr-2">{category.icon.code}</span>
-                          {category.name}
+                          <div className="flex items-center gap-2">
+                            <IconBox
+                              icon={category.icon}
+                              size="xs"
+                              shape="rounded"
+                              backgroundOpacity={20}
+                            />
+                            <span>{category.name}</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>

@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatCurrency } from "@/utils/formatters";
-import { getIconSymbol } from "./iconHelpers";
+import { IconBox } from "@/components/iconBoxes/IconBox";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";
 
 interface AccountCardProps {
@@ -32,9 +32,6 @@ export function AccountCard({ account, onEdit, onDelete, isDeleting }: AccountCa
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { name, icon, currency, balance } = account;
 
-  // Obtener símbolo del icono (maneja legacy y fallback)
-  const iconSymbol = getIconSymbol(icon.code);
-
   // Formatear balance con símbolo de moneda
   const formattedBalance = formatCurrency(balance, currency.symbol);
 
@@ -47,15 +44,7 @@ export function AccountCard({ account, onEdit, onDelete, isDeleting }: AccountCa
         {/* Header: Icono + Nombre */}
         <div className="flex items-start gap-4 mb-6">
           {/* Icono con color */}
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110"
-            style={{
-              backgroundColor: `${icon.colorHex}20`,
-              color: icon.colorHex,
-            }}
-          >
-            {iconSymbol}
-          </div>
+          <IconBox icon={icon} size="md" shape="rounded" backgroundOpacity={20} animated />
 
           {/* Nombre de la cuenta */}
           <div className="flex-1 min-w-0">

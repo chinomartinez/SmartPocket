@@ -3,7 +3,7 @@
  * Componente circular compacto para mostrar categorías
  */
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";
-import { getIconSymbol } from "./iconHelpers";
+import { IconBox } from "@/components/iconBoxes/IconBox";
 
 // ============================================================================
 // Types
@@ -20,8 +20,6 @@ interface CategoryChipProps {
 // ============================================================================
 
 export function CategoryChip({ category, onEdit, isReordering = false }: CategoryChipProps) {
-  const iconSymbol = getIconSymbol(category.icon.code);
-
   // ============================================================================
   // Handlers
   // ============================================================================
@@ -49,19 +47,13 @@ export function CategoryChip({ category, onEdit, isReordering = false }: Categor
       }`}
     >
       {/* Círculo con icono */}
-      <div
-        className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all duration-200 ${
-          isClickable
-            ? "group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-sp-purple-500/30"
-            : ""
-        }`}
-        style={{
-          backgroundColor: `${category.icon.colorHex}30`,
-          color: category.icon.colorHex,
-        }}
-      >
-        {iconSymbol}
-      </div>
+      <IconBox
+        icon={category.icon}
+        size="lg"
+        shape="circle"
+        backgroundOpacity={30}
+        animated={isClickable}
+      />
 
       {/* Nombre de la categoría */}
       <div className="w-25 text-center">

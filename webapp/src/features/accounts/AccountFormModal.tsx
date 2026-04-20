@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { getAllIconOptions, getOrDefaultIconOption } from "./iconHelpers";
+import { getAccountIcons } from "@/components/iconBoxes/iconMap";
 
 // ============================================================================
 // Types
@@ -80,14 +80,9 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
   // Pre-cargar datos en modo edición o resetear en modo creación
   useEffect(() => {
     if (mode === "edit" && account) {
-      let _icon = {
-        code: getOrDefaultIconOption(account.icon.code).code,
-        colorHex: account.icon.colorHex,
-      };
-
       form.reset({
         name: account.name,
-        icon: _icon,
+        icon: account.icon,
         currencyCode: account.currency.code,
         balance: account.balance,
         includeInBalanceGlobal: account.includeInBalanceGlobal,
@@ -205,7 +200,7 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                   <FormLabel>Ícono</FormLabel>
                   <FormControl>
                     <div className="grid grid-cols-6 gap-2">
-                      {getAllIconOptions().map((option) => (
+                      {getAccountIcons().map((option) => (
                         <button
                           key={option.code}
                           type="button"

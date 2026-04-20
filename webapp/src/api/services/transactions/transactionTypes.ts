@@ -3,6 +3,8 @@
  * Tipos de datos para la gestión de transacciones
  */
 
+import type { IconDTO } from "../shared/sharedTypes";
+
 // ============================================================================
 // Shared DTOs
 // ============================================================================
@@ -14,15 +16,6 @@
 export interface MoneyDTO {
   amount: number;
   currencyCode: string;
-}
-
-/**
- * DTO para íconos con código y color
- * Alineado con IconDTO.cs del backend
- */
-export interface IconDTO {
-  code: string;
-  colorHex: string;
 }
 
 /**

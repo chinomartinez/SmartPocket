@@ -37,7 +37,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { getIconsByType, getOrDefaultIconOption } from "./iconHelpers";
+import { ca } from "zod/v4/locales";
+import { getCategoryIcons } from "@/components/iconBoxes/iconMap";
 
 // ============================================================================
 // Types
@@ -96,14 +97,9 @@ export function CategoryFormModal({
   // Pre-cargar datos en modo edición o resetear en modo creación
   useEffect(() => {
     if (mode === "edit" && category) {
-      const _icon = {
-        code: getOrDefaultIconOption(category.icon.code).code,
-        colorHex: category.icon.colorHex,
-      };
-
       form.reset({
         name: category.name,
-        icon: _icon,
+        icon: category.icon,
         isIncome: category.isIncome,
       });
 
@@ -126,7 +122,7 @@ export function CategoryFormModal({
   }, [open]);
 
   // Filtrar iconos según tipo seleccionado
-  const availableIcons = useMemo(() => getIconsByType(selectedType), [selectedType]);
+  const availableIcons = useMemo(() => getCategoryIcons(selectedType), [selectedType]);
 
   // ============================================================================
   // Helpers

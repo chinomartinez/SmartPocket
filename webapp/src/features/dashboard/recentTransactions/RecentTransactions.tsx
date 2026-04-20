@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/router/routes";
 import { Skeleton } from "@/components/ui/skeleton";
+import { IconBox } from "@/components/iconBoxes/IconBox";
 
 export default function RecentTransactions() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -97,12 +98,13 @@ export default function RecentTransactions() {
                 >
                   {/* Left: Icon + Description */}
                   <div className="flex items-center space-x-3">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center group-hover/item:scale-110 transition-transform duration-300"
-                      style={{ backgroundColor: `${transaction.category.icon.colorHex}20` }}
-                    >
-                      <span className="text-lg">{transaction.category.icon.code}</span>
-                    </div>
+                    <IconBox
+                      icon={transaction.category.icon}
+                      size="sm"
+                      shape="rounded"
+                      backgroundOpacity={20}
+                      animated
+                    />
                     <div>
                       <p className="text-white font-medium text-sm">
                         {transaction.description || transaction.category.name}

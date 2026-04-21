@@ -16,16 +16,7 @@ import { categorySchema, type CategoryFormValues } from "./categorySchema";
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";
 import type { ApiError } from "@/api/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import {
   Form,
   FormControl,
@@ -37,7 +28,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { ca } from "zod/v4/locales";
 import { getCategoryIcons } from "@/components/iconBoxes/iconMap";
 
 // ============================================================================
@@ -389,31 +379,14 @@ export function CategoryFormModal({
       </DialogContent>
 
       {/* Dialog de confirmación de eliminación */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="glass-card border-slate-700">
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar categoría?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {category && (
-                <>
-                  ¿Estás seguro de que deseas eliminar la categoría &quot;{category.name}&quot;?
-                  Esta acción no se puede deshacer.
-                </>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {deleteMutation.isPending ? "Eliminando..." : "Eliminar"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        itemName={category?.name || ""}
+        itemType="categoría"
+        isDeleting={deleteMutation.isPending}
+      />
     </Dialog>
   );
 }

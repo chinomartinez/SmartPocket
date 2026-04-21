@@ -7,16 +7,7 @@ import { useState } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { formatCurrency } from "@/utils/formatters";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";
@@ -103,29 +94,17 @@ export function AccountCard({ account, onEdit, onDelete, isDeleting }: AccountCa
       </div>
 
       {/* Modal de confirmación de eliminación */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar cuenta?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Estás a punto de eliminar la cuenta <strong>{name}</strong>. Esta acción no se puede
-              deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                onDelete?.(account.id);
-                setShowDeleteDialog(false);
-              }}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={() => {
+          onDelete?.(account.id);
+          setShowDeleteDialog(false);
+        }}
+        itemName={name}
+        itemType="cuenta"
+        isDeleting={isDeleting}
+      />
     </Card>
   );
 }

@@ -78,6 +78,17 @@ Patterns visuales reutilizables
 - Formateo de montos y símbolos de moneda
 - Hover states, timing de animaciones
 
+### **frontend-reusable-components**
+
+Componentes reutilizables compartidos
+
+- IconBox (iconos con color/tamaño consistente)
+- DeleteConfirmationDialog (UX de eliminación)
+- ErrorAlert (errores inline)
+- PlaceholderPage (features futuras)
+- iconMap (registro de iconos)
+- shadcn/ui vs custom components
+
 ---
 
 ## Stack Crítico

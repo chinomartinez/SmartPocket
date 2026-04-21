@@ -356,6 +356,12 @@ Ver [Component Patterns](./references/component-patterns.md) para patterns avanz
 
 ---
 
+## See Also
+
+- **[frontend-reusable-components](../frontend-reusable-components/SKILL.md)** - Componentes reutilizables (IconBox, DeleteConfirmationDialog, iconMap)
+- **[frontend-financial-display](../frontend-financial-display/SKILL.md)** - Patterns visuales financieros
+- **[frontend-forms](../frontend-forms/SKILL.md)** - React Hook Form + validación
+
 ## References
 
 - [React Docs - Components](https://react.dev/learn/your-first-component)

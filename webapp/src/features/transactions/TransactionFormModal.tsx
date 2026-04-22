@@ -3,7 +3,6 @@
  * Modal para crear y editar transacciones con validación dual (client + server)
  */
 
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateTransaction, useUpdateTransaction, useTransaction } from "./useTransactions";
@@ -34,10 +33,6 @@ import { ErrorAlert } from "@/components/ErrorAlert";
 import { Calendar } from "lucide-react";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 
-// ============================================================================
-// Types
-// ============================================================================
-
 interface TransactionFormModalProps {
   mode: "create" | "edit";
   transactionId?: number;
@@ -45,24 +40,16 @@ interface TransactionFormModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// ============================================================================
-// Constants
-// ============================================================================
-
 const DEFAULT_FORM_VALUES: TransactionFormValues = {
-  isIncome: false, // Por defecto: gasto
+  isIncome: false,
   accountId: 0,
   categoryId: 0,
   amount: 0,
   currencyCode: "",
-  effectiveDate: new Date().toISOString().split("T")[0], // Fecha de hoy en formato YYYY-MM-DD
+  effectiveDate: new Date().toISOString().split("T")[0],
   description: "",
   tags: [],
 };
-
-// ============================================================================
-// Component
-// ============================================================================
 
 export function TransactionFormModal({
   mode,
@@ -70,83 +57,54 @@ export function TransactionFormModal({
   open,
   onOpenChange,
 }: TransactionFormModalProps) {
-  const [apiError, setApiError] = useState<ApiError | null>(null);
-  const [selectedType, setSelectedType] = useState<boolean>(false); // false=gasto, true=ingreso
-
-  // Hooks
+  // Fetch transaction data solo en modo edición
   const { data: transaction, isLoading: fetchingTransaction } = useTransaction(transactionId!, {
     enabled: mode === "edit" && !!transactionId && open,
   });
+
   const { data: accounts, isLoading: accountsLoading } = useAccounts();
-  const { data: categories, isLoading: categoriesLoading } = useCategories(selectedType);
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
+  const activeMutation = mode === "create" ? createMutation : updateMutation;
 
-  // Form setup
+  // Form con sincronización automática via 'values' (reemplaza useEffect de reset)
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
-    defaultValues: DEFAULT_FORM_VALUES,
+    values:
+      mode === "edit" && transaction
+        ? {
+            isIncome: transaction.isIncome,
+            accountId: transaction.accountId,
+            categoryId: transaction.categoryId,
+            amount: transaction.accountMoney.amount,
+            currencyCode: transaction.accountMoney.currencyCode,
+            effectiveDate: transaction.effectiveDate.split("T")[0],
+            description: transaction.description || "",
+            tags: [],
+          }
+        : DEFAULT_FORM_VALUES,
   });
 
-  // Observar cambios en accountId para actualizar currencyCode automáticamente
-  const watchedAccountId = form.watch("accountId");
-  useEffect(() => {
-    if (watchedAccountId && accounts) {
-      const selectedAccount = accounts.find((acc) => acc.id === watchedAccountId);
-      if (selectedAccount) {
-        form.setValue("currencyCode", selectedAccount.currency.code);
-      }
-    }
-  }, [watchedAccountId, accounts, form]);
+  // Estado derivado: tipo de transacción determina categorías disponibles
+  const isIncome = form.watch("isIncome");
+  const { data: categories, isLoading: categoriesLoading } = useCategories(isIncome);
 
-  // Pre-cargar datos en modo edición o resetear en modo creación
-  useEffect(() => {
-    if (mode === "edit" && transaction) {
-      setSelectedType(transaction.isIncome);
-      form.reset({
-        isIncome: transaction.isIncome,
-        accountId: transaction.accountId,
-        categoryId: transaction.categoryId,
-        amount: transaction.accountMoney.amount,
-        currencyCode: transaction.accountMoney.currencyCode,
-        effectiveDate: transaction.effectiveDate.split("T")[0], // Extraer solo fecha YYYY-MM-DD
-        description: transaction.description || "",
-        tags: [],
-      });
-    } else if (mode === "create") {
-      form.reset(DEFAULT_FORM_VALUES);
-      setSelectedType(false);
-    }
-  }, [mode, transaction, form]);
-
-  // Limpiar errores al abrir/cerrar modal
-  useEffect(() => {
-    if (open) {
-      setApiError(null);
-    }
-  }, [open]);
-
-  // ============================================================================
-  // Helpers
-  // ============================================================================
-
-  /**
-   * Helper para obtener errores de un campo específico desde el backend
-   */
   const getFieldErrors = (fieldName: string): string[] => {
+    const apiError = activeMutation.error as ApiError | null;
     return (
       apiError?.errors?.filter((e) => e.propertyName === fieldName).map((e) => e.message) || []
     );
   };
 
-  // ============================================================================
-  // Handlers
-  // ============================================================================
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      activeMutation.reset();
+      form.reset(DEFAULT_FORM_VALUES);
+    }
+    onOpenChange(isOpen);
+  };
 
   const onSubmit = (data: TransactionFormValues) => {
-    setApiError(null);
-
-    // Construir payload alineado con TransactionCreateCommand del backend
     const payload = {
       accountId: data.accountId,
       categoryId: data.categoryId,
@@ -154,53 +112,32 @@ export function TransactionFormModal({
         amount: data.amount,
         currencyCode: data.currencyCode,
       },
-      effectiveDate: data.effectiveDate, // Backend espera ISO 8601 string
+      effectiveDate: data.effectiveDate,
       description: data.description || undefined,
       isIncome: data.isIncome,
-      // tags NO se envía (backend no soporta aún)
     };
 
     if (mode === "create") {
       createMutation.mutate(payload, {
-        onSuccess: () => {
-          onOpenChange(false);
-          form.reset();
-        },
-        onError: (error: ApiError) => {
-          setApiError(error);
-        },
+        onSuccess: () => handleOpenChange(false),
       });
-    } else if (mode === "edit" && transactionId) {
+    } else {
       updateMutation.mutate(
-        { id: transactionId, data: payload },
+        { id: transactionId!, data: payload },
         {
-          onSuccess: () => {
-            onOpenChange(false);
-          },
-          onError: (error: ApiError) => {
-            setApiError(error);
-          },
+          onSuccess: () => handleOpenChange(false),
         },
       );
     }
   };
 
-  const handleCancel = () => {
-    form.reset();
-    setApiError(null);
-    onOpenChange(false);
-  };
+  const isLoadingData = mode === "edit" && fetchingTransaction;
+  const isSubmitting = activeMutation.isPending;
+  const apiError = activeMutation.error as ApiError | null;
 
-  // ============================================================================
-  // Render
-  // ============================================================================
-
-  const isLoading = createMutation.isPending || updateMutation.isPending;
-
-  // Loading state mientras fetches transaction en modo edit
-  if (mode === "edit" && fetchingTransaction) {
+  if (isLoadingData) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>Cargando transacción...</DialogTitle>
@@ -214,7 +151,7 @@ export function TransactionFormModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
@@ -224,10 +161,9 @@ export function TransactionFormModal({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Errores generales del backend */}
             {apiError && <ErrorAlert error={apiError} />}
 
-            {/* Campo: Tipo (Ingreso/Gasto) */}
+            {/* Tipo de Transacción */}
             <FormField
               control={form.control}
               name="isIncome"
@@ -241,8 +177,7 @@ export function TransactionFormModal({
                         variant={field.value === false ? "destructive" : "outline"}
                         onClick={() => {
                           field.onChange(false);
-                          setSelectedType(false);
-                          form.setValue("categoryId", 0); // Reset categoría al cambiar tipo
+                          form.setValue("categoryId", 0);
                         }}
                         className="flex-1"
                       >
@@ -253,8 +188,7 @@ export function TransactionFormModal({
                         variant={field.value === true ? "success" : "outline"}
                         onClick={() => {
                           field.onChange(true);
-                          setSelectedType(true);
-                          form.setValue("categoryId", 0); // Reset categoría al cambiar tipo
+                          form.setValue("categoryId", 0);
                         }}
                         className="flex-1"
                       >
@@ -272,7 +206,7 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Campo: Cuenta */}
+            {/* Cuenta */}
             <FormField
               control={form.control}
               name="accountId"
@@ -280,7 +214,16 @@ export function TransactionFormModal({
                 <FormItem>
                   <FormLabel>Cuenta</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    onValueChange={(value) => {
+                      const accountId = parseInt(value);
+                      field.onChange(accountId);
+
+                      // Sincronizar moneda automáticamente
+                      const selectedAccount = accounts?.find((acc) => acc.id === accountId);
+                      if (selectedAccount) {
+                        form.setValue("currencyCode", selectedAccount.currency.code);
+                      }
+                    }}
                     value={field.value?.toString()}
                     disabled={accountsLoading}
                   >
@@ -317,7 +260,7 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Campo: Categoría (filtrada por tipo) */}
+            {/* Categoría */}
             <FormField
               control={form.control}
               name="categoryId"
@@ -360,7 +303,7 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Campo: Monto */}
+            {/* Monto */}
             <FormField
               control={form.control}
               name="amount"
@@ -387,7 +330,7 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Campo: Fecha */}
+            {/* Fecha */}
             <FormField
               control={form.control}
               name="effectiveDate"
@@ -410,7 +353,7 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Campo: Descripción */}
+            {/* Descripción */}
             <FormField
               control={form.control}
               name="description"
@@ -435,7 +378,7 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Campo: Tags (UI-only, disabled) */}
+            {/* Tags (próximamente) */}
             <FormField
               control={form.control}
               name="tags"
@@ -460,13 +403,17 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Botones de acción */}
             <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
                   ? "Guardando..."
                   : mode === "create"
                     ? "Crear Transacción"

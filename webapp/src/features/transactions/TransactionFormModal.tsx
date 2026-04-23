@@ -131,7 +131,9 @@ export function TransactionFormModal({
     }
   };
 
-  const isLoadingData = mode === "edit" && fetchingTransaction;
+  const isLoadingData =
+    mode === "edit" && (fetchingTransaction || accountsLoading || categoriesLoading);
+
   const isSubmitting = activeMutation.isPending;
   const apiError = activeMutation.error as ApiError | null;
 

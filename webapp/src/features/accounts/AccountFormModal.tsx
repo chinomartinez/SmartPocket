@@ -3,11 +3,11 @@
  * Modal para crear y editar cuentas con validación dual (client + server)
  */
 
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateAccount, useUpdateAccount } from "@/features/accounts/useAccounts";
 import { useCurrencies } from "@/hooks/useCurrencies";
+import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import { accountSchema, type AccountFormValues } from "./accountSchema";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";
 import type { ApiError } from "@/api/types";
@@ -64,101 +64,67 @@ const DEFAULT_FORM_VALUES: AccountFormValues = {
 // ============================================================================
 
 export function AccountFormModal({ mode, account, open, onOpenChange }: AccountFormModalProps) {
-  const [apiError, setApiError] = useState<ApiError | null>(null);
-
   // Hooks
   const { data: currencies, isLoading: currenciesLoading } = useCurrencies();
   const createMutation = useCreateAccount();
   const updateMutation = useUpdateAccount();
+  const activeMutation = mode === "create" ? createMutation : updateMutation;
 
-  // Form setup
+  // Form setup con sincronización automática via 'values'
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
-    defaultValues: DEFAULT_FORM_VALUES,
+    values:
+      mode === "edit" && account
+        ? {
+            name: account.name,
+            icon: account.icon,
+            currencyCode: account.currency.code,
+            balance: account.balance,
+            includeInBalanceGlobal: account.includeInBalanceGlobal,
+          }
+        : DEFAULT_FORM_VALUES,
   });
 
-  // Pre-cargar datos en modo edición o resetear en modo creación
-  useEffect(() => {
-    if (mode === "edit" && account) {
-      form.reset({
-        name: account.name,
-        icon: account.icon,
-        currencyCode: account.currency.code,
-        balance: account.balance,
-        includeInBalanceGlobal: account.includeInBalanceGlobal,
-      });
-    } else if (mode === "create") {
-      form.reset(DEFAULT_FORM_VALUES);
-    }
-  }, [mode, account, form]);
-
-  // Limpiar errores al abrir/cerrar modal
-  useEffect(() => {
-    if (open) {
-      setApiError(null);
-    }
-  }, [open]);
-
-  // ============================================================================
-  // Helpers
-  // ============================================================================
-
-  /**
-   * Helper para obtener errores de un campo específico desde el backend
-   * Retorna array de strings para soportar múltiples errores por propiedad
-   */
-  const getFieldErrors = (fieldName: string): string[] => {
-    return (
-      apiError?.errors?.filter((e) => e.propertyName === fieldName).map((e) => e.message) || []
-    );
-  };
+  const handleFormError = useFormErrorHandler(form);
 
   // ============================================================================
   // Handlers
   // ============================================================================
 
-  const onSubmit = (data: AccountFormValues) => {
-    setApiError(null);
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      activeMutation.reset();
+      form.reset(DEFAULT_FORM_VALUES);
+    }
+    onOpenChange(isOpen);
+  };
 
+  const onSubmit = (data: AccountFormValues) => {
     if (mode === "create") {
       createMutation.mutate(data, {
-        onSuccess: () => {
-          onOpenChange(false);
-          form.reset();
-        },
-        onError: (error: ApiError) => {
-          setApiError(error);
-        },
+        onSuccess: () => handleOpenChange(false),
+        onError: handleFormError,
       });
     } else if (mode === "edit" && account) {
       updateMutation.mutate(
         { id: account.id, data },
         {
-          onSuccess: () => {
-            onOpenChange(false);
-          },
-          onError: (error: ApiError) => {
-            setApiError(error);
-          },
+          onSuccess: () => handleOpenChange(false),
+          onError: handleFormError,
         },
       );
     }
-  };
-
-  const handleCancel = () => {
-    form.reset();
-    setApiError(null);
-    onOpenChange(false);
   };
 
   // ============================================================================
   // Render
   // ============================================================================
 
-  const isLoading = createMutation.isPending || updateMutation.isPending;
+  const isSubmitting = activeMutation.isPending;
+  const apiError = activeMutation.error as ApiError | null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Nueva Cuenta" : "Editar Cuenta"}</DialogTitle>
@@ -179,14 +145,7 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                   <FormControl>
                     <Input placeholder="Ej: Cuenta Personal" {...field} />
                   </FormControl>
-                  {/* Errores de zod (client-side) */}
                   <FormMessage />
-                  {/* Errores del backend (server-side) - múltiples */}
-                  {getFieldErrors("name").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -222,11 +181,6 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                     </div>
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("icon.code").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -260,11 +214,6 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                     </div>
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("icon.colorHex").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -296,11 +245,6 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                  {getFieldErrors("currencyCode").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -324,11 +268,6 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                     />
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("balance").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -354,11 +293,16 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
 
             {/* Botones de acción */}
             <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
                   ? "Guardando..."
                   : mode === "create"
                     ? "Crear Cuenta"

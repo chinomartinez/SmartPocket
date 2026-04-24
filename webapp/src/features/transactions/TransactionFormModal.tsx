@@ -9,6 +9,7 @@ import { useCreateTransaction, useUpdateTransaction, useTransaction } from "./us
 import { useAccounts } from "@/features/accounts/useAccounts";
 import { useCategories } from "@/features/categories/useCategories";
 import { transactionSchema, type TransactionFormValues } from "./transactionSchema";
+import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import type { ApiError } from "@/api/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -29,9 +30,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ErrorAlert } from "@/components/ErrorAlert";
 import { Calendar } from "lucide-react";
 import { IconBox } from "@/components/iconBoxes/IconBox";
+import { ErrorAlert } from "@/components/ErrorAlert";
 
 interface TransactionFormModalProps {
   mode: "create" | "edit";
@@ -89,12 +90,7 @@ export function TransactionFormModal({
   const isIncome = form.watch("isIncome");
   const { data: categories, isLoading: categoriesLoading } = useCategories(isIncome);
 
-  const getFieldErrors = (fieldName: string): string[] => {
-    const apiError = activeMutation.error as ApiError | null;
-    return (
-      apiError?.errors?.filter((e) => e.propertyName === fieldName).map((e) => e.message) || []
-    );
-  };
+  var handleFormError = useFormErrorHandler(form);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -120,12 +116,14 @@ export function TransactionFormModal({
     if (mode === "create") {
       createMutation.mutate(payload, {
         onSuccess: () => handleOpenChange(false),
+        onError: handleFormError,
       });
     } else {
       updateMutation.mutate(
         { id: transactionId!, data: payload },
         {
           onSuccess: () => handleOpenChange(false),
+          onError: handleFormError,
         },
       );
     }
@@ -199,11 +197,6 @@ export function TransactionFormModal({
                     </div>
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("isIncome").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -253,11 +246,6 @@ export function TransactionFormModal({
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                  {getFieldErrors("accountId").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -296,11 +284,6 @@ export function TransactionFormModal({
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                  {getFieldErrors("categoryId").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -323,11 +306,6 @@ export function TransactionFormModal({
                     />
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("amount").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -346,11 +324,6 @@ export function TransactionFormModal({
                     </div>
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("effectiveDate").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -371,11 +344,6 @@ export function TransactionFormModal({
                     />
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("description").map((msg, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {msg}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />

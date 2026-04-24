@@ -1,11 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import {
-  QueryClient,
-  QueryClientProvider,
-  QueryCache,
-  MutationCache,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -40,7 +35,11 @@ const queryClient = new QueryClient({
 function onCentralError(error: ApiError) {
   if (!error) return;
 
-  if (error.message) {
+  // Solo mostrar toast si NO hay errores de campo específicos
+  // (errores de campo se manejan localmente en formularios via RHF)
+  const hasFieldErrors = error.errors && error.errors.some((e) => e.propertyName);
+
+  if (!hasFieldErrors && error.message) {
     toast.error(error.message);
   }
 }

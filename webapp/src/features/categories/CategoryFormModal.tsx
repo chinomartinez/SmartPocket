@@ -3,7 +3,7 @@
  * Modal para crear y editar categorías con validación dual (client + server)
  */
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TrashIcon } from "@heroicons/react/24/outline";
@@ -12,6 +12,7 @@ import {
   useUpdateCategory,
   useDeleteCategory,
 } from "@/features/categories/useCategories";
+import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import { categorySchema, type CategoryFormValues } from "./categorySchema";
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";
 import type { ApiError } from "@/api/types";
@@ -66,104 +67,64 @@ export function CategoryFormModal({
   onOpenChange,
   defaultIsIncome,
 }: CategoryFormModalProps) {
-  const [apiError, setApiError] = useState<ApiError | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-  // Estado para controlar el tipo de categoría (afecta iconos mostrados)
-  const initialType = mode === "edit" && category ? category.isIncome : (defaultIsIncome ?? false);
-  const [selectedType, setSelectedType] = useState<boolean>(initialType);
-
   // Hooks
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
+  const activeMutation = mode === "create" ? createMutation : updateMutation;
 
-  // Form setup
+  // Form setup con sincronización automática via 'values'
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
-    defaultValues: DEFAULT_FORM_VALUES,
+    values:
+      mode === "edit" && category
+        ? {
+            name: category.name,
+            icon: category.icon,
+            isIncome: category.isIncome,
+          }
+        : {
+            ...DEFAULT_FORM_VALUES,
+            isIncome: defaultIsIncome ?? false,
+          },
   });
 
-  // Pre-cargar datos en modo edición o resetear en modo creación
-  useEffect(() => {
-    if (mode === "edit" && category) {
-      form.reset({
-        name: category.name,
-        icon: category.icon,
-        isIncome: category.isIncome,
-      });
+  const handleFormError = useFormErrorHandler(form);
 
-      setSelectedType(category.isIncome);
-    } else if (mode === "create") {
-      const createDefaults = {
-        ...DEFAULT_FORM_VALUES,
-        isIncome: defaultIsIncome ?? false,
-      };
-      form.reset(createDefaults);
-      setSelectedType(defaultIsIncome ?? false);
-    }
-  }, [mode, category, form, defaultIsIncome]);
+  // Estado local para dialog de confirmación de eliminación
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // Limpiar errores al abrir/cerrar modal
-  useEffect(() => {
-    if (open) {
-      setApiError(null);
-    }
-  }, [open]);
-
-  // Filtrar iconos según tipo seleccionado
+  // Estado derivado: tipo de categoría determina iconos disponibles
+  const selectedType = form.watch("isIncome");
   const availableIcons = useMemo(() => getCategoryIcons(selectedType), [selectedType]);
-
-  // ============================================================================
-  // Helpers
-  // ============================================================================
-
-  /**
-   * Helper para obtener errores de un campo específico desde el backend
-   * Retorna array de strings para soportar múltiples errores por propiedad
-   */
-  const getFieldErrors = (fieldName: string): string[] => {
-    return (
-      apiError?.errors?.filter((e) => e.propertyName === fieldName).map((e) => e.message) || []
-    );
-  };
 
   // ============================================================================
   // Handlers
   // ============================================================================
 
-  const onSubmit = (data: CategoryFormValues) => {
-    setApiError(null);
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      activeMutation.reset();
+      form.reset(DEFAULT_FORM_VALUES);
+    }
+    onOpenChange(isOpen);
+  };
 
+  const onSubmit = (data: CategoryFormValues) => {
     if (mode === "create") {
       createMutation.mutate(data, {
-        onSuccess: () => {
-          onOpenChange(false);
-          form.reset();
-        },
-        onError: (error: ApiError) => {
-          setApiError(error);
-        },
+        onSuccess: () => handleOpenChange(false),
+        onError: handleFormError,
       });
     } else if (mode === "edit" && category) {
       updateMutation.mutate(
         { id: category.id, data },
         {
-          onSuccess: () => {
-            onOpenChange(false);
-          },
-          onError: (error: ApiError) => {
-            setApiError(error);
-          },
+          onSuccess: () => handleOpenChange(false),
+          onError: handleFormError,
         },
       );
     }
-  };
-
-  const handleCancel = () => {
-    form.reset();
-    setApiError(null);
-    onOpenChange(false);
   };
 
   const handleDelete = () => {
@@ -185,11 +146,12 @@ export function CategoryFormModal({
   // Render
   // ============================================================================
 
-  const isLoading = createMutation.isPending || updateMutation.isPending;
+  const isSubmitting = activeMutation.isPending;
+  const apiError = activeMutation.error as ApiError | null;
   const showDeleteButton = mode === "edit" && category && !category.isDefault;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Nueva Categoría" : "Editar Categoría"}</DialogTitle>
@@ -198,7 +160,7 @@ export function CategoryFormModal({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Error Alert - Solo errores generales (sin propertyName) */}
-            <ErrorAlert error={apiError} />
+            {apiError && <ErrorAlert error={apiError} />}
 
             {/* Campo: Nombre */}
             <FormField
@@ -211,12 +173,6 @@ export function CategoryFormModal({
                     <Input placeholder="Ej: Comida, Salario, Transporte..." {...field} />
                   </FormControl>
                   <FormMessage />
-                  {/* Errores del servidor para este campo */}
-                  {getFieldErrors("name").map((error, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {error}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -234,10 +190,7 @@ export function CategoryFormModal({
                         <Button
                           type="button"
                           variant={field.value === false ? "default" : "outline"}
-                          onClick={() => {
-                            field.onChange(false);
-                            setSelectedType(false);
-                          }}
+                          onClick={() => field.onChange(false)}
                           className="flex-1"
                         >
                           💸 Gasto
@@ -245,10 +198,7 @@ export function CategoryFormModal({
                         <Button
                           type="button"
                           variant={field.value === true ? "default" : "outline"}
-                          onClick={() => {
-                            field.onChange(true);
-                            setSelectedType(true);
-                          }}
+                          onClick={() => field.onChange(true)}
                           className="flex-1"
                         >
                           💰 Ingreso
@@ -256,11 +206,6 @@ export function CategoryFormModal({
                       </div>
                     </FormControl>
                     <FormMessage />
-                    {getFieldErrors("isIncome").map((error, idx) => (
-                      <p key={idx} className="text-sm font-medium text-red-500">
-                        {error}
-                      </p>
-                    ))}
                   </FormItem>
                 )}
               />
@@ -296,11 +241,6 @@ export function CategoryFormModal({
                     </div>
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("icon.code").map((error, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {error}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -337,11 +277,6 @@ export function CategoryFormModal({
                     </div>
                   </FormControl>
                   <FormMessage />
-                  {getFieldErrors("icon.colorHex").map((error, idx) => (
-                    <p key={idx} className="text-sm font-medium text-red-500">
-                      {error}
-                    </p>
-                  ))}
                 </FormItem>
               )}
             />
@@ -354,7 +289,7 @@ export function CategoryFormModal({
                   type="button"
                   variant="outline"
                   onClick={() => setShowDeleteDialog(true)}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-500"
                 >
                   <TrashIcon className="h-4 w-4 mr-2" />
@@ -366,11 +301,16 @@ export function CategoryFormModal({
 
               {/* Botones principales */}
               <div className="flex gap-3">
-                <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleOpenChange(false)}
+                  disabled={isSubmitting}
+                >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
                 </Button>
               </div>
             </div>

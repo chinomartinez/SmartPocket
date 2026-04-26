@@ -1,173 +1,211 @@
 ---
 name: frontend-forms
-description: Patrones de React Hook Form + Zod validation para forms de SmartPocket. Usar al construir formularios, validación de schemas, manejar form submissions, mostrar errores de validación, input fields, o trabajar con react-hook-form. Incluye patterns de error display y gotchas de coercion.
+description: React Hook Form 7 + Zod patterns para SmartPocket. Usar al crear/editar forms, validación de schemas, submissions, errores de API (field-level + global), integración con TanStack Query mutations, useFormErrorHandler hook, activeMutation pattern, values vs defaultValues, form.reset() con/sin parámetros, coercion manual de números. Sistema de 3 capas de errores, estado derivado con watch(). Incluye anti-patterns eliminados y quick reference tables.
 ---
 
 # SmartPocket - Forms (React Hook Form + Zod)
 
-Patrones de formularios con React Hook Form 7.71.1 + Zod 4.3.6 para SmartPocket React app.
+Patrones modernos (2026) de formularios con React Hook Form 7.71.1 + Zod 4.3.6 para SmartPocket React app.
 
 ---
 
 ## When to Use This Skill
 
-- Crear formularios (create, edit, search)
-- Validar inputs con schemas
-- Manejar form submission
-- Mostrar errores de validación (client-side y API)
-- Integrar formularios con mutations de TanStack Query
-- Type-safe form values
-- Coercion de tipos (strings → numbers, etc.)
-- Dynamic form fields
+- Crear/editar forms (create, edit, search)
+- Validar schemas con Zod
+- Inyectar errores de API en fields automáticamente
+- Integrar forms con TanStack Query mutations
+- Manejar create/edit modes en un solo componente
+- Type-safe form values con z.infer
+- Number field coercion (SmartPocket specific pattern)
+- Sistema de 3 capas de error display
+- Estado derivado con watch() vs useState
 
 ---
 
-## Standard Form Pattern
+## Modern Form Pattern (2026)
 
-### Step 1: Definir schema Zod
+**Overview:** Patrón estandarizado que elimina ~40 líneas de boilerplate por form.
+
+**Key patterns:**
+
+- ✅ `useFormErrorHandler` - inyección automática de errores API en RHF
+- ✅ `activeMutation` - simplifica manejo de create/edit modes
+- ✅ `values` (no defaultValues+useEffect) - sincronización reactiva de edit data
+- ✅ Sistema 3 capas - field-level → inline → toast (no duplicación)
+- ✅ `handleOpenChange` unificado - reset centralizado
+- ✅ Estado derivado con `watch()` - elimina useState duplicado
+
+---
+
+## Step-by-Step: Modern Form Pattern
+
+### Step 1: Schema Zod
 
 Schema define estructura + validación. SIEMPRE crear schema antes del componente.
 
 ```typescript
-// src/features/accounts/accountSchema.ts
+// entitySchema.ts
 import { z } from "zod";
 
-export const accountSchema = z.object({
+export const entitySchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
-  balance: z.number("El saldo debe ser un número").min(0, "Balance must be positive"),
-  currencyId: z.number("Debe seleccionar una moneda").int().positive("Currency is required"),
-  iconId: z.number().int().positive().optional(),
-  colorHex: z
-    .string()
-    .regex(/^#[0-9A-F]{6}$/i, "Invalid color format")
-    .optional(),
+  amount: z.number("Must be a number").min(0, "Must be positive"),
+  categoryId: z.number("Must select a category").int().positive(),
 });
 
 // Inferir tipo del schema (type-safe!)
-export type AccountFormValues = z.infer<typeof accountSchema>;
+export type EntityFormValues = z.infer<typeof entitySchema>;
 ```
 
-**Key features:**
-
-- `z.number("mensaje")` - Validación de tipo number (conversión manual en component, ver Step 4)
-- `.optional()` - Campo no requerido
-- `.min()`, `.max()`, `.regex()` - Validaciones built-in
-- Custom messages para UX
-
-### Step 2: Setup form con `useForm`
+### Step 2: Setup mutations + activeMutation
 
 ```typescript
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { accountSchema, type AccountFormValues } from "./accountSchema";
+import { useCreateEntity, useUpdateEntity } from "./useEntities";
 
-function AccountForm() {
-  const form = useForm<AccountFormValues>({
-    resolver: zodResolver(accountSchema), // Integrar Zod
-    defaultValues: {
-      name: "",
-      balance: 0,
-      currencyId: 1,
-      iconId: undefined,
-      colorHex: undefined,
-    },
-  });
+function EntityFormModal({ mode, entity, open, onOpenChange }) {
+  const createMutation = useCreateEntity();
+  const updateMutation = useUpdateEntity();
 
-  // ...
+  // activeMutation simplifica lógica de create/edit
+  const activeMutation = mode === "create" ? createMutation : updateMutation;
+
+  // Estados derivados de una sola fuente
+  const isSubmitting = activeMutation.isPending;
+  const apiError = activeMutation.error as ApiError | null;
 }
 ```
 
-**Options importantes:**
+**Beneficios:**
 
-- `resolver: zodResolver(schema)` - Valida con Zod antes de submit
-- `defaultValues` - Inicializar campos (REQUERIDO para controlled inputs)
-- `mode: "onChange"` - Validar en tiempo real (opcional, por defecto `onSubmit`)
+- Una sola abstracción para ambos modos
+- Un solo lugar para verificar estado, error, y reset
+- Elimina lógica condicional duplicada
 
-### Step 3: Submit handler con mutation
+### Step 3: Form setup con values (reactive sync)
 
 ```typescript
-import { useCreateAccount } from "./useAccounts";
+const DEFAULT_VALUES: EntityFormValues = {
+  name: "",
+  amount: 0,
+  categoryId: 0,
+};
 
-function AccountForm({ onClose }: { onClose: () => void }) {
-  const form = useForm<AccountFormValues>({
-    /* ... */
-  });
-  const createMutation = useCreateAccount();
+const form = useForm<EntityFormValues>({
+  resolver: zodResolver(entitySchema),
+  // values (no defaultValues) - sincroniza automáticamente cuando entity cambia
+  values:
+    mode === "edit" && entity
+      ? { name: entity.name, amount: entity.amount, categoryId: entity.categoryId }
+      : DEFAULT_VALUES,
+});
+```
 
-  const onSubmit = (data: AccountFormValues) => {
+**Beneficio:** Elimina `useEffect` manual para sincronizar edit data.
+
+### Step 4: useFormErrorHandler hook
+
+```typescript
+import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
+
+const handleFormError = useFormErrorHandler(form);
+```
+
+**Uso:**
+
+```typescript
+const form = useForm<MyFormValues>({...});
+const handleFormError = useFormErrorHandler(form);
+
+createMutation.mutate(payload, {
+  onError: handleFormError, // ← Una línea
+});
+```
+
+**Qué hace:**
+
+- Inyecta errores de API automáticamente en RHF
+- Mapeo case-insensitive: `propertyName` (backend PascalCase) → campo (camelCase)
+- Errores aparecen bajo el campo via `<FormMessage />`
+
+### Step 5: Handlers simplificados
+
+```typescript
+const handleOpenChange = (isOpen: boolean) => {
+  if (!isOpen) {
+    activeMutation.reset(); // Limpia error automáticamente
+    form.reset(DEFAULT_VALUES);
+  }
+  onOpenChange(isOpen);
+};
+
+const onSubmit = (data: EntityFormValues) => {
+  if (mode === "create") {
     createMutation.mutate(data, {
-      onSuccess: () => {
-        form.reset(); // Limpiar form
-        onClose(); // Cerrar modal/dialog
-      },
-      onError: (error: ApiError) => {
-        // Mostrar errores de API (ver Display de Errores)
-      },
+      onSuccess: () => handleOpenChange(false),
+      onError: handleFormError, // ← Hook inyecta errores
     });
-  };
-
-  return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      {/* ... */}
-    </form>
-  );
-}
+  } else if (mode === "edit" && entity) {
+    updateMutation.mutate(
+      { id: entity.id, data },
+      {
+        onSuccess: () => handleOpenChange(false),
+        onError: handleFormError,
+      },
+    );
+  }
+};
 ```
 
-### Step 4: Render inputs con shadcn Form components
+**Elimina:**
+
+- ❌ `useState<ApiError>` + `setApiError(null)`
+- ❌ `useEffect` para limpiar errores
+- ❌ Reset manual en múltiples lugares
+
+### Step 6: Render con error display
 
 ```typescript
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+return (
+  <Dialog open={open} onOpenChange={handleOpenChange}>
+    <DialogContent>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Errores globales (sin propertyName) */}
+          {apiError && <ErrorAlert error={apiError} />}
 
-function AccountForm() {
-  // ...
+          {/* Campo con errores automáticos */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage /> {/* Errores de Zod + API automáticos */}
+              </FormItem>
+            )}
+          />
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Savings Account" {...field} />
-              </FormControl>
-              <FormMessage /> {/* Muestra errores automáticamente */}
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="balance"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Initial Balance</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  {...field}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" disabled={createMutation.isPending}>
-          {createMutation.isPending ? "Creating..." : "Create Account"}
-        </Button>
-      </form>
-    </Form>
-  );
-}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : mode === "create" ? "Create" : "Save"}
+          </Button>
+        </form>
+      </Form>
+    </DialogContent>
+  </Dialog>
+);
 ```
+
+**Sistema de errores (3 capas):**
+
+- **Error con `propertyName`** → `<FormMessage />` bajo el campo
+- **Error sin `propertyName`** → `<ErrorAlert />` inline arriba del form
+- **Toast automático** → Solo si NO hay `propertyName` (main.tsx)
+
+**Resultado:** Usuario ve error una vez, en el lugar apropiado.
 
 ---
 
@@ -180,9 +218,9 @@ function AccountForm() {
 ```typescript
 // ✅ Pattern correcto de SmartPocket
 // 1. Schema: z.number() directo
-const transactionSchema = z.object({
-  amount: z.number("El monto debe ser un número").positive("Debe ser mayor a 0"),
-  accountId: z.number("Debe seleccionar una cuenta").int().positive(),
+const schema = z.object({
+  amount: z.number("Must be a number").positive("Must be greater than 0"),
+  accountId: z.number("Must select an account").int().positive(),
 });
 
 // 2. Component: conversión manual en onChange
@@ -205,26 +243,14 @@ const transactionSchema = z.object({
 **¿Por qué NO z.coerce.number()?**
 
 1. **API incompatible:** `z.coerce.number()` NO acepta `required_error` ni `invalid_type_error` props
-2. **Consistencia:** Todo el proyecto usa este pattern (ver `accountSchema.ts`, `categorySchema.ts`)
+2. **Consistencia:** Todo el proyecto usa este pattern
 3. **Control explícito:** Conversión visible en component, más fácil debuggear
-
-```typescript
-// ❌ MAL - causa errores de TypeScript
-amount: z.coerce.number({
-  required_error: "...", // ❌ No existe en z.coerce API
-  invalid_type_error: "...", // ❌ No existe en z.coerce API
-});
-
-// ✅ BIEN - message directo + manual conversion
-amount: z.number("El monto debe ser un número").positive();
-// + onChange={(e) => field.onChange(parseFloat(e.target.value))}
-```
 
 **Para integers (IDs):**
 
 ```typescript
 // Schema
-accountId: z.number("Debe seleccionar una cuenta").int().positive(),
+categoryId: z.number("Must select a category").int().positive();
 
 // Component
 <Select
@@ -235,140 +261,106 @@ accountId: z.number("Debe seleccionar una cuenta").int().positive(),
 
 ---
 
-## Display de Errores
+## Quick Reference
 
-### Errores de validación (Zod) - Automático
+### values vs defaultValues
 
-`<FormMessage />` muestra errores de schema automáticamente:
+| Escenario                            | Usar            | Razón                                |
+| ------------------------------------ | --------------- | ------------------------------------ |
+| Form create-only (valores estáticos) | `defaultValues` | Se establece una vez al montar       |
+| Form create/edit con mode toggle     | `values`        | Sincroniza automáticamente con props |
+| Form con datos externos dinámicos    | `values`        | Reacciona a cambios de entity/data   |
+| Form con valores hardcodeados        | `defaultValues` | No necesita reactivity               |
 
 ```typescript
-<FormField name="name" /* ... */>
-  <FormControl>
-    <Input {...field} />
-  </FormControl>
-  <FormMessage /> {/* "Name is required" si falla validación */}
-</FormField>
+// defaultValues - valores estáticos (NO sincroniza con props)
+const form = useForm({
+  defaultValues: { name: "" },
+});
+
+// values - sincroniza reactivamente cuando entity cambia
+const form = useForm({
+  values: mode === "edit" && entity ? { name: entity.name } : DEFAULT_VALUES,
+});
 ```
 
-### Errores de API - Manual
+### form.reset() - Con/Sin Parámetros
 
-Backend retorna RFC 7807 Problem Details con array de errores:
-
-```typescript
-{
-  "type": "https://tools.ietf.org/html/rfc7807",
-  "title": "Validation Error",
-  "status": 400,
-  "errors": [
-    {
-      "message": "Account name already exists",
-      "severity": "Error",
-      "propertyName": "name" // Puede ser null
-    }
-  ]
-}
-```
-
-**Estrategia de display:**
-
-#### Opción A: Errores globales (sin `propertyName`)
-
-Usar `<ErrorAlert>` component arriba del form:
+| Uso                          | Efecto                                                 |
+| ---------------------------- | ------------------------------------------------------ |
+| `form.reset()`               | Resetea a defaultValues/values originales              |
+| `form.reset(newValues)`      | Resetea a valores específicos                          |
+| `form.reset(DEFAULT_VALUES)` | Garantiza estado limpio (recomendado al cerrar modals) |
 
 ```typescript
-import { ErrorAlert } from "@/components/ErrorAlert";
+// Sin parámetros - vuelve a values/defaultValues
+form.reset();
 
-function AccountForm() {
-  const [apiError, setApiError] = useState<ApiError | null>(null);
-  const createMutation = useCreateAccount();
+// Con parámetros - establece valores específicos
+form.reset({ name: "", amount: 0 });
 
-  const onSubmit = (data: AccountFormValues) => {
-    setApiError(null); // Limpiar errores previos
-
-    createMutation.mutate(data, {
-      onSuccess: () => {
-        /* ... */
-      },
-      onError: (error: ApiError) => {
-        setApiError(error); // Guardar para display
-      },
-    });
-  };
-
-  return (
-    <Form {...form}>
-      {apiError && <ErrorAlert error={apiError} />}
-      <form onSubmit={form.handleSubmit(onSubmit)}>{/* ... */}</form>
-    </Form>
-  );
-}
-```
-
-#### Opción B: Errores por campo (con `propertyName`)
-
-Usar `form.setError()` para mostrar debajo del input específico:
-
-```typescript
-const onSubmit = (data: AccountFormValues) => {
-  createMutation.mutate(data, {
-    onError: (error: ApiError) => {
-      // Filtrar errores que tienen propertyName
-      const fieldErrors = error.errors?.filter((e) => e.propertyName) ?? [];
-
-      fieldErrors.forEach((err) => {
-        if (err.propertyName === "name") {
-          form.setError("name", {
-            type: "server",
-            message: err.message,
-          });
-        }
-        // Repetir para otros campos...
-      });
-
-      // Errores sin propertyName → mostrar globales
-      const globalErrors = error.errors?.filter((e) => !e.propertyName) ?? [];
-      if (globalErrors.length > 0) {
-        setApiError({ ...error, errors: globalErrors });
-      }
-    },
-  });
+// Al cerrar modal - garantiza limpieza completa
+const handleOpenChange = (isOpen: boolean) => {
+  if (!isOpen) {
+    activeMutation.reset();
+    form.reset(DEFAULT_VALUES); // ← Recomendado
+  }
+  onOpenChange(isOpen);
 };
 ```
 
 ---
 
-## Common Form Patterns
+## Common Patterns
 
-### Edit form (pre-populate data)
+### Estado derivado con watch()
+
+Elimina `useState` duplicado. Usar `watch()` para derivar valores del form state.
 
 ```typescript
-function EditAccountForm({ accountId }: { accountId: number }) {
-  const { data: account } = useAccount(accountId);
+// ❌ Antes - estado duplicado
+const [selectedType, setSelectedType] = useState<boolean>(false);
 
-  const form = useForm<AccountFormValues>({
-    resolver: zodResolver(accountSchema),
-    values: account, // Auto-populate cuando data llega
+<Button onClick={() => {
+  field.onChange(true);
+  setSelectedType(true); // ← Sincronización manual
+}} />
+
+// ✅ Después - derivado de form
+const selectedType = form.watch("isIncome");
+
+<Button onClick={() => field.onChange(true)} />
+```
+
+**Beneficio:** Una sola fuente de verdad (form state).
+
+### Edit form (values reactivo)
+
+```typescript
+function EditEntityForm({ entityId }: { entityId: number }) {
+  const { data: entity } = useEntity(entityId);
+
+  const form = useForm<EntityFormValues>({
+    resolver: zodResolver(entitySchema),
+    // values (no defaultValues) - sincroniza cuando entity cambia
+    values: entity ? { name: entity.name, amount: entity.amount } : DEFAULT_VALUES,
   });
-
-  // NOTA: Usar `values` (no `defaultValues`) para reactive updates
 }
 ```
 
-### Dynamic fields (array)
+### Dynamic fields (useFieldArray)
 
 ```typescript
-const transactionSchema = z.object({
-  items: z
-    .array(
-      z.object({
-        description: z.string().min(1),
-        amount: z.number("Debe ser un número").positive(),
-      })
-    )
-    .min(1, "At least one item required"),
+const schema = z.object({
+  items: z.array(
+    z.object({
+      description: z.string().min(1),
+      amount: z.number("Must be a number").positive(),
+    })
+  ).min(1, "At least one item required"),
 });
 
-function TransactionForm() {
+function DynamicForm() {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
@@ -383,7 +375,9 @@ function TransactionForm() {
           <Button onClick={() => remove(index)}>Remove</Button>
         </div>
       ))}
-      <Button onClick={() => append({ description: "", amount: 0 })}>Add Item</Button>
+      <Button onClick={() => append({ description: "", amount: 0 })}>
+        Add Item
+      </Button>
     </>
   );
 }
@@ -392,10 +386,10 @@ function TransactionForm() {
 ### Conditional validation
 
 ```typescript
-const accountSchema = z
+const schema = z
   .object({
     type: z.enum(["savings", "credit"]),
-    creditLimit: z.number("Debe ser un número").optional(),
+    creditLimit: z.number("Must be a number").optional(),
   })
   .refine(
     (data) => {
@@ -406,25 +400,26 @@ const accountSchema = z
       return true;
     },
     {
-      message: "Credit limit is required for credit accounts",
+      message: "Credit limit required for credit accounts",
       path: ["creditLimit"], // Error aparece en este campo
     },
   );
 ```
 
-### Dependent fields (watch values)
+### Dependent fields
 
 ```typescript
-function AccountForm() {
-  const form = useForm<AccountFormValues>();
-  const accountType = form.watch("type"); // Observar cambios
+function ConditionalForm() {
+  const accountType = form.watch("type");
 
   return (
     <>
       <FormField name="type" /* ... */ />
 
       {/* Mostrar solo si type = credit */}
-      {accountType === "credit" && <FormField name="creditLimit" /* ... */ />}
+      {accountType === "credit" && (
+        <FormField name="creditLimit" /* ... */ />
+      )}
     </>
   );
 }
@@ -432,116 +427,158 @@ function AccountForm() {
 
 ---
 
-## Anti-Patterns Críticos
+## Anti-Patterns (Eliminados en 2026 Refactor)
+
+### ❌ useState para API errors
+
+```typescript
+// ❌ MAL - TanStack Query ya maneja estado
+const [apiError, setApiError] = useState<ApiError | null>(null);
+const onSubmit = (data) => {
+  setApiError(null);
+  createMutation.mutate(data, { onError: (error) => setApiError(error) });
+};
+
+// ✅ BIEN - usar activeMutation.error
+const activeMutation = mode === "create" ? createMutation : updateMutation;
+const apiError = activeMutation.error as ApiError | null;
+createMutation.mutate(data, { onError: handleFormError });
+```
+
+### ❌ useEffect para sincronizar edit data
+
+```typescript
+// ❌ MAL - sincronización manual
+useEffect(() => {
+  if (mode === "edit" && entity) form.reset({ name: entity.name });
+}, [mode, entity, form]);
+
+// ✅ BIEN - sincronización automática
+const form = useForm({
+  values: mode === "edit" && entity ? { name: entity.name } : DEFAULT_VALUES,
+});
+```
+
+### ❌ useEffect para limpiar errores
+
+```typescript
+// ❌ MAL - limpieza manual
+useEffect(() => {
+  if (open) setApiError(null);
+}, [open]);
+
+// ✅ BIEN - limpieza centralizada en handleOpenChange
+const handleOpenChange = (isOpen: boolean) => {
+  if (!isOpen) {
+    activeMutation.reset(); // Limpia error automáticamente
+    form.reset(DEFAULT_VALUES);
+  }
+  onOpenChange(isOpen);
+};
+```
+
+### ❌ getFieldErrors() helper repetido
+
+```typescript
+// ❌ MAL - helper manual en cada form
+const getFieldErrors = (name: string) =>
+  apiError?.errors?.filter((e) => e.propertyName === name).map((e) => e.message) || [];
+
+// ✅ BIEN - useFormErrorHandler automático
+const handleFormError = useFormErrorHandler(form);
+createMutation.mutate(data, { onError: handleFormError });
+// Display automático con <FormMessage />
+```
+
+### ❌ Verificar ambas mutations separadamente
+
+```typescript
+// ❌ MAL - lógica condicional duplicada
+const isLoading = createMutation.isPending || updateMutation.isPending;
+if (!open) {
+  createMutation.reset();
+  updateMutation.reset();
+}
+
+// ✅ BIEN - activeMutation pattern
+const activeMutation = mode === "create" ? createMutation : updateMutation;
+const isSubmitting = activeMutation.isPending;
+if (!open) activeMutation.reset();
+```
+
+### ❌ useState derivado (duplicación)
+
+```typescript
+// ❌ MAL - estado duplicado + sincronización manual
+const [selectedType, setSelectedType] = useState(false);
+<Button onClick={() => { field.onChange(true); setSelectedType(true); }} />
+
+// ✅ BIEN - derivado de form state
+const selectedType = form.watch("isIncome");
+<Button onClick={() => field.onChange(true)} />
+```
 
 ### ❌ Usar z.coerce.number() en SmartPocket
 
 ```typescript
-// ❌ MAL - NO usar z.coerce en este proyecto
-balance: z.coerce.number().min(0, "Balance must be positive");
-```
+// ❌ MAL - incompatible con project pattern
+amount: z.coerce.number().min(0);
 
-```typescript
 // ✅ BIEN - z.number() + conversión manual
-// Schema:
-balance: z.number("El saldo debe ser un número").min(0, "Balance must be positive");
-
-// Component:
-<Input
-  type="number"
-  {...field}
-  onChange={(e) => field.onChange(parseFloat(e.target.value))}
-/>
+amount: z.number("Must be a number").min(0);
+<Input type="number" {...field}
+  onChange={(e) => field.onChange(parseFloat(e.target.value))} />
 ```
 
 ### ❌ Validación solo client-side
 
 ```typescript
 // ❌ MAL - confiar solo en Zod (cliente puede bypassear)
-const onSubmit = (data: FormValues) => {
-  // Asume data es válido y seguro
+const onSubmit = (data) => {
   createMutation.mutate(data);
 };
-```
 
-```typescript
 // ✅ BIEN - backend SIEMPRE valida (source of truth)
-// Frontend Zod es solo UX optimista
-const onSubmit = (data: FormValues) => {
-  createMutation.mutate(data, {
-    onError: (error: ApiError) => {
-      // Manejar errores de backend validation
-    },
-  });
+const onSubmit = (data) => {
+  createMutation.mutate(data, { onError: handleFormError });
 };
 ```
 
 ### ❌ No limpiar form después de submit
 
 ```typescript
-// ❌ MAL - valores quedan después de crear
-const onSubmit = (data: FormValues) => {
+// ❌ MAL - valores persisten
+const onSubmit = (data) => {
   createMutation.mutate(data);
 };
-```
 
-```typescript
-// ✅ BIEN - reset después de success
-const onSubmit = (data: FormValues) => {
-  createMutation.mutate(data, {
-    onSuccess: () => {
-      form.reset();
-    },
-  });
-};
-```
-
-### ❌ Hardcodear default values sin defaultValues option
-
-```typescript
-// ❌ MAL - uncontrolled inputs, warning en console
-function AccountForm() {
-  const form = useForm<AccountFormValues>({
-    // Falta defaultValues
-  });
-
-  return <Input {...form.register("name")} />; // Warning!
-}
-```
-
-```typescript
-// ✅ BIEN - siempre definir defaultValues
-const form = useForm<AccountFormValues>({
-  defaultValues: {
-    name: "",
-    balance: 0,
-  },
+// ✅ BIEN - reset en onSuccess
+createMutation.mutate(data, {
+  onSuccess: () => handleOpenChange(false), // Incluye form.reset()
 });
 ```
 
-### ❌ Regex sin escape
+### ❌ No definir defaultValues
 
 ```typescript
-// ❌ MAL - regex incorrecto
-colorHex: z.string().regex(/^#[0-9A-F]{6}$/); // Falta 'i' flag
+// ❌ MAL - uncontrolled inputs warning
+const form = useForm<FormValues>({
+  /* Falta defaultValues */
+});
+
+// ✅ BIEN - siempre definir
+const form = useForm<FormValues>({ defaultValues: { name: "", amount: 0 } });
 ```
 
-```typescript
-// ✅ BIEN - case insensitive, escaped
-colorHex: z.string().regex(/^#[0-9A-F]{6}$/i);
-```
-
-### ❌ No deshabilitar submit button durante mutation
+### ❌ No deshabilitar submit durante mutation
 
 ```typescript
 // ❌ MAL - permite múltiples submits
 <Button type="submit">Create</Button>
-```
 
-```typescript
 // ✅ BIEN - deshabilitar durante pending
-<Button type="submit" disabled={createMutation.isPending}>
-  {createMutation.isPending ? "Creating..." : "Create"}
+<Button type="submit" disabled={activeMutation.isPending}>
+  {activeMutation.isPending ? "Saving..." : "Create"}
 </Button>
 ```
 
@@ -549,14 +586,18 @@ colorHex: z.string().regex(/^#[0-9A-F]{6}$/i);
 
 ## Troubleshooting
 
-| Problema                                        | Causa                                   | Solución                                                               |
-| ----------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------- |
-| "A component is changing an uncontrolled input" | Falta `defaultValues`                   | Definir `defaultValues` en `useForm()`                                 |
-| Validación no ejecuta                           | Falta `resolver`                        | Agregar `resolver: zodResolver(schema)`                                |
-| Edit form no pre-popula                         | Usar `defaultValues` en vez de `values` | Cambiar a `values` para reactive updates                               |
-| Números se guardan como strings                 | Falta conversión en `onChange`          | Agregar `onChange={(e) => field.onChange(parseFloat(e.target.value))}` |
-| Form no limpia después de submit                | Falta `form.reset()`                    | Llamar `reset()` en `onSuccess`                                        |
-| Errores de API no aparecen                      | No capturar `onError`                   | Agregar `onError` callback con `setApiError`                           |
+| Problema                                        | Causa                                        | Solución                                                               |
+| ----------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------- |
+| "A component is changing an uncontrolled input" | Falta `defaultValues`                        | Definir `defaultValues` en `useForm()`                                 |
+| Validación no ejecuta                           | Falta `resolver`                             | Agregar `resolver: zodResolver(schema)`                                |
+| Edit form no pre-popula                         | Usar `defaultValues` en vez de `values`      | Cambiar a `values` para reactive updates                               |
+| Números se guardan como strings                 | Falta conversión en `onChange`               | Agregar `onChange={(e) => field.onChange(parseFloat(e.target.value))}` |
+| Form no limpia después de submit                | Falta `form.reset()`                         | Llamar `reset()` en `onSuccess`                                        |
+| Errores de API no aparecen                      | No usar `useFormErrorHandler`                | Agregar `onError: handleFormError`                                     |
+| useEffect ejecuta infinitamente en edit         | Dependencias incorrectas con `defaultValues` | Cambiar a `values` (elimina useEffect)                                 |
+| Errores duplicados (toast + inline)             | Sistema de 3 capas mal configurado           | Verificar main.tsx filtra `propertyName`                               |
+| Estado derivado desincronizado                  | Usar `useState` duplicado                    | Cambiar a `form.watch()`                                               |
+| Reset no funciona al cerrar modal               | No pasar valores a `reset()`                 | Usar `form.reset(DEFAULT_VALUES)`                                      |
 
 ---
 
@@ -565,5 +606,6 @@ colorHex: z.string().regex(/^#[0-9A-F]{6}$/i);
 - [React Hook Form Docs](https://react-hook-form.com/)
 - [Zod Docs](https://zod.dev/)
 - [shadcn Form Component](https://ui.shadcn.com/docs/components/form)
+- [RFC 7807 Problem Details](https://tools.ietf.org/html/rfc7807)
 
 ---

@@ -441,61 +441,39 @@ interface ErrorAlertProps {
 
 ### Comportamiento
 
-- **Filtra errores sin `propertyName`** - Solo muestra errores generales, no errores de campo específico
-- **Retorna `null` si no hay errores** - No renderiza nada si `error` es null o `errors` array está vacío
+- **Filtra errores automáticamente** - Filtra internamente `error.errors` para mostrar solo los que NO tienen `propertyName`
+- **Retorna `null` si no hay errores globales** - No renderiza nada si no hay errores o todos tienen `propertyName`
 - **Lista múltiples errores** - Si hay varios, los muestra en lista con bullets
 
 ### Ejemplo de uso
 
-**En form modals:**
+**En form modals (patrón moderno):**
 
 ```typescript
-const [apiError, setApiError] = useState<ApiError | null>(null);
+const createMutation = useCreateAccount();
+const updateMutation = useUpdateAccount();
+const activeMutation = mode === "create" ? createMutation : updateMutation;
 
-// En mutation error handler
-createMutation.mutate(data, {
-  onError: (error: ApiError) => {
-    setApiError(error);
-  },
-});
+const apiError = activeMutation.error as ApiError | null;
 
 // En JSX
 <Form>
-  <ErrorAlert error={apiError} />
+  {apiError && <ErrorAlert error={apiError} />}
   {/* Form fields... */}
 </Form>
 ```
 
-**Con dismiss:**
+**Con dismiss (opcional):**
 
 ```typescript
-<ErrorAlert error={apiError} onDismiss={() => setApiError(null)} />
-```
-
-### Errores de campo específico
-
-**NO se muestran en ErrorAlert** - Se muestran individualmente con `FormMessage` o custom rendering:
-
-```typescript
-// Helper para obtener errores de campo
-const getFieldErrors = (fieldName: string): string[] => {
-  return apiError?.errors?.filter((e) => e.propertyName === fieldName).map((e) => e.message) || [];
+const handleDismiss = () => {
+  activeMutation.reset(); // Limpia el error de la mutation
 };
 
-// Uso en formulario
-<FormField name="name">
-  <FormControl>
-    <Input {...field} />
-  </FormControl>
-  <FormMessage /> {/* Errores de validación client-side */}
-  {/* Errores del servidor para este campo */}
-  {getFieldErrors("name").map((error, idx) => (
-    <p key={idx} className="text-sm font-medium text-red-500">
-      {error}
-    </p>
-  ))}
-</FormField>
+<ErrorAlert error={apiError} onDismiss={handleDismiss} />
 ```
+
+**Ver [frontend-error-handling](../frontend-error-handling/SKILL.md) para patterns completos de manejo de errores.**
 
 ---
 

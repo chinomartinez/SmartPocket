@@ -1,6 +1,6 @@
 ---
 name: frontend-error-handling
-description: Manejo centralizado de errores para SmartPocket React app. Usar al manejar errores de API, toast notifications, configurar ErrorBoundary, patterns try-catch, RFC 7807 Problem Details, o gestión global de errores. Incluye cuándo usar toasts manuales vs automáticos.
+description: Manejo centralizado de errores para SmartPocket React app. Usar al manejar errores de API, toast notifications, ErrorBoundary, try-catch patterns, RFC 7807 Problem Details, form field-level errors (useFormErrorHandler), ErrorAlert automático, y cuándo usar toasts manuales vs automáticos.
 ---
 
 # SmartPocket - Error Handling (Centralizado)
@@ -24,11 +24,13 @@ Manejo centralizado de errores para SmartPocket React app con toast automático,
 
 ## Architecture Overview
 
-SmartPocket usa **error handling centralizado** en 3 capas:
+SmartPocket usa **error handling centralizado** con múltiples componentes integrados:
 
-1. **TanStack Query global handlers** (`main.tsx`) - Toast automático para API errors
-2. **ErrorBoundary** - Captura crashes de React
-3. **Try-Catch local** (raro) - Solo para lógica custom de recuperación
+- **Toast global con filtrado inteligente** (`main.tsx`) - Muestra errores automáticamente SOLO si no tienen `propertyName` (evita duplicación con errores de campo)
+- **ErrorBoundary** - Captura crashes de React (errores no manejados en render/lifecycle)
+- **ErrorAlert** - Componente que filtra y muestra errores globales automáticamente (sin `propertyName`)
+- **Form field-level errors** - `useFormErrorHandler` hook inyecta errores de API en React Hook Form automáticamente (mapeo case-insensitive)
+- **Try-Catch local** (raro) - Solo para lógica custom de recuperación
 
 **Filosofía:** Minimizar boilerplate. La mayoría de errores se manejan automáticamente.
 
@@ -38,31 +40,22 @@ SmartPocket usa **error handling centralizado** en 3 capas:
 
 ### Setup en `main.tsx`
 
+Configurar QueryClient con `QueryCache` y `MutationCache` que llaman a `onCentralError`:
+
 ```typescript
-import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { toast } from "sonner";
+function onCentralError(error: ApiError) {
+  if (!error) return;
 
-const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: (error: Error) => toast.error(error.message || "Failed to fetch data"),
-  }),
-  mutationCache: new MutationCache({
-    onError: (error: Error) => toast.error(error.message || "Operation failed"),
-  }),
-  defaultOptions: {
-    queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 5 * 60 * 1000 },
-  },
-});
+  // Solo mostrar toast si NO hay errores de campo específicos
+  const hasFieldErrors = error.errors && error.errors.some((e) => e.propertyName);
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Toaster position="top-right" richColors />
-      <AppRouter />
-    </QueryClientProvider>
-  );
+  if (!hasFieldErrors && error.message) {
+    toast.error(error.message);
+  }
 }
 ```
+
+**Lógica de filtrado:** Si el error contiene `propertyName` en alguno de sus errores, NO muestra toast (se maneja via form field-level errors). Solo toast para errores globales.
 
 ### Comportamiento automático
 
@@ -282,36 +275,43 @@ const criticalErrors = error.errors?.filter((e) => e.severity === "Error") ?? []
 
 ### Errores globales - `<ErrorAlert>`
 
-```typescript
-// Mostrar errores sin propertyName (no asociados a campo)
-const globalErrors = error.errors?.filter((e) => !e.propertyName) ?? [];
+`ErrorAlert` filtra errores automáticamente, solo muestra los que NO tienen `propertyName`.
 
-<ErrorAlert error={{ ...error, errors: globalErrors }} />
+```typescript
+const apiError = activeMutation.error as ApiError | null;
+{apiError && <ErrorAlert error={apiError} />}
 ```
 
 ### Errores por campo - React Hook Form
 
-```typescript
-const onSubmit = (data: FormValues) => {
-  createMutation.mutate(data, {
-    onError: (error: ApiError) => {
-      error.errors?.forEach((err) => {
-        if (err.propertyName) {
-          form.setError(err.propertyName as keyof FormValues, {
-            type: "server",
-            message: err.message,
-          });
-        }
-      });
+> **Nota:** Para patterns completos de formularios, ver [frontend-forms](../frontend-forms/SKILL.md).
 
-      const globalErrors = error.errors?.filter((e) => !e.propertyName) ?? [];
-      if (globalErrors.length > 0) setApiError({ ...error, errors: globalErrors });
-    },
-  });
-};
+Usar `useFormErrorHandler` hook para inyectar errores automáticamente:
+
+```typescript
+import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
+
+const form = useForm<FormValues>({...});
+const handleFormError = useFormErrorHandler(form);
+const apiError = mutation.error as ApiError | null;
+
+mutation.mutate(data, {
+  onError: handleFormError, // ← Inyecta errores en campos automáticamente
+});
+
+// En render
+{apiError && <ErrorAlert error={apiError} />}
+<FormField ...>
+  <FormMessage /> {/* ← Muestra errores de campo */}
+</FormField>
 ```
 
-**Ver [error-components.md](./references/error-components.md) para implementaciones completas (ErrorAlert, ErrorBoundary, FieldError, etc.).**
+**Sistema de errores (3 puntos):**
+1. **Field-level:** Errores con `propertyName` → `<FormMessage />`
+2. **Inline:** Errores sin `propertyName` → `<ErrorAlert />`
+3. **Toast:** Errores sin `propertyName` → Toast global
+
+**Ver [error-components.md](./references/error-components.md) para implementación completa.**
 
 ---
 
@@ -418,18 +418,97 @@ try {
 }
 ```
 
+### ❌ setError() manual en loops
+
+```typescript
+// ❌ MAL - mapear errores manualmente
+const onSubmit = (data: FormValues) => {
+  createMutation.mutate(data, {
+    onError: (error: ApiError) => {
+      error.errors?.forEach((err) => {
+        if (err.propertyName) {
+          form.setError(err.propertyName as keyof FormValues, {
+            type: "server",
+            message: err.message,
+          });
+        }
+      });
+    },
+  });
+};
+```
+
+```typescript
+// ✅ BIEN - usar useFormErrorHandler
+import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
+
+const form = useForm<FormValues>({...});
+const handleFormError = useFormErrorHandler(form);
+
+createMutation.mutate(data, {
+  onError: handleFormError, // ← Una línea
+});
+```
+
+### ❌ Filtrar errores manualmente para ErrorAlert
+
+```typescript
+// ❌ MAL - filtrar manualmente (ErrorAlert lo hace internamente)
+const globalErrors = error.errors?.filter((e) => !e.propertyName) ?? [];
+
+// ✅ BIEN - ErrorAlert filtra automáticamente
+const apiError = activeMutation.error as ApiError | null;
+{apiError && <ErrorAlert error={apiError} />}
+```
+
+### ❌ useState para apiError en forms
+
+```typescript
+// ❌ MAL - estado duplicado
+const [apiError, setApiError] = useState<ApiError | null>(null);
+const createMutation = useCreateAccount();
+
+useEffect(() => {
+  if (open) setApiError(null);
+}, [open]);
+
+createMutation.mutate(data, {
+  onError: (error) => setApiError(error),
+});
+```
+
+```typescript
+// ✅ BIEN - usar activeMutation pattern
+const createMutation = useCreateAccount();
+const updateMutation = useUpdateAccount();
+const activeMutation = mode === "create" ? createMutation : updateMutation;
+
+const apiError = activeMutation.error as ApiError | null;
+
+const handleOpenChange = (isOpen: boolean) => {
+  if (!isOpen) {
+    activeMutation.reset(); // ← Limpia error automáticamente
+    form.reset();
+  }
+  onOpenChange(isOpen);
+};
+```
+
 ---
 
 ## Troubleshooting
 
-| Problema                       | Causa                                    | Solución                                         |
-| ------------------------------ | ---------------------------------------- | ------------------------------------------------ |
-| Toast no aparece en error      | QueryCache/MutationCache mal configurado | Verificar setup en `main.tsx`                    |
-| Toast duplicado                | Manual + automático                      | Remover `toast.error()` en `onError`             |
-| ErrorBoundary no captura error | Error en async code                      | Envolver async en try-catch y usar error state   |
-| `.message` es undefined        | Acceso directo sin safe guard            | Usar `error?.message \|\| "Default"`             |
-| Errores de API no legibles     | Axios no parsea RFC 7807                 | Verificar interceptor en `spApiClient`           |
-| Form no muestra field errors   | `setError()` no llamado                  | Verificar `onError` callback con loop de errores |
+| Problema                       | Causa                                      | Solución                                                  |
+| ------------------------------ | ------------------------------------------ | --------------------------------------------------------- |
+| Toast no aparece en error      | QueryCache/MutationCache mal configurado   | Verificar setup en `main.tsx`                             |
+| Toast duplicado                | Manual + automático                        | Remover `toast.error()` en `onError`                      |
+| Toast aparece en form errors   | Filtrado mal configurado                   | Verificar `onCentralError` filtra `hasFieldErrors`        |
+| ErrorBoundary no captura error | Error en async code                        | Envolver async en try-catch y usar error state            |
+| `.message` es undefined        | Acceso directo sin safe guard              | Usar `error?.message \|\| "Default"`                      |
+| Errores de API no legibles     | Axios no parsea RFC 7807                   | Verificar interceptor en `spApiClient`                    |
+| Form no muestra field errors   | `useFormErrorHandler` no usado             | Agregar `onError: handleFormError` en mutation            |
+| ErrorAlert no muestra nada     | Solo hay errores con `propertyName`        | Esperado - ErrorAlert filtra automáticamente              |
+| Field errors case-sensitive    | Backend usa PascalCase, frontend camelCase | `useFormErrorHandler` mapea case-insensitive (automático) |
 
 ---
 

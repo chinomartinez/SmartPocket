@@ -177,7 +177,6 @@ export function TransactionFormModal({
                         variant={field.value === false ? "destructive" : "outline"}
                         onClick={() => {
                           field.onChange(false);
-                          form.setValue("categoryId", 0);
                         }}
                         className="flex-1"
                       >
@@ -188,7 +187,6 @@ export function TransactionFormModal({
                         variant={field.value === true ? "success" : "outline"}
                         onClick={() => {
                           field.onChange(true);
-                          form.setValue("categoryId", 0);
                         }}
                         className="flex-1"
                       >

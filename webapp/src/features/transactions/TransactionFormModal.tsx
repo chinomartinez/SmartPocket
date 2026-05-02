@@ -3,6 +3,7 @@
  * Modal para crear y editar transacciones con validación dual (client + server)
  */
 
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateTransaction, useUpdateTransaction, useTransaction } from "./useTransactions";
@@ -33,6 +34,8 @@ import {
 import { Calendar } from "lucide-react";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
+import { MiniCalculator } from "./MiniCalculator";
+import { cn } from "@/lib/utils";
 
 interface TransactionFormModalProps {
   mode: "create" | "edit";
@@ -90,7 +93,23 @@ export function TransactionFormModal({
   const isIncome = form.watch("isIncome");
   const { data: categories, isLoading: categoriesLoading } = useCategories(isIncome);
 
+  // Estado de mini calculadora
+  const [showCalculator, setShowCalculator] = useState(false);
+
+  // Cerrar calculadora al cambiar tipo de transacción
+  useEffect(() => {
+    if (showCalculator) {
+      setShowCalculator(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isIncome]);
+
   var handleFormError = useFormErrorHandler(form);
+
+  const handleUseCalculatorResult = (value: number) => {
+    form.setValue("amount", value);
+    setShowCalculator(false);
+  };
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -199,94 +218,7 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Cuenta */}
-            <FormField
-              control={form.control}
-              name="accountId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cuenta</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      const accountId = parseInt(value);
-                      field.onChange(accountId);
-
-                      // Sincronizar moneda automáticamente
-                      const selectedAccount = accounts?.find((acc) => acc.id === accountId);
-                      if (selectedAccount) {
-                        form.setValue("currencyCode", selectedAccount.currency.code);
-                      }
-                    }}
-                    value={field.value?.toString()}
-                    disabled={accountsLoading}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona una cuenta" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts?.map((account) => (
-                        <SelectItem key={account.id} value={account.id.toString()}>
-                          <div className="flex items-center gap-2">
-                            <IconBox
-                              icon={account.icon}
-                              size="xs"
-                              shape="rounded"
-                              backgroundOpacity={20}
-                            />
-                            <span>
-                              {account.name} ({account.currency.code})
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Categoría */}
-            <FormField
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoría</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    value={field.value?.toString()}
-                    disabled={categoriesLoading}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona una categoría" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories?.map((category) => (
-                        <SelectItem key={category.id} value={category.id.toString()}>
-                          <div className="flex items-center gap-2">
-                            <IconBox
-                              icon={category.icon}
-                              size="xs"
-                              shape="rounded"
-                              backgroundOpacity={20}
-                            />
-                            <span>{category.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Monto */}
+            {/* Monto con Mini Calculadora */}
             <FormField
               control={form.control}
               name="amount"
@@ -294,31 +226,30 @@ export function TransactionFormModal({
                 <FormItem>
                   <FormLabel>Monto</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Fecha */}
-            <FormField
-              control={form.control}
-              name="effectiveDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Fecha</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input type="date" {...field} className="pr-10" />
-                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setShowCalculator(!showCalculator)}
+                        className={cn(
+                          "shrink-0 text-lg",
+                          showCalculator && "bg-sp-blue-500/20 border border-sp-blue-500/40",
+                        )}
+                        title="Mini Calculadora"
+                      >
+                        🔢
+                      </Button>
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -326,50 +257,168 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Descripción */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción (opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ej: Compra en supermercado, pago de servicios..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Mini Calculadora (se muestra condicionalmente) */}
+            {showCalculator && (
+              <MiniCalculator
+                onClose={() => setShowCalculator(false)}
+                onUseResult={handleUseCalculatorResult}
+              />
+            )}
 
-            {/* Tags (próximamente) */}
-            <FormField
-              control={form.control}
-              name="tags"
-              render={() => (
-                <FormItem>
-                  <FormLabel>
-                    Etiquetas (próximamente)
-                    <span className="ml-2 text-xs text-slate-500">Backend en desarrollo</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: viaje, trabajo, personal..."
-                      disabled
-                      className="cursor-not-allowed opacity-50"
-                      title="Esta función estará disponible próximamente cuando el backend la soporte"
-                    />
-                  </FormControl>
-                  <p className="text-xs text-slate-500">
-                    Podrás agregar etiquetas cuando la función esté disponible en el backend
-                  </p>
-                </FormItem>
-              )}
-            />
+            {/* Campos ocultos cuando calculadora está activa */}
+            {!showCalculator && (
+              <>
+                {/* Cuenta */}
+                <FormField
+                  control={form.control}
+                  name="accountId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cuenta</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          const accountId = parseInt(value);
+                          field.onChange(accountId);
+
+                          // Sincronizar moneda automáticamente
+                          const selectedAccount = accounts?.find((acc) => acc.id === accountId);
+                          if (selectedAccount) {
+                            form.setValue("currencyCode", selectedAccount.currency.code);
+                          }
+                        }}
+                        value={field.value?.toString()}
+                        disabled={accountsLoading}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona una cuenta" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {accounts?.map((account) => (
+                            <SelectItem key={account.id} value={account.id.toString()}>
+                              <div className="flex items-center gap-2">
+                                <IconBox
+                                  icon={account.icon}
+                                  size="xs"
+                                  shape="rounded"
+                                  backgroundOpacity={20}
+                                />
+                                <span>
+                                  {account.name} ({account.currency.code})
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Categoría */}
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Categoría</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        value={field.value?.toString()}
+                        disabled={categoriesLoading}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona una categoría" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories?.map((category) => (
+                            <SelectItem key={category.id} value={category.id.toString()}>
+                              <div className="flex items-center gap-2">
+                                <IconBox
+                                  icon={category.icon}
+                                  size="xs"
+                                  shape="rounded"
+                                  backgroundOpacity={20}
+                                />
+                                <span>{category.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Fecha */}
+                <FormField
+                  control={form.control}
+                  name="effectiveDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fecha</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input type="date" {...field} className="pr-10" />
+                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Descripción */}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descripción (opcional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Ej: Compra en supermercado, pago de servicios..."
+                          className="resize-none"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Tags (próximamente) */}
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>
+                        Etiquetas (próximamente)
+                        <span className="ml-2 text-xs text-slate-500">Backend en desarrollo</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ej: viaje, trabajo, personal..."
+                          disabled
+                          className="cursor-not-allowed opacity-50"
+                          title="Esta función estará disponible próximamente cuando el backend la soporte"
+                        />
+                      </FormControl>
+                      <p className="text-xs text-slate-500">
+                        Podrás agregar etiquetas cuando la función esté disponible en el backend
+                      </p>
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
 
             <div className="flex justify-end gap-3 pt-4">
               <Button

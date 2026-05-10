@@ -141,8 +141,8 @@ export function CategoriesList() {
       {/* Header con título y botones */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Categorías</h1>
-          <p className="text-slate-400">Gestiona las categorías de tus transacciones</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Categorías</h1>
+          <p className="text-text-quaternary">Gestiona las categorías de tus transacciones</p>
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto">

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -17,7 +17,7 @@
   --color-sp-blue-600: oklch(0.424 0.181 266); /* #1e40af - Main brand color */
   --color-sp-blue-700: oklch(0.488 0.217 264); /* #1d4ed8 */
   --color-sp-blue-800: oklch(0.379 0.138 266); /* #1e3a8a */
-  --color-sp-blue-900: oklch(0.424 0.181 266); /* #1e40af */
+  --color-sp-blue-900: oklch(0.26 0.11 266); /* #1e40af */
 
   /* SmartPocket Brand Colors - Purple (Innovation & Modernity) */
   --color-sp-purple-50: oklch(0.969 0.016 294); /* #f5f3ff */
@@ -68,75 +68,116 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* SmartPocket Extended Semantic Colors */
+  --color-glass-base: var(--glass-base);
+  --color-glass-strong: var(--glass-strong);
+  --color-hover-muted: var(--hover-muted);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-quaternary: var(--text-quaternary);
+  --color-border-subtle: var(--border-subtle);
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
+
+  /* Light Mode - Base Colors (más oscuro = más elevado, invertido vs dark) */
+  --background: oklch(0.97 0.008 256); /* Fondo con tinte blue sutil (Capa 0) */
+  --foreground: oklch(0.21 0.006 285.885); /* Texto principal oscuro */
+  --card: oklch(1 0 0); /* Cards blanco puro (Capa 1 - elevados sobre background) */
+  --card-foreground: oklch(0.141 0.005 285.823); /* Texto sobre cards */
+  --popover: oklch(1 0 0); /* Popovers igual que cards */
   --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
+  --primary: oklch(0.424 0.181 266); /* sp-blue-600 - color de marca */
+  --primary-foreground: oklch(0.985 0 0); /* Texto sobre primary */
+  --secondary: oklch(
+    0.95 0.008 256
+  ); /* slate-150 aproximado (Capa 2 - secciones dentro de cards, más oscuro) */
   --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
+  --muted: oklch(0.98 0.004 256); /* slate-50 aproximado (Capa 0.5 - backgrounds sutiles) */
+  --muted-foreground: oklch(0.4 0.015 285.938); /* Texto secundario mejorado para legibilidad */
+  --accent: oklch(
+    0.89 0.012 256
+  ); /* slate-200 aproximado (Capa 3 - hover states, claramente más oscuro) */
   --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
+  --destructive: oklch(0.577 0.245 27.325); /* Red para acciones destructivas */
+  --border: oklch(0.85 0.012 256); /* Borders definidos con tinte */
+  --input: oklch(
+    0.92 0.01 256
+  ); /* slate-200 aproximado (Capa 2 - inputs claramente más oscuros, visibles sobre blanco) */
+  --ring: oklch(0.424 0.181 266);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(1 0 0); /* Sidebar blanco como cards */
   --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary: oklch(0.424 0.181 266);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent: oklch(0.98 0.004 256); /* Hover items más sutil que secondary */
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
+  --sidebar-border: oklch(0.88 0.004 286.32);
+  --sidebar-ring: oklch(0.424 0.181 266);
+
+  /* SmartPocket Glassmorphism & Extended Semantic Colors (Light Mode) */
+  --glass-base: oklch(0.88 0.02 256 / 0.85); /* Glassmorphism perceptible con tinte blue */
+  --glass-strong: oklch(0.85 0.024 256 / 0.9); /* Glass más fuerte para sidebar/modals */
+  --hover-muted: oklch(0.88 0.004 286.32 / 0.6); /* Hover sutil */
+  --text-tertiary: oklch(0.48 0.018 285.938); /* Hints legibles */
+  --text-quaternary: oklch(0.58 0.016 285.938); /* Badges */
+  --border-subtle: oklch(0.82 0.016 256 / 0.7); /* Borders glassmorphism visibles */
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
+  /* Dark Mode - Base Colors (más claro = más elevado, principio de elevación) */
+  --background: var(--color-slate-900); /* oklch(0.15) - Fondo página (Capa 0) */
+  --foreground: oklch(0.985 0 0); /* Texto principal claro */
+  --card: var(--color-slate-800); /* oklch(0.21) - Cards elevados sobre background (Capa 1) */
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
+  --popover: var(--color-slate-800); /* Popovers igual que cards */
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
+  --primary: oklch(0.714 0.143 255); /* sp-blue-400 - color de marca en dark */
+  --primary-foreground: var(--color-slate-900);
+  --secondary: oklch(
+    0.27 0.008 256
+  ); /* slate-750 custom (Capa 1.5 - entre card y input para secciones) */
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
+  --muted: oklch(
+    0.18 0.006 256
+  ); /* slate-875 custom (Capa 0.5 - backgrounds sutiles sobre background) */
+  --muted-foreground: var(--color-slate-400); /* oklch(0.58) - texto secundario */
+  --accent: var(--color-slate-600); /* oklch(0.41) - Capa 3 para hover states */
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
+  --destructive: oklch(0.704 0.191 22.216); /* Red más claro para dark mode */
+  --border: color-mix(in oklch, var(--color-slate-700) 50%, transparent); /* Borders sutiles */
+  --input: var(--color-slate-700); /* oklch(0.33) - Capa 2 inputs elevados sobre cards */
+  --ring: var(--color-slate-500);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar: var(--color-slate-800); /* oklch(0.21) - Igual que cards (Capa 1) */
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary: oklch(0.488 0.243 264.376); /* sp-blue-700 aprox para contraste */
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent: oklch(0.27 0.008 256); /* slate-750 custom - hover items diferenciado */
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  --sidebar-border: color-mix(in oklch, var(--color-slate-700) 50%, transparent);
+  --sidebar-ring: var(--color-slate-500);
+
+  /* SmartPocket Glassmorphism & Extended Semantic Colors (Dark Mode) */
+  --glass-base: color-mix(in oklch, var(--color-slate-800) 60%, transparent); /* Glass base 60% */
+  --glass-strong: color-mix(
+    in oklch,
+    var(--color-slate-800) 75%,
+    transparent
+  ); /* Glass fuerte 75% */
+  --hover-muted: color-mix(in oklch, var(--color-slate-700) 50%, transparent); /* Hover sutil */
+  --text-tertiary: var(--color-slate-500); /* oklch(0.49) - hints */
+  --text-quaternary: var(--color-slate-400); /* oklch(0.58) - badges */
+  --border-subtle: color-mix(in oklch, var(--color-slate-700) 50%, transparent); /* Borders glass */
 }
 
 @layer base {
@@ -150,19 +191,23 @@
 
 @layer utilities {
   /* SmartPocket Glassmorphism Utilities */
-  
+
   /* Base glassmorphism for cards and components */
   .glass-card {
-    @apply bg-slate-800/60 backdrop-blur-sm border border-slate-700/50;
+    @apply bg-glass-base backdrop-blur-sm border border-border-subtle;
   }
-  
+
   /* Stronger glassmorphism for components requiring more contrast (e.g., Sidebar) */
   .glass-card-strong {
-    @apply bg-slate-800/80 backdrop-blur-sm border border-slate-700/50;
+    @apply bg-glass-strong backdrop-blur-lg border border-border-subtle;
   }
-  
+
   /* Glassmorphism hover effect - increases opacity and border visibility */
   .glass-card-hover {
-    @apply hover:bg-slate-800/80 hover:border-slate-700/70;
+    @apply hover:bg-hover-muted hover:border-border;
+  }
+
+  .modal-form {
+    @apply bg-glass-strong backdrop-blur-lg border border-border-subtle;
   }
 }

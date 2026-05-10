@@ -125,8 +125,8 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md modal-form">
+        <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
           <DialogTitle>{mode === "create" ? "Nueva Cuenta" : "Editar Cuenta"}</DialogTitle>
         </DialogHeader>
 
@@ -170,7 +170,7 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                             ${
                               field.value === option.code
                                 ? "border-sp-blue-500 bg-sp-blue-500/20 scale-110"
-                                : "border-slate-700 hover:border-sp-blue-400/50 hover:bg-slate-700/50"
+                                : "border-border hover:border-sp-blue-400/50 hover:bg-hover-muted"
                             }
                           `}
                           title={option.label}
@@ -198,7 +198,7 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                         type="color"
                         value={field.value}
                         onChange={field.onChange}
-                        className="h-10 w-16 rounded-lg border-2 border-slate-700 bg-transparent cursor-pointer"
+                        className="h-10 w-16 rounded-lg border-2 border-border bg-transparent cursor-pointer"
                       />
                       <Input
                         type="text"
@@ -208,7 +208,7 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
                         className="flex-1 uppercase"
                       />
                       <div
-                        className="h-10 w-10 rounded-lg border-2 border-slate-700"
+                        className="h-10 w-10 rounded-lg border-2 border-border"
                         style={{ backgroundColor: field.value }}
                       />
                     </div>
@@ -277,13 +277,13 @@ export function AccountFormModal({ mode, account, open, onOpenChange }: AccountF
               control={form.control}
               name="includeInBalanceGlobal"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-slate-700 p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border p-4">
                   <FormControl>
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>Incluir en balance global</FormLabel>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-text-quaternary">
                       Esta cuenta se incluirá en el cálculo del balance total
                     </p>
                   </div>

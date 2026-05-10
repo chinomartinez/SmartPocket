@@ -51,7 +51,7 @@ export function AccountCard({ account, onEdit, onDelete, isDeleting }: AccountCa
 
         {/* Balance */}
         <div className="space-y-1">
-          <p className="text-xs text-slate-400 uppercase tracking-wider">Saldo disponible</p>
+          <p className="text-xs text-text-quaternary uppercase tracking-wider">Saldo disponible</p>
           <p
             className={`text-2xl font-bold ${balanceColor} transition-all duration-300 group-hover:scale-105`}
           >
@@ -60,8 +60,8 @@ export function AccountCard({ account, onEdit, onDelete, isDeleting }: AccountCa
         </div>
 
         {/* Footer: Moneda code + Botones de acción */}
-        <div className="mt-4 pt-4 border-t border-slate-700/50 flex items-center justify-between">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-700/50 text-slate-300">
+        <div className="mt-4 pt-4 border-t border-border-subtle flex items-center justify-between">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/50 text-muted-foreground">
             {currency.code}
           </span>
           <div className="flex items-center gap-2">

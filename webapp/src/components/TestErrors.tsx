@@ -23,7 +23,6 @@ function CrashComponent({ shouldCrash }: { shouldCrash: boolean }) {
   return <p className="text-green-400">✅ Componente funcionando correctamente</p>;
 }
 
-import SmartPocketLayout from "@/layout/SmartPocketLayout";
 import type { ApiError, ErrorDetail } from "@/api/types";
 
 export function TestErrors() {
@@ -114,16 +113,16 @@ export function TestErrors() {
     <>
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="text-2xl text-white">🧪 Test de Sistema de Errores</CardTitle>
-          <p className="text-slate-400 text-sm">
+          <CardTitle className="text-2xl text-foreground">🧪 Test de Sistema de Errores</CardTitle>
+          <p className="text-text-quaternary text-sm">
             Componente temporal para validar el manejo de errores. Eliminar después de las pruebas.
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Test 1: Toasts */}
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-white">1. Toast Notifications</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-foreground">1. Toast Notifications</h3>
+            <p className="text-sm text-text-quaternary">
               Notificaciones no intrusivas (esquina de la pantalla)
             </p>
             <div className="flex gap-3">
@@ -138,8 +137,8 @@ export function TestErrors() {
 
           {/* Test 2: ErrorAlert (validación) */}
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-white">2. ErrorAlert Component</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-foreground">2. ErrorAlert Component</h3>
+            <p className="text-sm text-text-quaternary">
               Alertas inline para errores de validación generales (400)
             </p>
             <Button onClick={handleValidationError} disabled={testMutation.isPending}>
@@ -152,10 +151,12 @@ export function TestErrors() {
 
           {/* Test 3: Toast automático (500+) */}
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-white">
+            <h3 className="text-lg font-semibold text-foreground">
               3. Toast Automático (TanStack Query)
             </h3>
-            <p className="text-sm text-slate-400">Errores 500+ muestran toast automáticamente</p>
+            <p className="text-sm text-text-quaternary">
+              Errores 500+ muestran toast automáticamente
+            </p>
             <Button onClick={handleServerError} disabled={testMutation.isPending}>
               {testMutation.isPending ? "Cargando..." : "Simular Error del Servidor (500)"}
             </Button>
@@ -163,8 +164,10 @@ export function TestErrors() {
 
           {/* Test 4: ErrorLogger */}
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-white">4. Error Logger</h3>
-            <p className="text-sm text-slate-400">Logs estructurados en consola (abre DevTools)</p>
+            <h3 className="text-lg font-semibold text-foreground">4. Error Logger</h3>
+            <p className="text-sm text-text-quaternary">
+              Logs estructurados en consola (abre DevTools)
+            </p>
             <Button onClick={handleManualLog} variant="outline">
               Loggear Error Manual
             </Button>
@@ -172,15 +175,15 @@ export function TestErrors() {
 
           {/* Test 5: ErrorBoundary */}
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-white">5. Error Boundary</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-foreground">5. Error Boundary</h3>
+            <p className="text-sm text-text-quaternary">
               Captura errores de React (componentes que crashean)
             </p>
             <div className="space-y-3">
               <Button onClick={() => setShowCrash(!showCrash)} variant="destructive">
                 {showCrash ? "Resetear Componente" : "Crashear Componente"}
               </Button>
-              <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700">
+              <div className="p-4 rounded-lg bg-glass-base border border-border-subtle">
                 <CrashComponent shouldCrash={showCrash} />
               </div>
             </div>
@@ -188,7 +191,7 @@ export function TestErrors() {
         </CardContent>
       </Card>
 
-      <div className="text-center text-sm text-slate-500 mt-6">
+      <div className="text-center text-sm text-text-tertiary mt-6">
         ⚠️ Este componente es temporal y debe eliminarse después de las pruebas
       </div>
     </>

@@ -127,25 +127,25 @@ export function MiniCalculator({ onClose, onUseResult }: MiniCalculatorProps) {
   const displayResult = isNaN(result) ? "Error" : Number(result.toFixed(8)).toString();
 
   return (
-    <div className="rounded-xl overflow-hidden border border-sp-blue-500/20 bg-slate-800/70 backdrop-blur-sm">
+    <div className="rounded-xl overflow-hidden border border-sp-blue-500/20 bg-glass-strong backdrop-blur-sm">
       {/* Header con botón cerrar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-700/50">
-        <span className="text-xs font-medium text-slate-200">Calculadora</span>
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle">
+        <span className="text-xs font-medium text-foreground">Calculadora</span>
         <Button
           type="button"
           variant="ghost"
           size="icon-sm"
           onClick={onClose}
-          className="hover:bg-slate-700/50"
+          className="hover:bg-hover-muted"
         >
-          <X className="h-4 w-4 text-slate-400" />
+          <X className="h-4 w-4 text-text-quaternary" />
         </Button>
       </div>
 
       {/* Display */}
-      <div className="px-4 py-3 text-right border-b border-slate-700/30">
-        <p className="text-xs text-slate-400 font-mono h-4 truncate">{displayExpression || " "}</p>
-        <p className="text-3xl font-bold text-slate-100 font-mono mt-1">{displayResult}</p>
+      <div className="px-4 py-3 text-right border-b border-border-subtle">
+        <p className="text-xs text-text-quaternary h-4 truncate">{displayExpression || " "}</p>
+        <p className="text-3xl font-bold text-foreground mt-1">{displayResult}</p>
       </div>
 
       {/* Buttons Grid 4×5 */}
@@ -230,8 +230,8 @@ function CalcButton({ children, onClick, variant = "base" }: CalcButtonProps) {
   const baseStyles = "h-12 rounded-lg font-semibold transition-all duration-150 active:scale-95";
 
   const variantStyles = {
-    base: "bg-slate-700/40 hover:bg-slate-700/60 text-slate-100 text-lg",
-    operator: "bg-slate-700/30 hover:bg-slate-700/50 text-sp-blue-400 text-base",
+    base: "bg-secondary/40 hover:bg-secondary/60 text-foreground text-lg",
+    operator: "bg-secondary/30 hover:bg-hover-muted text-sp-blue-400 text-base",
     clear: "bg-red-500/20 hover:bg-red-500/30 text-red-400 text-base",
     accent: "bg-sp-blue-600/30 hover:bg-sp-blue-600/40 text-sp-blue-300 text-lg font-bold",
   };

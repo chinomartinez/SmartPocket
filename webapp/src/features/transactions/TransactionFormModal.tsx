@@ -157,7 +157,7 @@ export function TransactionFormModal({
   if (isLoadingData) {
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent className="sm:max-w-md modal-form">
           <DialogHeader>
             <DialogTitle>Cargando transacción...</DialogTitle>
           </DialogHeader>
@@ -171,8 +171,8 @@ export function TransactionFormModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto modal-form">
+        <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
           <DialogTitle>
             {mode === "create" ? "Nueva Transacción" : "Editar Transacción"}
           </DialogTitle>
@@ -188,29 +188,35 @@ export function TransactionFormModal({
               name="isIncome"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo de Transacción</FormLabel>
+                  <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                    Tipo de Transacción
+                  </FormLabel>
                   <FormControl>
-                    <div className="flex gap-3">
-                      <Button
+                    <div className="flex gap-2 p-1 rounded-xl bg-muted/50">
+                      <button
                         type="button"
-                        variant={field.value === false ? "destructive" : "outline"}
-                        onClick={() => {
-                          field.onChange(false);
-                        }}
-                        className="flex-1"
+                        onClick={() => field.onChange(false)}
+                        className={cn(
+                          "flex-1 py-2 px-3 sm:px-4 rounded-lg text-sm font-semibold transition-all duration-200 border",
+                          field.value === false
+                            ? "bg-destructive/15 text-destructive border-destructive/30"
+                            : "text-muted-foreground border-transparent hover:bg-muted/30",
+                        )}
                       >
                         💸 Gasto
-                      </Button>
-                      <Button
+                      </button>
+                      <button
                         type="button"
-                        variant={field.value === true ? "success" : "outline"}
-                        onClick={() => {
-                          field.onChange(true);
-                        }}
-                        className="flex-1"
+                        onClick={() => field.onChange(true)}
+                        className={cn(
+                          "flex-1 py-2 px-3 sm:px-4 rounded-lg text-sm font-semibold transition-all duration-200 border",
+                          field.value === true
+                            ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                            : "text-muted-foreground border-transparent hover:bg-muted/30",
+                        )}
                       >
                         💰 Ingreso
-                      </Button>
+                      </button>
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -224,7 +230,9 @@ export function TransactionFormModal({
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Monto</FormLabel>
+                  <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                    Monto
+                  </FormLabel>
                   <FormControl>
                     <div className="flex gap-2">
                       <div className="flex-1 relative">
@@ -274,7 +282,9 @@ export function TransactionFormModal({
                   name="accountId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cuenta</FormLabel>
+                      <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                        Cuenta
+                      </FormLabel>
                       <Select
                         onValueChange={(value) => {
                           const accountId = parseInt(value);
@@ -323,7 +333,9 @@ export function TransactionFormModal({
                   name="categoryId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Categoría</FormLabel>
+                      <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                        Categoría
+                      </FormLabel>
                       <Select
                         onValueChange={(value) => field.onChange(parseInt(value))}
                         value={field.value?.toString()}
@@ -361,11 +373,13 @@ export function TransactionFormModal({
                   name="effectiveDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Fecha</FormLabel>
+                      <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                        Fecha
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input type="date" {...field} className="pr-10" />
-                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -379,7 +393,9 @@ export function TransactionFormModal({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Descripción (opcional)</FormLabel>
+                      <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                        Descripción (opcional)
+                      </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Ej: Compra en supermercado, pago de servicios..."
@@ -399,9 +415,11 @@ export function TransactionFormModal({
                   name="tags"
                   render={() => (
                     <FormItem>
-                      <FormLabel>
+                      <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
                         Etiquetas (próximamente)
-                        <span className="ml-2 text-xs text-slate-500">Backend en desarrollo</span>
+                        <span className="ml-2 text-[10px] normal-case tracking-normal font-normal text-text-tertiary">
+                          Backend en desarrollo
+                        </span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -411,7 +429,7 @@ export function TransactionFormModal({
                           title="Esta función estará disponible próximamente cuando el backend la soporte"
                         />
                       </FormControl>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-text-tertiary">
                         Podrás agregar etiquetas cuando la función esté disponible en el backend
                       </p>
                     </FormItem>

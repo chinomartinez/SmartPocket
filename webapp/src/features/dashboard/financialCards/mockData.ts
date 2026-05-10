@@ -1,31 +1,22 @@
-import type { FinancialCardProps } from './financialCardTypes';
+import type { FinancialCardProps } from "./financialCardTypes";
 
 export const financialCardData: FinancialCardProps[] = [
   {
-    title: 'BALANCE',
-    amount: '$24,580.50',
-    icon: '💰',
-    badgeColor: 'primary',
-    changeText: 'this month',
-    changeDirection: 'up',
-    changePercentage: '2.5%'
+    title: "Ingresos del Mes",
+    amount: "+$84.200,00",
+    amountColor: "text-emerald-400",
+    secondaryText: "↗ +12.5% vs mes anterior",
   },
   {
-    title: 'INCOME',
-    amount: '$8,240.00',
-    icon: '📈',
-    badgeColor: 'success',
-    changeText: 'vs last month',
-    changeDirection: 'up',
-    changePercentage: '12.3%'
+    title: "Gastos del Mes",
+    amount: "-$32.800,00",
+    amountColor: "text-red-400",
+    secondaryText: "↘ -3.2% vs mes anterior",
   },
   {
-    title: 'EXPENSES',
-    amount: '$3,672.25',
-    icon: '📉',
-    badgeColor: 'red',
-    changeText: 'vs last month',
-    changeDirection: 'up',
-    changePercentage: '5.1%'
+    title: "Ahorro del Mes",
+    amount: "$51.400,00",
+    amountColor: "text-sp-blue-400 dark:text-sp-blue-400",
+    secondaryText: "61% de los ingresos",
   },
 ];

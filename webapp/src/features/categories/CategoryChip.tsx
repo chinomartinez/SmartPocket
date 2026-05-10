@@ -57,8 +57,10 @@ export function CategoryChip({ category, onEdit, isReordering = false }: Categor
 
       {/* Nombre de la categoría */}
       <div className="w-25 text-center">
-        <p className="text-sm text-white font-medium leading-tight line-clamp-2">{category.name}</p>
-        {category.isDefault && <p className="text-xs text-slate-500 mt-0.5">Sistema</p>}
+        <p className="text-sm text-foreground font-medium leading-tight line-clamp-2">
+          {category.name}
+        </p>
+        {category.isDefault && <p className="text-xs text-text-tertiary mt-0.5">Sistema</p>}
       </div>
     </button>
   );

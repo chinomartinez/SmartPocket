@@ -48,8 +48,10 @@ export function AccountsList() {
       {/* Header */}
       <div className="mb-6 md:mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Cuentas</h1>
-          <p className="mt-1 text-sm text-slate-400">Gestiona tus cuentas y fondos disponibles</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Cuentas</h1>
+          <p className="mt-1 text-sm text-text-quaternary">
+            Gestiona tus cuentas y fondos disponibles
+          </p>
         </div>
         <Button onClick={handleCreateClick} className="flex items-center gap-2">
           <PlusIcon className="h-5 w-5" />
@@ -81,8 +83,8 @@ export function AccountsList() {
           <div className="mx-auto w-16 h-16 rounded-full bg-sp-blue-500/20 flex items-center justify-center mb-4">
             <PlusIcon className="h-8 w-8 text-sp-blue-400" />
           </div>
-          <h3 className="text-lg font-semibold text-white mb-2">No tienes cuentas</h3>
-          <p className="text-slate-400 mb-6">
+          <h3 className="text-lg font-semibold text-foreground mb-2">No tienes cuentas</h3>
+          <p className="text-text-quaternary mb-6">
             Crea tu primera cuenta para comenzar a gestionar tus finanzas
           </p>
           <Button onClick={handleCreateClick} className="mx-auto">

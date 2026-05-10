@@ -50,7 +50,7 @@ export function DeleteConfirmationDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="glass-card border-slate-700">
+      <AlertDialogContent className="glass-card border-border-subtle">
         <AlertDialogHeader>
           <AlertDialogTitle>{title || defaultTitle}</AlertDialogTitle>
           <AlertDialogDescription>{description || defaultDescription}</AlertDialogDescription>

@@ -152,8 +152,8 @@ export function CategoryFormModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md modal-form">
+        <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
           <DialogTitle>{mode === "create" ? "Nueva Categoría" : "Editar Categoría"}</DialogTitle>
         </DialogHeader>
 
@@ -230,7 +230,7 @@ export function CategoryFormModal({
                             ${
                               field.value === option.code
                                 ? "border-sp-blue-500 bg-sp-blue-500/20 scale-110"
-                                : "border-slate-700 hover:border-sp-blue-400/50 hover:bg-slate-700/50"
+                                : "border-border hover:border-sp-blue-400/50 hover:bg-hover-muted"
                             }
                           `}
                           title={option.label}
@@ -259,7 +259,7 @@ export function CategoryFormModal({
                         type="color"
                         value={field.value}
                         onChange={field.onChange}
-                        className="h-10 w-16 rounded-lg border-2 border-slate-700 bg-transparent cursor-pointer"
+                        className="h-10 w-16 rounded-lg border-2 border-border bg-transparent cursor-pointer"
                       />
                       {/* Text input para edición manual */}
                       <Input
@@ -271,7 +271,7 @@ export function CategoryFormModal({
                       />
                       {/* Preview visual */}
                       <div
-                        className="h-10 w-10 rounded-lg border-2 border-slate-700 flex-shrink-0"
+                        className="h-10 w-10 rounded-lg border-2 border-border flex-shrink-0"
                         style={{ backgroundColor: field.value }}
                       />
                     </div>

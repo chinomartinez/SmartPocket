@@ -31,7 +31,6 @@ export function CategoriesList() {
   // Estado para filtros y modal
   const [typeFilter, setTypeFilter] = useState<boolean>(false); // false = gastos, true = ingresos
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [selectedCategory, setSelectedCategory] = useState<CategoryGetDTO | undefined>();
   const [modalDefaultType, setModalDefaultType] = useState<boolean>(false);
 
@@ -108,14 +107,12 @@ export function CategoriesList() {
   // ============================================================================
 
   const handleCreate = () => {
-    setModalMode("create");
     setSelectedCategory(undefined);
     setModalDefaultType(typeFilter);
     setModalOpen(true);
   };
 
   const handleEdit = (category: CategoryGetDTO) => {
-    setModalMode("edit");
     setSelectedCategory(category);
     setModalOpen(true);
   };
@@ -295,7 +292,6 @@ export function CategoriesList() {
       {/* Modal de creación/edición (disabled during reorder) */}
       {!isReordering && (
         <CategoryFormModal
-          mode={modalMode}
           category={selectedCategory}
           open={modalOpen}
           onOpenChange={setModalOpen}

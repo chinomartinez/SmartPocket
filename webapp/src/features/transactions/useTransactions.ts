@@ -5,7 +5,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { transactionService } from "@/api/services/transactions/transactionService";
-import type { TransactionCreateCommand } from "@/api/services/transactions/transactionTypes";
+import type {
+  TransactionCreateCommand,
+  TransactionListRequest,
+} from "@/api/services/transactions/transactionTypes";
 
 // ============================================================================
 // Query Keys
@@ -14,6 +17,7 @@ import type { TransactionCreateCommand } from "@/api/services/transactions/trans
 export const transactionKeys = {
   all: ["transactions"] as const,
   lists: () => [...transactionKeys.all, "list"] as const,
+  list: (filters: TransactionListRequest) => [...transactionKeys.lists(), filters] as const,
   recents: (count: number) => [...transactionKeys.all, "recents", count] as const,
   details: () => [...transactionKeys.all, "detail"] as const,
   detail: (id: number) => [...transactionKeys.details(), id] as const,
@@ -49,13 +53,17 @@ export function useRecentTransactions(count: number = 5) {
   });
 }
 
-// TODO: Implementar cuando backend exponga GET /transactions
-// export function useTransactions(filters?) {
-//   return useQuery({
-//     queryKey: transactionKeys.lists(),
-//     queryFn: () => transactionService.getAll(filters),
-//   });
-// }
+/**
+ * Hook para obtener listado de transacciones con filtros
+ * @param filters Filtros para el listado (cuenta, tipo, fechas, búsqueda)
+ * @returns Query con lista de transacciones filtradas
+ */
+export function useTransactionList(filters: TransactionListRequest) {
+  return useQuery({
+    queryKey: transactionKeys.list(filters),
+    queryFn: () => transactionService.getList(filters),
+  });
+}
 
 // ============================================================================
 // Mutations

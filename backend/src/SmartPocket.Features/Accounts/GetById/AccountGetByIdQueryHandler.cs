@@ -30,7 +30,8 @@ namespace SmartPocket.Features.Accounts.GetById
                         ColorHex = x.Icon.ColorHex,
                     },
                     IncludeInBalanceGlobal = x.IncludeInBalanceGlobal,
-                    Name = x.Name
+                    Name = x.Name,
+                    IsPrincipal = x.IsPrincipal,
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 

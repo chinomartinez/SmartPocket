@@ -12,11 +12,12 @@ namespace SmartPocket.Domain.Accounts
         }
 
         public Account(string name, Icon icon, string currencyCode, decimal initialBalance,
-            bool includeInBalanceGlobal)
+            bool includeInBalanceGlobal, bool isPrincipal)
         {
             Update(name, icon, currencyCode, includeInBalanceGlobal);
 
             InitialBalance = initialBalance;
+            IsPrincipal = isPrincipal;
         }
 
         public string Name { get; private set; } = default!;
@@ -30,6 +31,7 @@ namespace SmartPocket.Domain.Accounts
 
         public ICollection<Transaction> Transactions { get; private set; } = new List<Transaction>();
 
+        public bool IsPrincipal { get; private set; }
 
         public void Update(string name, Icon icon, string currencyCode, bool includeInBalanceGlobal)
         {

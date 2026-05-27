@@ -39,6 +39,27 @@ export interface CategoryRecentTransactionItemDTO {
   icon: IconDTO;
 }
 
+/**
+ * DTO para cuenta en listado de transacciones
+ * Alineado con AccountTransactionListItemDTO.cs del backend
+ */
+export interface AccountTransactionListItemDTO {
+  id: number;
+  name: string;
+  icon: IconDTO;
+}
+
+/**
+ * DTO para categoría en listado de transacciones
+ * Alineado con CategoryTransactionListItemDTO.cs del backend
+ */
+export interface CategoryTransactionListItemDTO {
+  id: number;
+  name: string;
+  isIncome: boolean;
+  icon: IconDTO;
+}
+
 // ============================================================================
 // DTOs para Querys
 // ============================================================================
@@ -69,6 +90,32 @@ export interface RecentTransactionItemDTO {
   effectiveDate: string; // ISO 8601 date string
   isIncome: boolean;
   money: MoneyDTO;
+}
+
+/**
+ * DTO para item de transacción en listado
+ * Alineado con TransactionListItemDTO.cs del backend
+ */
+export interface TransactionListItemDTO {
+  id: number;
+  account: AccountTransactionListItemDTO;
+  category: CategoryTransactionListItemDTO;
+  description?: string;
+  effectiveDate: string; // ISO 8601 date string
+  isIncome: boolean;
+  money: MoneyDTO;
+}
+
+/**
+ * Request para filtrar listado de transacciones
+ * Alineado con TransactionListRequest.cs del backend
+ */
+export interface TransactionListRequest {
+  accountId: number;
+  isIncome: boolean;
+  from: string; // ISO 8601 date string
+  to: string; // ISO 8601 date string
+  search?: string;
 }
 
 // ============================================================================

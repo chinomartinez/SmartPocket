@@ -35,10 +35,10 @@ import { Calendar } from "lucide-react";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { MiniCalculator } from "./MiniCalculator";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
+import { AddCurrentTimeToDate } from "@/utils/dateHelpers";
 
 interface TransactionFormModalProps {
-  mode: "create" | "edit";
   transactionId?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -49,18 +49,19 @@ const DEFAULT_FORM_VALUES: TransactionFormValues = {
   accountId: 0,
   categoryId: 0,
   amount: 0,
-  currencyCode: "",
   effectiveDate: new Date().toISOString().split("T")[0],
   description: "",
   tags: [],
 };
 
 export function TransactionFormModal({
-  mode,
   transactionId,
   open,
   onOpenChange,
 }: TransactionFormModalProps) {
+  // Derivar modo del transactionId
+  const mode: "create" | "edit" = transactionId ? "edit" : "create";
+
   // Fetch transaction data solo en modo edición
   const { data: transaction, isLoading: fetchingTransaction } = useTransaction(transactionId!, {
     enabled: mode === "edit" && !!transactionId && open,
@@ -70,6 +71,9 @@ export function TransactionFormModal({
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
   const activeMutation = mode === "create" ? createMutation : updateMutation;
+
+  // Calcular cuenta principal para usar como default
+  const principalAccountId = accounts?.find((a) => a.isPrincipal)?.id;
 
   // Form con sincronización automática via 'values' (reemplaza useEffect de reset)
   const form = useForm<TransactionFormValues>({
@@ -81,12 +85,14 @@ export function TransactionFormModal({
             accountId: transaction.accountId,
             categoryId: transaction.categoryId,
             amount: transaction.accountMoney.amount,
-            currencyCode: transaction.accountMoney.currencyCode,
             effectiveDate: transaction.effectiveDate.split("T")[0],
             description: transaction.description || "",
             tags: [],
           }
-        : DEFAULT_FORM_VALUES,
+        : {
+            ...DEFAULT_FORM_VALUES,
+            accountId: principalAccountId ?? 0,
+          },
   });
 
   // Estado derivado: tipo de transacción determina categorías disponibles
@@ -120,14 +126,17 @@ export function TransactionFormModal({
   };
 
   const onSubmit = (data: TransactionFormValues) => {
+    // Obtener currencyCode de la cuenta seleccionada
+    const selectedAccount = accounts?.find((acc) => acc.id === data.accountId);
+
     const payload = {
       accountId: data.accountId,
       categoryId: data.categoryId,
       accountMoney: {
         amount: data.amount,
-        currencyCode: data.currencyCode,
+        currencyCode: selectedAccount?.currency.code ?? "",
       },
-      effectiveDate: data.effectiveDate,
+      effectiveDate: AddCurrentTimeToDate(data.effectiveDate),
       description: data.description || undefined,
       isIncome: data.isIncome,
     };
@@ -181,6 +190,56 @@ export function TransactionFormModal({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {apiError && <ErrorAlert error={apiError} />}
+
+            {/* Cuenta */}
+            <FormField
+              control={form.control}
+              name="accountId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground text-center block">
+                    Cuenta
+                  </FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    value={
+                      field.value === 0
+                        ? (principalAccountId?.toString() ?? "")
+                        : field.value.toString()
+                    }
+                    disabled={accountsLoading}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full justify-center [&>span]:flex [&>span]:items-center [&>span]:gap-2">
+                        <SelectValue placeholder="Selecciona una cuenta" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent position="popper" align="center">
+                      {accounts?.map((account) => (
+                        <SelectItem
+                          key={account.id}
+                          value={account.id.toString()}
+                          className="justify-center"
+                        >
+                          <div className="flex items-center gap-2">
+                            <IconBox
+                              icon={account.icon}
+                              size="xs"
+                              shape="rounded"
+                              backgroundOpacity={20}
+                            />
+                            <span>
+                              {account.name} ({account.currency.code})
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Tipo de Transacción */}
             <FormField
@@ -276,57 +335,6 @@ export function TransactionFormModal({
             {/* Campos ocultos cuando calculadora está activa */}
             {!showCalculator && (
               <>
-                {/* Cuenta */}
-                <FormField
-                  control={form.control}
-                  name="accountId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
-                        Cuenta
-                      </FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          const accountId = parseInt(value);
-                          field.onChange(accountId);
-
-                          // Sincronizar moneda automáticamente
-                          const selectedAccount = accounts?.find((acc) => acc.id === accountId);
-                          if (selectedAccount) {
-                            form.setValue("currencyCode", selectedAccount.currency.code);
-                          }
-                        }}
-                        value={field.value?.toString()}
-                        disabled={accountsLoading}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona una cuenta" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {accounts?.map((account) => (
-                            <SelectItem key={account.id} value={account.id.toString()}>
-                              <div className="flex items-center gap-2">
-                                <IconBox
-                                  icon={account.icon}
-                                  size="xs"
-                                  shape="rounded"
-                                  backgroundOpacity={20}
-                                />
-                                <span>
-                                  {account.name} ({account.currency.code})
-                                </span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* Categoría */}
                 <FormField
                   control={form.control}

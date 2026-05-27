@@ -38,7 +38,6 @@ import { getAccountIcons } from "@/components/iconBoxes/iconMap";
 // ============================================================================
 
 interface AccountFormModalProps {
-  mode: "create" | "edit";
   account?: AccountGetDTO;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -63,7 +62,10 @@ const DEFAULT_FORM_VALUES: AccountFormValues = {
 // Component
 // ============================================================================
 
-export function AccountFormModal({ mode, account, open, onOpenChange }: AccountFormModalProps) {
+export function AccountFormModal({ account, open, onOpenChange }: AccountFormModalProps) {
+  // Derivar modo del account
+  const mode: "create" | "edit" = account ? "edit" : "create";
+
   // Hooks
   const { data: currencies, isLoading: currenciesLoading } = useCurrencies();
   const createMutation = useCreateAccount();

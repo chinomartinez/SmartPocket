@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.Accounts;
 using SmartPocket.Domain.Transactions;
 using SmartPocket.Features.Abstractions.Handlers;
@@ -26,12 +27,15 @@ namespace SmartPocket.Features.Accounts.Create
             var validation = await _validator.ValidateCommand(request);
             if (validation.IsNotValid) return validation.Errors;
 
+            var isPrincipal = !await _smartPocketContext.Query<Account>().AnyAsync(cancellationToken);
+
             var account = new Account(
                 name: request.Name,
                 icon: request.Icon.ToDomainIcon(),
                 currencyCode: request.CurrencyCode,
                 initialBalance: request.Balance,
-                includeInBalanceGlobal: request.IncludeInBalanceGlobal);            
+                includeInBalanceGlobal: request.IncludeInBalanceGlobal,
+                isPrincipal: isPrincipal);
 
             if (request.Balance != 0)
             {

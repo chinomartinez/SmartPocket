@@ -2,6 +2,7 @@
 using SmartPocket.Features.Transactions.Create;
 using SmartPocket.Features.Transactions.GetById;
 using SmartPocket.Features.Transactions.GetRecents;
+using SmartPocket.Features.Transactions.List;
 using SmartPocket.Features.Transactions.Update;
 using SmartPocket.WebApi.Extensions;
 
@@ -54,7 +55,7 @@ namespace SmartPocket.WebApi.Controllers
         {
             var result = await handler.GetById(id, cancellation);
 
-            return result is null 
+            return result is null
                 ? NotFound("Transaction not found")
                 : Ok(result);
         }
@@ -72,6 +73,16 @@ namespace SmartPocket.WebApi.Controllers
 
             var result = await handler.Get(request, cancellation);
             return result;
+        }
+
+        [HttpGet("list")]
+        public async Task<ActionResult<List<TransactionListItemDTO>>> GetList(
+            [FromServices] TransactaionListQueryHandler handler,
+            [FromQuery] TransactionListRequest request,
+            CancellationToken cancellation)
+        {
+            var result = await handler.Get(request, cancellation);
+            return Ok(result);
         }
     }
 }

@@ -32,6 +32,7 @@ namespace SmartPocket.Features.Accounts.Get
                     },
                     IncludeInBalanceGlobal = x.IncludeInBalanceGlobal,
                     Name = x.Name,
+                    IsPrincipal = x.IsPrincipal,
                 })
                 .ToPagedListResponse(request, cancellationToken);
 

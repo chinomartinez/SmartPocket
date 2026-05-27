@@ -36,7 +36,6 @@ import { getCategoryIcons } from "@/components/iconBoxes/iconMap";
 // ============================================================================
 
 interface CategoryFormModalProps {
-  mode: "create" | "edit";
   category?: CategoryGetDTO;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,12 +60,14 @@ const DEFAULT_FORM_VALUES: CategoryFormValues = {
 // ============================================================================
 
 export function CategoryFormModal({
-  mode,
   category,
   open,
   onOpenChange,
   defaultIsIncome,
 }: CategoryFormModalProps) {
+  // Derivar modo del category
+  const mode: "create" | "edit" = category ? "edit" : "create";
+
   // Hooks
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();

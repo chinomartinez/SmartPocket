@@ -7,6 +7,8 @@ import type {
   TransactionCreateResponse,
   TransactionGetByIdDTO,
   RecentTransactionItemDTO,
+  TransactionListItemDTO,
+  TransactionListRequest,
 } from "./transactionTypes";
 import { spApiClient } from "@/api/spApiClient";
 
@@ -33,6 +35,23 @@ export const transactionService = {
   },
 
   /**
+   * Obtener listado de transacciones con filtros
+   * @param filters Filtros para el listado (cuenta, tipo, fechas, búsqueda)
+   */
+  getList: async (filters: TransactionListRequest) => {
+    const response = await spApiClient.get<TransactionListItemDTO[]>(`${BASE_PATH}/list`, {
+      params: {
+        accountId: filters.accountId,
+        isIncome: filters.isIncome,
+        from: filters.from,
+        to: filters.to,
+        search: filters.search,
+      },
+    });
+    return response.data;
+  },
+
+  /**
    * Crear nueva transacción
    */
   create: async (data: TransactionCreateCommand) => {
@@ -49,7 +68,6 @@ export const transactionService = {
     await spApiClient.put(`${BASE_PATH}/${id}`, data);
   },
 
-  // TODO: Implementar cuando backend exponga endpoints
-  // getAll: async (filters?) => { ... }
+  // TODO: Implementar cuando backend exponga DELETE /transactions/{id}
   // delete: async (id: number) => { ... }
 };

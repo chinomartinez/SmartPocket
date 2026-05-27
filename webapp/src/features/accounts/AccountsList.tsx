@@ -18,18 +18,15 @@ export function AccountsList() {
 
   // Estado del modal
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [selectedAccount, setSelectedAccount] = useState<AccountGetDTO | undefined>();
 
   // Handlers
   const handleCreateClick = () => {
-    setModalMode("create");
     setSelectedAccount(undefined);
     setModalOpen(true);
   };
 
   const handleEditClick = (account: AccountGetDTO) => {
-    setModalMode("edit");
     setSelectedAccount(account);
     setModalOpen(true);
   };
@@ -110,12 +107,7 @@ export function AccountsList() {
       )}
 
       {/* Modal de crear/editar cuenta */}
-      <AccountFormModal
-        mode={modalMode}
-        account={selectedAccount}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
+      <AccountFormModal account={selectedAccount} open={modalOpen} onOpenChange={setModalOpen} />
     </>
   );
 }

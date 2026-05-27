@@ -4,7 +4,7 @@ import { upcomingPayments } from "./mockData";
 import { formatCurrency } from "@/utils/formatters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/router/routes";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 export default function UpcomingPayments() {
   // Helper function to calculate days until due date

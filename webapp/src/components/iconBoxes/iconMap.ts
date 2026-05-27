@@ -116,7 +116,7 @@ export function getAccountIcons(): IconOption[] {
     "house",
     "car",
   ];
-  return accountCodes.map((code) => ICON_MAP[code]);
+  return MapToIcon(accountCodes);
 }
 
 /**
@@ -127,8 +127,8 @@ export function getAccountIcons(): IconOption[] {
 export function getCategoryIcons(isIncome: boolean): IconOption[] {
   if (isIncome) {
     // Iconos de ingresos
-    const incomeCodes = ["salary", "investment", "gift", "freelance", "bonus", "other"];
-    return incomeCodes.map((code) => ICON_MAP[code]);
+    const incomeCodes = ["salary", "investment", "gift", "freelance", "bonus", "others"];
+    return MapToIcon(incomeCodes);
   } else {
     // Iconos de gastos
     const expenseCodes = [
@@ -142,8 +142,13 @@ export function getCategoryIcons(isIncome: boolean): IconOption[] {
       "education",
       "services",
       "restaurant",
-      "other",
+      "others",
     ];
-    return expenseCodes.map((code) => ICON_MAP[code]);
+
+    return MapToIcon(expenseCodes);
   }
+}
+
+function MapToIcon(codes: string[]): IconOption[] {
+  return codes.map((code) => ICON_MAP[code]);
 }

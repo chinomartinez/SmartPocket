@@ -11,6 +11,7 @@ namespace SmartPocket.Features.Accounts.Get
         public CurrencyItemDTO Currency { get; set; } = default!;
         public IconDTO Icon { get; set; } = default!;
         public bool IncludeInBalanceGlobal { get; set; }
-        public string Name { get; set; } = default!; 
+        public string Name { get; set; } = default!;
+        public bool IsPrincipal { get; set; }
     }
 }

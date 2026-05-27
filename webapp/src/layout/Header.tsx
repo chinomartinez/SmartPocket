@@ -3,7 +3,6 @@ import { Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TransactionFormModal } from "@/features/transactions/TransactionFormModal";
-import { ThemeToggle } from "@/components/themeToggle/ThemeToggle";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -81,11 +80,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
       {/* Modal de creación de transacción */}
       {transactionModalOpen && (
-        <TransactionFormModal
-          mode="create"
-          open={transactionModalOpen}
-          onOpenChange={setTransactionModalOpen}
-        />
+        <TransactionFormModal open={transactionModalOpen} onOpenChange={setTransactionModalOpen} />
       )}
     </header>
   );

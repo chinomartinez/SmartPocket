@@ -117,9 +117,9 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 - [] FR12: Agregar tags opcionales a transacciones
 - [x] FR13: Editar detalles de transacción
 - [] FR14: Eliminar transacciones con soft delete y recalculación de balances
-- [] FR15: Filtrar transacciones por períodos, rango fecha, cuenta, categoría, tags
-- [] FR16: Buscar transacciones en tiempo real
-- [] FR17: Ver historial de transacciones ordenado por fecha
+- [x] FR15: Filtrar transacciones por cuentas, tipo, periodo o description
+- [x] FR16: Buscar transacciones en tiempo real
+- [x] FR17: Ver historial de transacciones ordenado por fecha
 - [x] FR47: Usar mini calculadora integrada en modal de transacciones
 - [x] FR48: Ver listado de transacciones recientes, ordenados por fecha.
 

@@ -63,7 +63,9 @@ export type EntityFormValues = z.infer<typeof entitySchema>;
 ```typescript
 import { useCreateEntity, useUpdateEntity } from "./useEntities";
 
-function EntityFormModal({ mode, entity, open, onOpenChange }) {
+function EntityFormModal({ entity, open, onOpenChange }) {
+  const mode: "create" | "edit" = entity ? "edit" : "create";
+
   const createMutation = useCreateEntity();
   const updateMutation = useUpdateEntity();
 

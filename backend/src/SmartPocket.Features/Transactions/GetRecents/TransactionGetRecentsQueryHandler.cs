@@ -19,6 +19,8 @@ namespace SmartPocket.Features.Transactions.GetRecents
         {
             var transactions = await _smartPocketContext.Query<Transaction>()
                 .Where(x => !x.IsSystemAdjustment)
+                .OrderByDescending(t => t.EffectiveDate)
+                .ThenByDescending(x => x.CreatedAt)
                 .Select(t => new RecentTransactionItemDTO
                 {
                     Id = t.Id,
@@ -51,8 +53,7 @@ namespace SmartPocket.Features.Transactions.GetRecents
                         Amount = t.AccountMoney.Amount,
                         CurrencyCode = t.AccountMoney.CurrencyCode,
                     },
-                })
-                .OrderByDescending(t => t.EffectiveDate)
+                })                
                 .Take(request.Count)
                 .ToListAsync(cancellation);
 

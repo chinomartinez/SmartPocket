@@ -27,15 +27,6 @@ export const transactionSchema = z.object({
   // Monto de la transacción
   amount: z.number("El monto debe ser un número válido").positive("El monto debe ser mayor a 0"),
 
-  // Código de moneda (se infiere de la cuenta seleccionada)
-  currencyCode: z
-    .string()
-    .min(1, "El código de moneda es requerido")
-    .refine(
-      (code) => /^[A-Z]{3}$/.test(code),
-      "El código de moneda debe ser de 3 letras mayúsculas (ej: USD)",
-    ),
-
   // Fecha efectiva de la transacción
   effectiveDate: z
     .string()

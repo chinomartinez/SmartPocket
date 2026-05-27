@@ -16,7 +16,8 @@ export interface AccountGetDTO {
   currency: CurrencyItemDTO;
   balance: number;
   includeInBalanceGlobal: boolean;
-  createdAt: string; // ISO 8601 date string
+  createdAt: string; // ISO 8601 date string,
+  isPrincipal: boolean;
 }
 
 export interface AccountGetByIdDTO {
@@ -26,6 +27,7 @@ export interface AccountGetByIdDTO {
   currency: CurrencyItemDTO;
   balance: number;
   includeInBalanceGlobal: boolean;
+  isPrincipal: boolean;
 }
 
 // ============================================================================

@@ -104,11 +104,11 @@ export default function RecentTransactions() {
                     />
                     <div>
                       <p className="text-foreground font-medium text-sm">
-                        {transaction.description || transaction.category.name}
+                        {transaction.category.name} · {transaction.description || ""}
                       </p>
                       <p className="text-text-quaternary text-xs">
-                        {formatRelativeTime(new Date(transaction.effectiveDate))}
-                        <span className="hidden sm:inline"> · {transaction.account.name}</span>
+                        {formatRelativeTime(new Date(transaction.effectiveDate))} ·{" "}
+                        {transaction.account.name}
                       </p>
                     </div>
                   </div>
@@ -134,7 +134,6 @@ export default function RecentTransactions() {
       {/* Modal de edición de transacción */}
       {modalOpen && (
         <TransactionFormModal
-          mode="edit"
           transactionId={selectedTransactionId}
           open={modalOpen}
           onOpenChange={handleCloseModal}

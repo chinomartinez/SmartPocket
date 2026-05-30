@@ -4,7 +4,7 @@
  */
 import { useState, useRef, useCallback } from "react";
 import { PlusIcon, ArrowsUpDownIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useCategories, useReorderCategories } from "./useCategories";
+import { useCategories, useReorderCategories } from "../../api/services/categories/useCategories";
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";
 import type { CategoryReorderItem } from "@/api/services/categories/categoryTypes";
 import { CategoryChip } from "./CategoryChip";

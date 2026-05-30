@@ -4,7 +4,10 @@ import UpcomingPayments from "@/features/dashboard/upcomingPayments/UpcomingPaym
 import { HeroBalanceCard } from "@/features/dashboard/heroBalance/HeroBalanceCard";
 import { HeroBalanceCardSkeleton } from "@/features/dashboard/heroBalance/HeroBalanceCardSkeleton";
 import { FinancialCardsSkeleton } from "@/features/dashboard/financialCards/FinancialCardsSkeleton";
-import { useDashboardBalances, useDashboardMetrics } from "./useDashboard";
+import {
+  useDashboardBalances,
+  useDashboardMetrics,
+} from "../../api/services/dashboard/useDashboard";
 import { ErrorAlert } from "@/components/ErrorAlert";
 
 export default function Dashboard() {

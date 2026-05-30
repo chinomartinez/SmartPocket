@@ -7,9 +7,9 @@ import { useState } from "react";
 import { TransactionFormModal } from "./TransactionFormModal";
 import { TransactionFilters } from "./TransactionFilters";
 import { TransactionList } from "./TransactionList";
-import { useAccounts } from "@/features/accounts/useAccounts";
+import { useAccounts } from "@/api/services/accounts/useAccounts";
 import { useTransactionFilters } from "./useTransactionFilters";
-import { useTransactionList } from "./useTransactions";
+import { useTransactionList } from "@/api/services/transactions/useTransactions";
 
 // ============================================================================
 // Component

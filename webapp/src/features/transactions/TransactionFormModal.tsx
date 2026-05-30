@@ -6,9 +6,13 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateTransaction, useUpdateTransaction, useTransaction } from "./useTransactions";
-import { useAccounts } from "@/features/accounts/useAccounts";
-import { useCategories } from "@/features/categories/useCategories";
+import {
+  useCreateTransaction,
+  useUpdateTransaction,
+  useTransaction,
+} from "@/api/services/transactions/useTransactions";
+import { useAccounts } from "@/api/services/accounts/useAccounts";
+import { useCategories } from "@/api/services/categories/useCategories";
 import { transactionSchema, type TransactionFormValues } from "./transactionSchema";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import type { ApiError } from "@/api/types";

@@ -5,8 +5,8 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateAccount, useUpdateAccount } from "@/features/accounts/useAccounts";
-import { useCurrencies } from "@/hooks/useCurrencies";
+import { useCreateAccount, useUpdateAccount } from "@/api/services/accounts/useAccounts";
+import { useCurrencies } from "@/api/services/currencies/useCurrencies";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import { accountSchema, type AccountFormValues } from "./accountSchema";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";

@@ -10,6 +10,7 @@ import type {
   TransactionListRequest,
 } from "@/api/services/transactions/transactionTypes";
 import { dashboardKeys } from "../dashboard/useDashboard";
+import { accountKeys } from "../accounts/useAccounts";
 
 // ============================================================================
 // Query Keys
@@ -83,7 +84,7 @@ export function useCreateTransaction() {
       // Invalidar todas las queries de transacciones (lista, recents, etc.)
       queryClient.invalidateQueries({ queryKey: transactionKeys.all });
       // También invalidar accountKeys para actualizar balances
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: accountKeys.all });
       // Invalidar dashboard queries para actualizar métricas
       queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
       queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
@@ -109,7 +110,7 @@ export function useUpdateTransaction() {
         queryKey: transactionKeys.detail(variables.id),
       });
       // También invalidar accountKeys para actualizar balances
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: accountKeys.all });
       // Invalidar dashboard queries para actualizar métricas
       queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
       queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });

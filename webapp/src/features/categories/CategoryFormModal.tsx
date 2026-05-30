@@ -11,7 +11,7 @@ import {
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
-} from "@/features/categories/useCategories";
+} from "@/api/services/categories/useCategories";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import { categorySchema, type CategoryFormValues } from "./categorySchema";
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";

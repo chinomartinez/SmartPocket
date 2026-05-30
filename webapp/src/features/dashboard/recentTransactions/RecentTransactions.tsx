@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
-import { useRecentTransactions } from "@/features/transactions/useTransactions";
+import { useRecentTransactions } from "@/api/services/transactions/useTransactions";
 import { TransactionFormModal } from "@/features/transactions/TransactionFormModal";
 import { formatRelativeTime, formatCurrency } from "@/utils/formatters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

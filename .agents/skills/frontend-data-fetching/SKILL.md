@@ -115,7 +115,7 @@ invalidateQueries({ queryKey: accountKeys.detail(5) }); // Invalida solo id=5
 
 ## Query Hook Pattern
 
-Hooks encapsulan `useQuery` y exponen data/loading/error states. Viven en `src/features/{feature}/use{Entity}.ts`.
+Hooks encapsulan `useQuery` y exponen data/loading/error states. Viven en `src/api/services/{entity}/use{Entity}.ts`.
 
 ```typescript
 import { useQuery } from "@tanstack/react-query";

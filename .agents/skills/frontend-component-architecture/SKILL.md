@@ -27,16 +27,14 @@ Estructura de componentes, naming conventions, code quality principles, y access
 
 ### Filosofía
 
-**Mantener FLAT por defecto**. Para evitar nesting innecesario, cada feature debe ser una carpeta con sus componentes, hooks, types, etc. en raíz.
+**Mantener FLAT por defecto**. Para evitar nesting innecesario, cada feature debe ser una carpeta con sus componentes UI, schemas Zod, y helpers específicos en raíz.
 
 ```
 src/features/{feature}/
-  ├── ComponentName.tsx       # PascalCase
-  ├── useEntity.ts            # camelCase (hooks)
-  ├── entityTypes.ts          # camelCase (types/interfaces)
-  ├── entityService.ts        # camelCase (API service)
-  ├── entitySchema.ts         # camelCase (Zod schemas)
-  └── helpers.ts              # camelCase (utils específicos)
+  ├── ComponentName.tsx       # PascalCase (componentes UI)
+  ├── entitySchema.ts         # camelCase (Zod schemas para forms)
+  ├── helpers.ts              # camelCase (utils específicos de UI)
+  └── useCustomUIHook.ts      # camelCase (custom UI hooks, NO TanStack Query)
 ```
 
 **Ejemplo real:**
@@ -44,14 +42,13 @@ src/features/{feature}/
 ```
 src/features/accounts/
   ├── AccountCard.tsx
-  ├── AccountForm.tsx
-  ├── AccountList.tsx
-  ├── useAccounts.ts
-  ├── accountTypes.ts
-  ├── accountService.ts
-  ├── accountSchema.ts
-  └── formatAccountBalance.ts
+  ├── AccountCardSkeleton.tsx
+  ├── AccountFormModal.tsx
+  ├── AccountsList.tsx
+  └── accountSchema.ts
 ```
+
+**Nota:** Hooks de TanStack Query (`useAccounts`, `useTransactions`), services, y types de API viven en `/api/services/{entity}/`.
 
 ### Cuándo crear subcarpetas
 
@@ -64,11 +61,9 @@ src/features/transactions/
   │   ├── TransactionForm.tsx
   │   ├── TransactionFilters.tsx
   │   └── TransactionModal.tsx
-  ├── useTransactions.ts
-  ├── useTransactionFilters.ts
-  ├── transactionTypes.ts
-  ├── formatTransaction.ts
-  └── TransactionDetails.tsx // Pagina de detalles, no es un component común, por eso va en raíz
+  ├── useTransactionFilters.ts  # Custom UI hook (estado de filtros)
+  ├── transactionSchema.ts
+  └── TransactionDetails.tsx
 
 ```
 
@@ -78,16 +73,18 @@ src/features/transactions/
 
 ## Naming Conventions
 
-| Elemento             | Convención               | Ejemplo                    | Razón                 |
-| -------------------- | ------------------------ | -------------------------- | --------------------- |
-| **Components**       | PascalCase               | `AccountCard.tsx`          | React convention      |
-| **Hooks**            | camelCase + `use` prefix | `useAccounts.ts`           | React convention      |
-| **Types/Interfaces** | PascalCase               | `ApiError`, `Account`      | TypeScript convention |
-| **Functions**        | camelCase                | `formatCurrency()`         | JavaScript convention |
-| **Variables**        | camelCase                | `accountBalance`           | JavaScript convention |
-| **Constants**        | UPPER_SNAKE_CASE         | `MAX_ITEMS`, `API_TIMEOUT` | Distinguir magias     |
-| **Files**            | camelCase                | `accountService.ts`        | Consistencia          |
-| **Folders**          | camelCase                | `src/features/accounts/`   | Consistencia          |
+| Elemento             | Convención               | Ejemplo                      | Razón                 |
+| -------------------- | ------------------------ | ---------------------------- | --------------------- |
+| **Components**       | PascalCase               | `AccountCard.tsx`            | React convention      |
+| **Custom UI Hooks**  | camelCase + `use` prefix | `useTransactionFilters.ts`   | React convention      |
+| **Types/Interfaces** | PascalCase               | `ApiError`, `Account`        | TypeScript convention |
+| **Functions**        | camelCase                | `formatCurrency()`           | JavaScript convention |
+| **Variables**        | camelCase                | `accountBalance`             | JavaScript convention |
+| **Constants**        | UPPER_SNAKE_CASE         | `MAX_ITEMS`, `API_TIMEOUT`   | Distinguir magias     |
+| **Files**            | camelCase                | `transactionSchema.ts`       | Consistencia          |
+| **Folders**          | camelCase                | `src/features/transactions/` | Consistencia          |
+
+**Nota:** Para convenciones de hooks de TanStack Query (`useAccounts`, `useTransactions`), ver [frontend-data-fetching](../frontend-data-fetching/SKILL.md).
 
 ---
 

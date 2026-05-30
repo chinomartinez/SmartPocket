@@ -9,8 +9,8 @@ Quick reference de patterns de composición para SmartPocket React app.
 Separación entre lógica (data/state) y UI.
 
 ```typescript
-// Container - lógica y data
-function AccountListContainer() {
+// Container - lógica y data (entry point de feature)
+export function AccountsPage() {
   const { data: accounts, isLoading, error } = useAccounts();
   const deleteMutation = useDeleteAccount();
 

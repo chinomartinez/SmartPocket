@@ -1,5 +1,5 @@
 /**
- * Categories List
+ * Categories Page
  * Vista principal para gestión de categorías con modo de reordenamiento
  */
 import { useState, useRef, useCallback } from "react";
@@ -27,7 +27,7 @@ interface ReorderSnapshot {
 // Component
 // ============================================================================
 
-export function CategoriesList() {
+export function CategoriesPage() {
   // Estado para filtros y modal
   const [typeFilter, setTypeFilter] = useState<boolean>(false); // false = gastos, true = ingresos
   const [modalOpen, setModalOpen] = useState(false);

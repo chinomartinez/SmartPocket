@@ -1,5 +1,5 @@
 /**
- * AccountsList Component
+ * AccountsPage Component
  * Vista de listado de cuentas con grid de cards
  */
 
@@ -12,7 +12,7 @@ import { AccountFormModal } from "./AccountFormModal";
 import { useAccounts, useDeleteAccount } from "@/api/services/accounts/useAccounts";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";
 
-export function AccountsList() {
+export function AccountsPage() {
   const { data: accounts, isLoading, error } = useAccounts();
   const deleteMutation = useDeleteAccount();
 

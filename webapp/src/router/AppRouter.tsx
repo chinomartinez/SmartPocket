@@ -6,11 +6,11 @@
  */
 
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
-import Dashboard from "@/features/dashboard/Dashboard";
+import DashboardPage from "@/features/dashboard/DashboardPage";
 import { PlaceholderPage } from "@/components/PlaceholderPage";
-import { AccountsList } from "@/features/accounts/AccountsList";
-import { CategoriesList } from "@/features/categories/CategoriesList";
-import { Transactions } from "@/features/transactions/Transactions";
+import { AccountsPage } from "@/features/accounts/AccountsPage";
+import { CategoriesPage } from "@/features/categories/CategoriesPage";
+import { TransactionsPage } from "@/features/transactions/TransactionsPage";
 import { TestErrors } from "@/components/TestErrors";
 import { ROUTES } from "./routes";
 import SmartPocketLayout from "@/layout/SmartPocketLayout";
@@ -24,16 +24,16 @@ export function AppRouter() {
           <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
           {/* Dashboard */}
-          <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+          <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
 
           {/* Accounts - Gestión de Cuentas */}
-          <Route path={ROUTES.ACCOUNTS} element={<AccountsList />} />
+          <Route path={ROUTES.ACCOUNTS} element={<AccountsPage />} />
 
           {/* Transactions - Gestión de Transacciones */}
-          <Route path={ROUTES.TRANSACTIONS} element={<Transactions />} />
+          <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
 
           {/* Categories - Gestión de Categorías */}
-          <Route path={ROUTES.CATEGORIES} element={<CategoriesList />} />
+          <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
 
           {/* Placeholder: Reports (Fase 3) */}
           <Route path={ROUTES.REPORTS} element={<PlaceholderPage title="Reportes" />} />

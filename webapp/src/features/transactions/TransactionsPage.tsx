@@ -15,7 +15,7 @@ import { useTransactionList } from "@/api/services/transactions/useTransactions"
 // Component
 // ============================================================================
 
-export function Transactions() {
+export function TransactionsPage() {
   // ========================================================================
   // State
   // ========================================================================

@@ -10,7 +10,7 @@ import {
 } from "../../api/services/dashboard/useDashboard";
 import { ErrorAlert } from "@/components/ErrorAlert";
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const {
     data: balanceData,
     isLoading: balanceLoading,

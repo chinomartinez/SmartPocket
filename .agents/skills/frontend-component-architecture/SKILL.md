@@ -41,10 +41,10 @@ src/features/{feature}/
 
 ```
 src/features/accounts/
+  ├── AccountsPage.tsx         # Entry point (página principal)
   ├── AccountCard.tsx
   ├── AccountCardSkeleton.tsx
   ├── AccountFormModal.tsx
-  ├── AccountsList.tsx
   └── accountSchema.ts
 ```
 
@@ -75,6 +75,7 @@ src/features/transactions/
 
 | Elemento             | Convención               | Ejemplo                      | Razón                 |
 | -------------------- | ------------------------ | ---------------------------- | --------------------- |
+| **Page Components**  | PascalCase + `Page`      | `AccountsPage.tsx`           | Entry point claro     |
 | **Components**       | PascalCase               | `AccountCard.tsx`            | React convention      |
 | **Custom UI Hooks**  | camelCase + `use` prefix | `useTransactionFilters.ts`   | React convention      |
 | **Types/Interfaces** | PascalCase               | `ApiError`, `Account`        | TypeScript convention |

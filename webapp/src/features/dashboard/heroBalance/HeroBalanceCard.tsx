@@ -7,10 +7,10 @@
 import type { HeroBalanceCardProps } from "./heroBalanceTypes";
 import { formatCurrency } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";
+import { IconBox } from "@/components/iconBoxes/IconBox";
 
-export function HeroBalanceCard({ accounts, monthlyVariation }: HeroBalanceCardProps) {
-  // Calcular balance total
-  const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
+export function HeroBalanceCard({ data }: HeroBalanceCardProps) {
+  const { totalBalance, monthlyVariation, accounts } = data;
 
   // Determinar color de variación (verde si positivo, rojo si negativo)
   const variationColor = monthlyVariation >= 0 ? "text-emerald-400" : "text-red-400";
@@ -54,7 +54,7 @@ export function HeroBalanceCard({ accounts, monthlyVariation }: HeroBalanceCardP
       <div className="flex flex-wrap gap-4 md:gap-6">
         {accounts.map((account) => (
           <div key={account.id} className="flex items-center gap-2">
-            <span className="text-base">{account.icon}</span>
+            <IconBox icon={account.icon} size="xs" showBackground={false} />
             <div>
               <p className="text-[10px] md:text-xs text-text-tertiary font-medium">
                 {account.name}

@@ -9,6 +9,7 @@ import type {
   TransactionCreateCommand,
   TransactionListRequest,
 } from "@/api/services/transactions/transactionTypes";
+import { dashboardKeys } from "../dashboard/useDashboard";
 
 // ============================================================================
 // Query Keys
@@ -83,6 +84,9 @@ export function useCreateTransaction() {
       queryClient.invalidateQueries({ queryKey: transactionKeys.all });
       // También invalidar accountKeys para actualizar balances
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      // Invalidar dashboard queries para actualizar métricas
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
     },
   });
 }
@@ -106,6 +110,9 @@ export function useUpdateTransaction() {
       });
       // También invalidar accountKeys para actualizar balances
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      // Invalidar dashboard queries para actualizar métricas
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
     },
   });
 }

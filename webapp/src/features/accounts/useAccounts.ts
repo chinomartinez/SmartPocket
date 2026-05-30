@@ -6,6 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { accountService } from "@/api/services/accounts/accountService";
 import type { AccountCreateCommand } from "@/api/services/accounts/accountTypes";
+import { dashboardKeys } from "../dashboard/useDashboard";
 
 // ============================================================================
 // Query Keys
@@ -60,6 +61,8 @@ export function useCreateAccount() {
     onSuccess: () => {
       // Invalidar lista de cuentas para refrescar
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
+      // Invalidar dashboard queries para actualizar balances
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
     },
   });
 }
@@ -81,6 +84,8 @@ export function useUpdateAccount() {
       queryClient.invalidateQueries({
         queryKey: accountKeys.detail(variables.id),
       });
+      // Invalidar dashboard queries para actualizar balances
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
     },
   });
 }
@@ -97,6 +102,8 @@ export function useDeleteAccount() {
     onSuccess: () => {
       // Invalidar lista de cuentas para refrescar
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
+      // Invalidar dashboard queries para actualizar balances
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
     },
   });
 }

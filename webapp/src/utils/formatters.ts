@@ -45,6 +45,25 @@ export function formatCurrency(
 }
 
 /**
+ * Formatea un monto de forma compacta para mobile (K/M)
+ * @param amount - Monto numérico
+ * @param currencySymbol - Símbolo de la moneda
+ * @returns String abreviado (ej: $84.2K, $1.2M)
+ */
+export function formatCompactCurrency(amount: number, currencySymbol: string = "$"): string {
+  const absAmount = Math.abs(amount);
+  const sign = amount >= 0 ? "" : "-";
+
+  if (absAmount >= 1_000_000) {
+    return `${sign}${currencySymbol}${(absAmount / 1_000_000).toFixed(1)}M`;
+  } else if (absAmount >= 1_000) {
+    return `${sign}${currencySymbol}${(absAmount / 1_000).toFixed(1)}K`;
+  } else {
+    return `${sign}${currencySymbol}${absAmount.toFixed(0)}`;
+  }
+}
+
+/**
  * Formatea un monto como moneda con signo (+ o -) según tipo de transacción
  * @param amount - Monto a formatear (siempre valor absoluto)
  * @param isIncome - Si es ingreso (true = +) o gasto (false = -)

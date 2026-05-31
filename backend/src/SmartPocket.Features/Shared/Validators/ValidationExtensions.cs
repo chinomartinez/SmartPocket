@@ -5,7 +5,7 @@ namespace SmartPocket.Features.Shared.Validators
 {
     public static class ValidationExtensions
     {
-        public record ValidationWithErrors(bool IsValid, ErrorDetails Errors)
+        public record ValidationWithErrors(bool IsValid, ErrorDetailList Errors)
         {
             public bool IsNotValid { get => !IsValid; }
         }

@@ -21,7 +21,7 @@ namespace SmartPocket.Features.Accounts.Update
             _validator = validator;
         }
 
-        public async Task<ErrorDetails> Update(AccountUpdateCommand request,
+        public async Task<ErrorDetailList> Update(AccountUpdateCommand request,
             CancellationToken cancellationToken)
         {
             var validation = await _validator.ValidateCommand(request);
@@ -54,7 +54,7 @@ namespace SmartPocket.Features.Accounts.Update
 
             await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
-            return ErrorDetails.Empty;
+            return ErrorDetailList.Empty;
         }
     }
 }

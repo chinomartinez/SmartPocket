@@ -5,6 +5,6 @@ namespace SmartPocket.WebApi.Errors
 {
     public class ApiProblemDetails : ProblemDetails
     {
-        public ErrorDetails Errors { get; init; } = default!;
+        public ErrorDetailList Errors { get; init; } = default!;
     }
 }

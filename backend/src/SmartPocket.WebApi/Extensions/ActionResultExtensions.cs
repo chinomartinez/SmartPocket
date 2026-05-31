@@ -34,7 +34,7 @@ namespace SmartPocket.WebApi.Extensions
                 : new BadRequestResult();
         }
 
-        internal static ActionResult ToActionResult(this ErrorDetails result)
+        internal static ActionResult ToActionResult(this ErrorDetailList result)
         {
             return result.IsEmpty
                 ? new OkResult()

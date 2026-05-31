@@ -20,7 +20,7 @@ namespace SmartPocket.Features.Categories.Reorder
             _validator = validator;
         }
 
-        public async Task<ErrorDetails> Reorder(CategoryReorderCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorDetailList> Reorder(CategoryReorderCommand request, CancellationToken cancellationToken)
         {
             var validation = await _validator.ValidateCommand(request, cancellationToken);
             if (validation.IsNotValid) return validation.Errors;
@@ -43,7 +43,7 @@ namespace SmartPocket.Features.Categories.Reorder
                     {
                         PropertyName = "Items"
                     });
-                return new ErrorDetails(errors);
+                return new ErrorDetailList(errors);
             }
 
             // Validate no duplicate SortOrder within same type
@@ -67,7 +67,7 @@ namespace SmartPocket.Features.Categories.Reorder
                         {
                             PropertyName = "Items"
                         });
-                    return new ErrorDetails(errors);
+                    return new ErrorDetailList(errors);
                 }
             }
 
@@ -80,7 +80,7 @@ namespace SmartPocket.Features.Categories.Reorder
 
             await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
-            return ErrorDetails.Empty;
+            return ErrorDetailList.Empty;
         }
     }
 }

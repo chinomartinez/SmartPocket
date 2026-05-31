@@ -18,7 +18,7 @@ namespace SmartPocket.Features.Accounts.Delete
             _validator = validator;
         }
 
-        public async Task<ErrorDetails> SoftDelete(AccountDeleteCommand command, CancellationToken cancellation)
+        public async Task<ErrorDetailList> SoftDelete(AccountDeleteCommand command, CancellationToken cancellation)
         {
             var validations = await _validator.ValidateCommand(command, cancellation);
             if (validations.IsNotValid) return validations.Errors;
@@ -27,7 +27,7 @@ namespace SmartPocket.Features.Accounts.Delete
             
             await _smartPocketContext.DeleteAndSaveChangesAsync(account, cancellation);
 
-            return ErrorDetails.Empty;
+            return ErrorDetailList.Empty;
         }
     }
 }

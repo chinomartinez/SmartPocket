@@ -58,7 +58,7 @@ namespace SmartPocket.WebApi.Errors
             objR.Value = apiProblem;
         }
 
-        private static bool TryConvertToErrors(object value, out ErrorDetails result)
+        private static bool TryConvertToErrors(object value, out ErrorDetailList result)
         {
             if (value is string strValue)
             {
@@ -67,10 +67,10 @@ namespace SmartPocket.WebApi.Errors
 
             if (value is ErrorDetail errorResult)
             {
-                value = new ErrorDetails([errorResult]);
+                value = new ErrorDetailList([errorResult]);
             }
 
-            if (value is ErrorDetails errors && errors.IsEmpty == false)
+            if (value is ErrorDetailList errors && errors.IsEmpty == false)
             {
                 result = errors;
                 return true;

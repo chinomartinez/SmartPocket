@@ -13,13 +13,14 @@ import type { ApiResponse, RequestConfig } from "./types";
 
 // Configuración base
 const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const isDevelopment = import.meta.env.DEV;
 
 /**
  * Instancia de Axios (singleton interno)
  */
 const axiosInstance: AxiosInstance = axios.create({
   baseURL,
-  timeout: 10000,
+  timeout: isDevelopment ? undefined : 10000, // Timeout solo en producción
   headers: {
     "Content-Type": "application/json",
   },
@@ -30,7 +31,7 @@ const axiosInstance: AxiosInstance = axios.create({
  */
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (import.meta.env.DEV) {
+    if (isDevelopment) {
       console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
     }
 

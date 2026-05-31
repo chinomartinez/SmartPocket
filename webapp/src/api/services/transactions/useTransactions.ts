@@ -118,15 +118,30 @@ export function useUpdateTransaction() {
   });
 }
 
-// TODO: Implementar cuando backend exponga DELETE /transactions/{id}
-// export function useDeleteTransaction() {
-//   const queryClient = useQueryClient();
-//
-//   return useMutation({
-//     mutationFn: transactionService.delete,
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: transactionKeys.all });
-//       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-//     },
-//   });
-// }
+/**
+ * Hook para eliminar una transacción
+ * @returns Mutation para eliminar transacción
+ */
+export function useDeleteTransaction() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: transactionService.delete,
+    onSuccess: (_, deletedId) => {
+      // Primero remover la query del detalle eliminado para evitar refetch 404
+      queryClient.removeQueries({ queryKey: transactionKeys.detail(deletedId) });
+
+      // Luego invalidar las listas para refrescarlas
+      queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
+      // Invalidar todas las queries de recents (sin importar el count)
+      queryClient.invalidateQueries({ queryKey: [...transactionKeys.all, "recents"] });
+
+      // Invalidar accountKeys para recalcular balances
+      queryClient.invalidateQueries({ queryKey: accountKeys.all });
+
+      // Invalidar dashboard queries para actualizar métricas
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
+    },
+  });
+}

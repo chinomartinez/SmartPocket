@@ -10,6 +10,7 @@ import {
   useCreateTransaction,
   useUpdateTransaction,
   useTransaction,
+  useDeleteTransaction,
 } from "@/api/services/transactions/useTransactions";
 import { useAccounts } from "@/api/services/accounts/useAccounts";
 import { useCategories } from "@/api/services/categories/useCategories";
@@ -35,9 +36,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "lucide-react";
+import { Calendar, Trash2 } from "lucide-react";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { MiniCalculator } from "./MiniCalculator";
 import { cn } from "@/utils/utils";
 import { AddCurrentTimeToDate } from "@/utils/dateHelpers";
@@ -74,6 +76,7 @@ export function TransactionFormModal({
   const { data: accounts, isLoading: accountsLoading } = useAccounts();
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
+  const deleteMutation = useDeleteTransaction();
   const activeMutation = mode === "create" ? createMutation : updateMutation;
 
   // Calcular cuenta principal para usar como default
@@ -106,6 +109,12 @@ export function TransactionFormModal({
   // Estado de mini calculadora
   const [showCalculator, setShowCalculator] = useState(false);
 
+  // Estado de dialog de confirmación de eliminación
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // Calcular visibilidad del botón de eliminar (solo en modo edit)
+  const showDeleteButton = mode === "edit" && !!transaction;
+
   // Cerrar calculadora al cambiar tipo de transacción
   useEffect(() => {
     if (showCalculator) {
@@ -124,9 +133,24 @@ export function TransactionFormModal({
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       activeMutation.reset();
+      deleteMutation.reset();
       form.reset(DEFAULT_FORM_VALUES);
     }
     onOpenChange(isOpen);
+  };
+
+  const handleDelete = () => {
+    if (!transactionId) return;
+
+    deleteMutation.mutate(transactionId, {
+      onSuccess: () => {
+        setShowDeleteDialog(false);
+        handleOpenChange(false);
+      },
+      onError: () => {
+        setShowDeleteDialog(false);
+      },
+    });
   };
 
   const onSubmit = (data: TransactionFormValues) => {
@@ -450,25 +474,56 @@ export function TransactionFormModal({
               </>
             )}
 
-            <div className="flex justify-end gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? "Guardando..."
-                  : mode === "create"
-                    ? "Crear Transacción"
-                    : "Guardar Cambios"}
-              </Button>
+            {/* Botones de acción */}
+            <div className="flex justify-between items-center pt-4">
+              {/* Botón Eliminar - Solo en modo edit */}
+              {showDeleteButton ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isSubmitting}
+                  className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-500"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </Button>
+              ) : (
+                <div /> // Placeholder para mantener espacio cuando el botón de eliminar no se muestra
+              )}
+
+              {/* Botones principales */}
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleOpenChange(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting
+                    ? "Guardando..."
+                    : mode === "create"
+                      ? "Crear Transacción"
+                      : "Guardar Cambios"}
+                </Button>
+              </div>
             </div>
           </form>
         </Form>
+
+        {/* Dialog de confirmación de eliminación */}
+        <DeleteConfirmationDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          onConfirm={handleDelete}
+          itemName=""
+          itemType="transacción"
+          description="¿Estás seguro de que deseas eliminar esta transacción? Esta acción no se puede deshacer."
+          isDeleting={deleteMutation.isPending}
+        />
       </DialogContent>
     </Dialog>
   );

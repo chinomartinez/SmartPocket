@@ -56,7 +56,7 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 - **Documentación**: Patrones de Services y Hooks documentados en copilot-instructions.md
 - **Pospuesto**: MSW (backend disponible), Zustand (no necesario aún), Skeleton loaders (se crearán en Fase 3)
 
-### Fase 3: Desarrollo del MVP (En Progreso - 12%)
+### Fase 3: Desarrollo del MVP (En Progreso - 15%)
 
 **Objetivo**: Implementar funcionalidades core con integración completa al backend API .NET.
 
@@ -107,7 +107,7 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 
 #### 3.3: Transaction Management
 
-**Estado:** ⏳ Pendiente
+**Estado:** ✅ **Ya implementado 95%**
 
 **Resultado de Usuario:** El usuario puede registrar ingresos y gastos diarios con velocidad (<30s), usar mini calculadora integrada para sumar componentes de gastos compuestos, filtrar y buscar transacciones históricas, y gestionar sus finanzas con tags opcionales y descripciones.
 
@@ -116,7 +116,7 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 - [x] FR11: Registrar transacciones con fecha, monto, cuenta, categoría, descripción
 - [] FR12: Agregar tags opcionales a transacciones
 - [x] FR13: Editar detalles de transacción
-- [] FR14: Eliminar transacciones con soft delete y recalculación de balances
+- [x] FR14: Eliminar transacciones con soft delete y recalculación de balances
 - [x] FR15: Filtrar transacciones por cuentas, tipo, periodo o description
 - [x] FR16: Buscar transacciones en tiempo real
 - [x] FR17: Ver historial de transacciones ordenado por fecha

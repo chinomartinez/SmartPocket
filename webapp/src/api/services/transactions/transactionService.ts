@@ -68,6 +68,10 @@ export const transactionService = {
     await spApiClient.put(`${BASE_PATH}/${id}`, data);
   },
 
-  // TODO: Implementar cuando backend exponga DELETE /transactions/{id}
-  // delete: async (id: number) => { ... }
+  /**
+   * Eliminar transacción
+   */
+  delete: async (id: number) => {
+    await spApiClient.delete<void>(`${BASE_PATH}/${id}`);
+  },
 };

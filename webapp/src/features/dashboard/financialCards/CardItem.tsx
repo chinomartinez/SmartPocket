@@ -19,10 +19,10 @@ function getMetricColor(type: FinancialMetricType): string {
  * Formatea la variación con flecha y signo
  */
 function formatVariation(variation: number): string {
-  const arrow = variation >= 0 ? "↗" : "↘";
-  const sign = variation >= 0 ? "+" : "";
+  const arrow = variation === 0 ? "→" : variation > 0 ? "↗" : "↘";
+  const sign = variation > 0 ? "+" : "";
 
-  return `${arrow} ${sign}${variation.toFixed(1)}%`;
+  return `${arrow} ${sign} ${variation.toFixed(1)}%`;
 }
 
 interface CardItemProps extends FinancialCardProps {
@@ -43,7 +43,7 @@ export default function CardItem({
   const colorClass = getMetricColor(type);
   const formattedAmount = formatCurrency(amount, "$");
   const compactAmount = formatCompactCurrency(amount, "$");
-  const variationText = variation !== 0 ? formatVariation(variation) : null;
+  const variationText = formatVariation(variation);
 
   return (
     <>
@@ -95,7 +95,9 @@ export default function CardItem({
         <p className={`text-2xl font-bold ${colorClass} mb-1`}>{formattedAmount}</p>
 
         {/* Variación */}
-        {variationText && <p className="text-[11px] text-text-tertiary">{variationText}</p>}
+        {variationText && (
+          <p className="text-[11px] text-text-tertiary">{variationText} vs mes anterior</p>
+        )}
       </Card>
     </>
   );

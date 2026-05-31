@@ -8,8 +8,7 @@ namespace SmartPocket.SharedKernel.Errors
 
         public ErrorDetailList(IEnumerable<ErrorDetail> errors)
         {
-            if (errors is null)
-                throw new ArgumentNullException(nameof(errors));
+            ArgumentNullException.ThrowIfNull(errors);
 
             if (!errors.Any())
                 return;

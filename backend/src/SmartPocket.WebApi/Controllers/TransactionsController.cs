@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartPocket.Features.Transactions.Create;
+using SmartPocket.Features.Transactions.Delete;
 using SmartPocket.Features.Transactions.GetById;
 using SmartPocket.Features.Transactions.GetRecents;
 using SmartPocket.Features.Transactions.List;
@@ -83,6 +84,16 @@ namespace SmartPocket.WebApi.Controllers
         {
             var result = await handler.Get(request, cancellation);
             return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(
+            [FromServices] TransactionDeleteCommandHandler handler,
+            [FromRoute] int id,
+            CancellationToken cancellation)
+        {
+            var result = await handler.Delete(new TransactionDeleteCommand { Id = id }, cancellation);
+            return result.ToActionResult();
         }
     }
 }

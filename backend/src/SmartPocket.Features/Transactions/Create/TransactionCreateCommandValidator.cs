@@ -22,12 +22,16 @@ namespace SmartPocket.Features.Transactions.Create
                 .GreaterThan(0)
                 .ExistById(smartPocketContext.Query<Category>());
 
-            RuleFor(x => x.AccountMoney).SetValidator(new MoneyDTOValidator());
+            RuleFor(x => x.Amount)
+                .NotEmpty()
+                .GreaterThan(0);
 
             RuleFor(x => x.EffectiveDate)
                 .NotEmpty()
                 .GreaterThan(DateTime.MinValue)
-                .WithMessage("Effective date must be a valid date and greater than the minimum date.");
+                    .WithMessage("{EffectiveDate} debe ser una fecha válida y mayor que la fecha mínima.")
+                .LessThanOrEqualTo(DateTime.UtcNow)
+                    .WithMessage("{EffectiveDate} no puede ser una fecha futura.");
 
             RuleFor(x => x.Description)
                 .MaximumLength(300);

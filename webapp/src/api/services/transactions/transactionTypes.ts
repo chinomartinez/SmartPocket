@@ -129,7 +129,7 @@ export interface TransactionListRequest {
 export interface TransactionCreateCommand {
   accountId: number;
   categoryId: number;
-  accountMoney: MoneyDTO;
+  amount: number;
   effectiveDate: string; // ISO 8601 date string
   description?: string;
   isIncome: boolean;

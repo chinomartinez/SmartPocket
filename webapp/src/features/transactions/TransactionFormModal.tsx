@@ -154,16 +154,10 @@ export function TransactionFormModal({
   };
 
   const onSubmit = (data: TransactionFormValues) => {
-    // Obtener currencyCode de la cuenta seleccionada
-    const selectedAccount = accounts?.find((acc) => acc.id === data.accountId);
-
     const payload = {
       accountId: data.accountId,
       categoryId: data.categoryId,
-      accountMoney: {
-        amount: data.amount,
-        currencyCode: selectedAccount?.currency.code ?? "",
-      },
+      amount: data.amount,
       effectiveDate: AddCurrentTimeToDate(data.effectiveDate),
       description: data.description || undefined,
       isIncome: data.isIncome,

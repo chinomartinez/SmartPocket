@@ -12,14 +12,16 @@ namespace SmartPocket.Domain.Transactions
         public Category Category { get; private set; } = default!;
         public int? CategoryId { get; private set; }
 
-        public Money AccountMoney { get; private set; } = default!;
+        public decimal Amount { get; private set; }
+
+        //public Money AccountMoney { get; private set; } = default!;
 
         /// <summary>
         /// Obtiene el monto con signo, dependiendo de si es un ingreso o un gasto.
         /// Campo calculado que devuelve el monto positivo para ingresos y negativo para gastos.
         /// </summary>
         public decimal SignedAmount { 
-            get => IsIncome ? AccountMoney.Amount : -AccountMoney.Amount; 
+            get => IsIncome ? Amount : -Amount;
             private set { } 
         }
 
@@ -36,17 +38,17 @@ namespace SmartPocket.Domain.Transactions
 
         public Transaction(int accountId,
             int categoryId,
-            Money accountMoney,
+            decimal amount,
             DateTime effectiveDate,
             bool isIncome,
             string? description)
         {
-            Update(accountId, categoryId, accountMoney, effectiveDate, isIncome, description);
+            Update(accountId, categoryId, amount, effectiveDate, isIncome, description);
         }
 
         public void Update(int accountId,
             int categoryId,
-            Money accountMoney,
+            decimal amount,
             DateTime effectiveDate,
             bool isIncome,
             string? description)
@@ -54,7 +56,7 @@ namespace SmartPocket.Domain.Transactions
             AccountId = accountId.GetIfNotNegativeOrZero(nameof(accountId));
             CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
 
-            AccountMoney = accountMoney;
+            Amount = amount;
 
             EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
             IsIncome = isIncome;
@@ -77,7 +79,7 @@ namespace SmartPocket.Domain.Transactions
             var adjustment = new Transaction
             {
                 AccountId = accountId,
-                AccountMoney = new Money(absoluteAmount, currencyCode),
+                Amount = absoluteAmount,
                 EffectiveDate = DateTime.UtcNow,
                 IsIncome = amount >= 0,
                 Description = description,

@@ -21,14 +21,17 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transactions
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.ComplexProperty(x => x.AccountMoney, moneyBulder =>
-            {
-                moneyBulder.Property(m => m.CurrencyCode)
-                    .IsRequired()
-                    .HasMaxLength(3);
-            });
+            // Para cuando quiera mapear NativeMoney como moneda diferente a la moneda de la cuenta
+            // Ejemplo, la cuenta es en pesos y quiero guardar el monto en dolares.
+            //builder.ComplexProperty(x => x.AccountMoney, moneyBulder =>
+            //{
+            //    moneyBulder.Property(m => m.CurrencyCode)
+            //        .IsRequired()
+            //        .HasMaxLength(3);
+            //});
 
-            string sql = "CASE WHEN IsIncome = 1 THEN AccountMoney_Amount ELSE -AccountMoney_Amount END";
+            var amountName = nameof(Transaction.Amount);
+            string sql = $"CASE WHEN IsIncome = 1 THEN {amountName} ELSE -{amountName} END";
 
             builder.Property(x => x.SignedAmount)
                 .HasComputedColumnSql(sql, stored: true)

@@ -24,8 +24,8 @@ namespace SmartPocket.Features.Transactions.GetById
                     AccountId = x.AccountId,
                     AccountMoney = new MoneyDTO
                     {
-                        Amount = x.AccountMoney.Amount,
-                        CurrencyCode = x.AccountMoney.CurrencyCode
+                        Amount = x.Amount,
+                        CurrencyCode = x.Account.CurrencyCode
                     },
                     CategoryId = x.CategoryId.GetValueOrDefault(),
                     EffectiveDate = x.EffectiveDate,

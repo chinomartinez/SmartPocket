@@ -50,8 +50,8 @@ namespace SmartPocket.Features.Transactions.GetRecents
                     },
                     Money = new MoneyDTO
                     {
-                        Amount = t.AccountMoney.Amount,
-                        CurrencyCode = t.AccountMoney.CurrencyCode,
+                        Amount = t.Amount,
+                        CurrencyCode = t.Account.CurrencyCode,
                     },
                 })                
                 .Take(request.Count)

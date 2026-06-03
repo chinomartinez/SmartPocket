@@ -29,7 +29,7 @@ namespace SmartPocket.Features.Transactions.Update
             entity.Update(
                 accountId: request.AccountId,
                 categoryId: request.CategoryId,
-                accountMoney: request.AccountMoney.ToDomainMoney(),
+                amount: request.Amount,
                 effectiveDate: request.EffectiveDate,
                 isIncome: request.IsIncome,
                 description: request.Description);            

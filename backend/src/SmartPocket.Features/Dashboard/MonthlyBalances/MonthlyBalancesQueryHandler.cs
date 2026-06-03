@@ -59,8 +59,8 @@ namespace SmartPocket.Features.Dashboard.MonthlyBalance
                 .GroupBy(x => x.IsIncome)
                 .Select(g => new
                 {
-                    Income = g.Key ? g.Sum(t => t.AccountMoney.Amount) : 0,
-                    Expense = !g.Key ? g.Sum(t => t.AccountMoney.Amount) : 0
+                    Income = g.Key ? g.Sum(t => t.Amount) : 0,
+                    Expense = !g.Key ? g.Sum(t => t.Amount) : 0
                 })
                 .FirstOrDefaultAsync(cancellation);
 

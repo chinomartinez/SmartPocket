@@ -60,8 +60,8 @@ namespace SmartPocket.Features.Transactions.List
                     IsIncome = x.IsIncome,
                     Money = new MoneyDTO
                     {
-                        Amount = x.AccountMoney.Amount,
-                        CurrencyCode = x.AccountMoney.CurrencyCode
+                        Amount = x.Amount,
+                        CurrencyCode = x.Account.CurrencyCode
                     }
                 })
                 .ToListAsync(cancellation);

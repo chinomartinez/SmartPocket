@@ -37,7 +37,7 @@ namespace SmartPocket.WebApi.Controllers
                 Id = id,
                 AccountId = command.AccountId,
                 CategoryId = command.CategoryId,
-                AccountMoney = command.AccountMoney,
+                Amount = command.Amount,
                 EffectiveDate = command.EffectiveDate,
                 Description = command.Description,
                 IsIncome = command.IsIncome

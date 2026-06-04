@@ -21,6 +21,12 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transactions
                 .WithMany()
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder
+                .HasOne(x => x.Transfer)
+                .WithMany()
+                .HasForeignKey(x => x.TransferId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Para cuando quiera mapear NativeMoney como moneda diferente a la moneda de la cuenta
             // Ejemplo, la cuenta es en pesos y quiero guardar el monto en dolares.
             //builder.ComplexProperty(x => x.AccountMoney, moneyBulder =>

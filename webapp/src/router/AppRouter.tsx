@@ -11,6 +11,7 @@ import { PlaceholderPage } from "@/components/PlaceholderPage";
 import { AccountsPage } from "@/features/accounts/AccountsPage";
 import { CategoriesPage } from "@/features/categories/CategoriesPage";
 import { TransactionsPage } from "@/features/transactions/TransactionsPage";
+import { TransfersPage } from "@/features/transfers/TransfersPage";
 import { TestErrors } from "@/components/TestErrors";
 import { ROUTES } from "./routes";
 import SmartPocketLayout from "@/layout/SmartPocketLayout";
@@ -31,6 +32,9 @@ export function AppRouter() {
 
           {/* Transactions - Gestión de Transacciones */}
           <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
+
+          {/* Transfers - Gestión de Transferencias */}
+          <Route path={ROUTES.TRANSFERS} element={<TransfersPage />} />
 
           {/* Categories - Gestión de Categorías */}
           <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />

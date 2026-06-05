@@ -6,6 +6,7 @@ import {
   ChartBarIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
+import { ArrowLeftRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ROUTES } from "@/router/routes";
 
@@ -16,8 +17,9 @@ interface SidebarProps {
 
 const menuItems = [
   { icon: HomeIcon, label: "Dashboard", path: ROUTES.DASHBOARD },
-  { icon: CreditCardIcon, label: "Cuentas", path: ROUTES.ACCOUNTS },
   { icon: BanknotesIcon, label: "Transacciones", path: ROUTES.TRANSACTIONS },
+  { icon: ArrowLeftRight, label: "Transferencias", path: ROUTES.TRANSFERS },
+  { icon: CreditCardIcon, label: "Cuentas", path: ROUTES.ACCOUNTS },
   { icon: TagIcon, label: "Categorías", path: ROUTES.CATEGORIES },
   { icon: ChartBarIcon, label: "Reportes", path: ROUTES.REPORTS },
   { icon: Cog6ToothIcon, label: "Configuración", path: ROUTES.SETTINGS },

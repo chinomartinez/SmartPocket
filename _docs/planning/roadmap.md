@@ -127,18 +127,18 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 
 #### 3.4: Inter-Account Transfers
 
-**Estado:** ⏳ Pendiente
+**Estado:** ✅ **Ya implementado 100%** (FR20 diferido post-MVP)
 
-**Resultado de Usuario:** El usuario puede mover dinero entre sus cuentas de forma segura, con validación de saldo suficiente, actualización automática de balances, y capacidad de editar/eliminar transferencias con recalculación correcta.
+**Resultado de Usuario:** El usuario puede mover dinero entre sus cuentas de forma segura, con actualización automática de balances, capacidad de editar/eliminar transferencias con recalculación correcta, y filtrado por periodo de tiempo.
 
 **FRs:**
 
-- [] FR18: Crear transferencias entre cuentas
-- [] FR19: Actualización automática de balances en ambas cuentas
-- [] FR20: Validar balance suficiente en cuenta origen
-- [] FR21: Editar transferencias con recalculación automática
-- [] FR22: Eliminar transferencias con recalculación automática
-- [] FR23: Ver historial de transferencias
+- [x] FR18: Crear transferencias entre cuentas
+- [x] FR19: Actualización automática de balances en ambas cuentas
+- [] FR20: Validar balance suficiente en cuenta origen (Diferido post-MVP)
+- [x] FR21: Editar transferencias
+- [x] FR22: Eliminar transferencias
+- [x] FR23: Ver historial de transferencias filtrado por periodo
 
 ---
 

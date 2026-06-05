@@ -1,4 +1,5 @@
-﻿using SmartPocket.SharedKernel.Entities;
+﻿using SmartPocket.Persistence.DatabaseTransactions;
+using SmartPocket.SharedKernel.Entities;
 
 namespace SmartPocket.Persistence
 {
@@ -29,5 +30,7 @@ namespace SmartPocket.Persistence
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
         void DiscardAllChanges();
+
+        Task<IDatabaseContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
     }
 }

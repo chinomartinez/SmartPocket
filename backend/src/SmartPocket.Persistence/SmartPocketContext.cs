@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartPocket.Domain.Accounts;
 using SmartPocket.Domain.Security;
 using SmartPocket.Domain.Transactions;
+using SmartPocket.Persistence.DatabaseTransactions;
 using SmartPocket.Persistence.EntityConfigurations;
 using SmartPocket.SharedKernel.Entities;
 using System.Reflection;
@@ -134,6 +135,12 @@ namespace SmartPocket.Persistence
             await SaveChangesAsync(cancellationToken);
 
             return result;
+        }
+
+        public async Task<IDatabaseContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            var dbTransaction = await Database.BeginTransactionAsync(cancellationToken);
+            return new DatabaseContextTransaction(dbTransaction);
         }
     }
 }

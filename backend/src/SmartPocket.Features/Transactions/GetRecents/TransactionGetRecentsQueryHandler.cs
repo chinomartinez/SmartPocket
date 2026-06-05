@@ -18,9 +18,7 @@ namespace SmartPocket.Features.Transactions.GetRecents
             CancellationToken cancellation)
         {
             var transactions = await _smartPocketContext.Query<Transaction>()
-                .Where(x => !x.IsSystemAdjustment)
-                .Where(x => !x.TransferId.HasValue)
-                .Where(x => x.CategoryId.HasValue)
+                .Where(x => x.IsManualEntry)
                 .OrderByDescending(t => t.EffectiveDate)
                 .ThenByDescending(x => x.CreatedAt)
                 .Select(t => new RecentTransactionItemDTO

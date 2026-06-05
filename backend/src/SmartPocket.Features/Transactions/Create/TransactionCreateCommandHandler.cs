@@ -24,7 +24,7 @@ namespace SmartPocket.Features.Transactions.Create
             var validations = await _validator.ValidateCommand(request, cancellationToken);
             if (validations.IsNotValid) return validations.Errors;
 
-            var entity = new Transaction(
+            var entity = Transaction.CreateAsManualEntry(
                 accountId: request.AccountId,
                 categoryId: request.CategoryId,
                 amount: request.Amount,

@@ -16,21 +16,19 @@ namespace SmartPocket.Domain.Transfers
             EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
             Description = description;
 
-            OriginTransaction = new Transaction(
+            OriginTransaction = Transaction.CreateAsTransfer(
                 accountId: originAccountId,
                 amount: amount,
                 effectiveDate: effectiveDate,
                 isIncome: false,
-                transfer: this,
                 description: description
             );
 
-            DestinationTransaction = new Transaction(
+            DestinationTransaction = Transaction.CreateAsTransfer(
                 accountId: destinationAccountId,
                 amount: amount,
                 effectiveDate: effectiveDate,
                 isIncome: true,
-                transfer: this,
                 description: description
             );
         }
@@ -62,7 +60,8 @@ namespace SmartPocket.Domain.Transfers
                 amount: amount,
                 effectiveDate: effectiveDate,
                 isIncome: false,
-                description: description
+                description: description,
+                categoryId: null
             );
 
             DestinationTransaction.Update(
@@ -70,7 +69,8 @@ namespace SmartPocket.Domain.Transfers
                 amount: amount,
                 effectiveDate: effectiveDate,
                 isIncome: true,
-                description: description
+                description: description,
+                categoryId: null
             );
         }
     }

@@ -1,5 +1,4 @@
 ﻿using SmartPocket.Domain.Accounts;
-using SmartPocket.Domain.Transfers;
 using SmartPocket.SharedKernel.Entities;
 using SmartPocket.SharedKernel.Guards;
 
@@ -31,76 +30,80 @@ namespace SmartPocket.Domain.Transactions
         public string? Description { get; private set; }
         public bool IsIncome { get; private set; }
 
+        public TransactionSource TransactionSource { get; private set; } = default!;
+        public TransactionSourceType TransactionSourceId { get; private set; }
+
+        /// <summary>
+        /// Campo calculado para facilitar las consultas
+        /// </summary>
         public bool IsSystemAdjustment { get; private set; }
 
-        public Transfer Transfer { get; private set; } = default!;
-        public int? TransferId { get; private set; }
+        /// <summary>
+        /// Campo calculado para facilitar las consultas
+        /// </summary>
+        public bool IsTransfer { get; private set; }
+
+        /// <summary>
+        /// Campo calculado para facilitar las consultas
+        /// </summary>
+        public bool IsManualEntry { get; private set; }
 
         private Transaction()
         {
             // PARA EF Core
         }
 
-        public Transaction(int accountId,
-            int categoryId,
+        public void Update(
+            int accountId,
             decimal amount,
             DateTime effectiveDate,
             bool isIncome,
-            string? description)
+            string? description,
+            int? categoryId)
         {
-            Update(accountId, categoryId, amount, effectiveDate, isIncome, description);
-        }
+            if (TransactionSourceId == TransactionSourceType.None)
+            {
+                throw new InvalidOperationException("Transaction source must be set before updating.");
+            }
 
-        public Transaction(int accountId,
-            decimal amount,
-            DateTime effectiveDate,
-            bool isIncome,
-            Transfer transfer,
-            string? description)
-        {
-            ArgumentNullException.ThrowIfNull(transfer, nameof(transfer));
+            if (TransactionSourceId == TransactionSourceType.SystemAdjustment)
+            {
+                throw new InvalidOperationException("System adjustments cannot be updated.");
+            }
 
-            Update(accountId, amount, effectiveDate, isIncome, description);
-            Transfer = transfer;
-            TransferId = transfer.Id;
-        }
+            if (TransactionSourceId == TransactionSourceType.ManualEntry && !categoryId.HasValue)
+            {
+                throw new InvalidOperationException("Manual entry transactions must have a category.");
+            }
 
-        public void Update(int accountId,
-            int categoryId,
-            decimal amount,
-            DateTime effectiveDate,
-            bool isIncome,
-            string? description)
-        {
-            AccountId = accountId.GetIfNotNegativeOrZero(nameof(accountId));
-            CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
+            accountId.ThrowIsNegativeOrZero(nameof(accountId));
+            amount.ThrowIsNegativeOrZero(nameof(amount));
+            ValditeEffectiveDate(effectiveDate);
 
-            Amount = amount;
-
-            EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
-            IsIncome = isIncome;
-            Description = description;
-        }
-
-        public void Update(int accountId,
-            decimal amount,
-            DateTime effectiveDate,
-            bool isIncome,
-            string? description)
-        {
-            AccountId = accountId.GetIfNotNegativeOrZero(nameof(accountId));
+            AccountId = accountId;
             Amount = amount;
             EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
             IsIncome = isIncome;
             Description = description;
+            CategoryId = categoryId;
         }
 
-        public static Transaction CreateSystemAdjustment(int accountId,
+        public static Transaction CreateAsSystemAdjustment(
+            int accountId,
             decimal amount,
             string description)
         {
+            accountId.ThrowIsNegativeOrZero(nameof(accountId));
+
             if (amount == 0)
-                throw new ArgumentException("El monto del ajuste no puede ser cero.", nameof(amount));
+            {
+                throw new ArgumentException("Amount cannot be zero for system adjustments.", nameof(amount));
+            }
+
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentException("Description cannot be null or empty for system adjustments.", nameof(description));
+            }
 
             var absoluteAmount = Math.Abs(amount);
 
@@ -111,10 +114,84 @@ namespace SmartPocket.Domain.Transactions
                 EffectiveDate = DateTime.UtcNow,
                 IsIncome = amount >= 0,
                 Description = description,
-                IsSystemAdjustment = true
+                TransactionSourceId = TransactionSourceType.SystemAdjustment
             };
 
             return adjustment;
+        }
+
+        public static Transaction CreateAsTransfer(
+            int accountId,
+            decimal amount,
+            DateTime effectiveDate,
+            bool isIncome,
+            string? description)
+        {
+            accountId.ThrowIsNegativeOrZero(nameof(accountId));
+            amount.ThrowIsNegativeOrZero(nameof(amount));
+
+            if (effectiveDate == default)
+            {
+                throw new ArgumentException("Effective date must be a valid date.", nameof(effectiveDate));
+            }
+
+            if (effectiveDate > DateTime.UtcNow)
+            {
+                throw new ArgumentException("Effective date cannot be in the future.", nameof(effectiveDate));
+            }
+
+            var transferTransaction = new Transaction
+            {
+                AccountId = accountId,
+                Amount = amount,
+                EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc),
+                IsIncome = isIncome,
+                Description = description,
+                TransactionSourceId = TransactionSourceType.Transfer
+            };
+
+            return transferTransaction;
+        }
+
+        public static Transaction CreateAsManualEntry(
+            int accountId,
+            int categoryId,
+            decimal amount,
+            DateTime effectiveDate,
+            bool isIncome,
+            string? description)
+        {
+            accountId.ThrowIsNegativeOrZero(nameof(accountId));
+            categoryId.ThrowIsNegativeOrZero(nameof(categoryId));
+            amount.ThrowIsNegativeOrZero(nameof(amount));
+
+            ValditeEffectiveDate(effectiveDate);
+
+            var manualEntryTransaction = new Transaction
+            {
+                AccountId = accountId,
+                Amount = amount,
+                EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc),
+                IsIncome = isIncome,
+                Description = description,
+                CategoryId = categoryId,
+                TransactionSourceId = TransactionSourceType.ManualEntry
+            };
+
+            return manualEntryTransaction;
+        }
+
+        private static void ValditeEffectiveDate(DateTime effectiveDate)
+        {
+            if (effectiveDate == default)
+            {
+                throw new ArgumentException("Effective date must be a valid date.", nameof(effectiveDate));
+            }
+
+            if (effectiveDate > DateTime.UtcNow)
+            {
+                throw new ArgumentException("Effective date cannot be in the future.", nameof(effectiveDate));
+            }
         }
     }
 }

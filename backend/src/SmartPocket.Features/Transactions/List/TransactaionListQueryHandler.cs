@@ -19,9 +19,7 @@ namespace SmartPocket.Features.Transactions.List
             CancellationToken cancellation)
         {
             var query = _smartPocketContext.Query<Transaction>()
-                .Where(x => x.IsSystemAdjustment == false)
-                .Where(x => !x.TransferId.HasValue)
-                .Where(x => x.CategoryId.HasValue)
+                .Where(x => x.IsManualEntry)
                 .Where(x => x.AccountId == request.AccountId)
                 .Where(x => x.IsIncome == request.IsIncome)
                 .Where(x => x.EffectiveDate >= request.From && x.EffectiveDate <= request.To);

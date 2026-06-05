@@ -43,7 +43,7 @@ namespace SmartPocket.Features.Accounts.Update
             {
                 var newAdjustment = request.Balance - currentBalance;
 
-                var adjustmentTransaction = Transaction.CreateSystemAdjustment(
+                var adjustmentTransaction = Transaction.CreateAsSystemAdjustment(
                     accountId: entity.Id,
                     amount: newAdjustment,
                     description: "Balance adjustment");

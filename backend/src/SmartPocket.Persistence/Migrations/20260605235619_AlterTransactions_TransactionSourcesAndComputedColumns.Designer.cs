@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartPocket.Persistence;
 
@@ -11,9 +12,11 @@ using SmartPocket.Persistence;
 namespace SmartPocket.Persistence.Migrations
 {
     [DbContext(typeof(SmartPocketContext))]
-    partial class SmartPocketContextModelSnapshot : ModelSnapshot
+    [Migration("20260605235619_AlterTransactions_TransactionSourcesAndComputedColumns")]
+    partial class AlterTransactions_TransactionSourcesAndComputedColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.11");

@@ -55,7 +55,7 @@ namespace SmartPocket.Features.Dashboard.MonthlyBalance
         {
             var rv = await _smartPocketContext.Query<Transaction>()
                 .Where(x => x.Account.IncludeInBalanceGlobal)
-                .Where(x => !x.TransferId.HasValue)
+                .Where(x => x.IsManualEntry)
                 .Where(x => x.EffectiveDate.Month == month && x.EffectiveDate.Year == year)
                 .GroupBy(x => 1)
                 .Select(g => new

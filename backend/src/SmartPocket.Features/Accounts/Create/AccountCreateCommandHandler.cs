@@ -39,7 +39,7 @@ namespace SmartPocket.Features.Accounts.Create
 
             if (request.Balance != 0)
             {
-                var transaction = Transaction.CreateSystemAdjustment(accountId: account.Id,
+                var transaction = Transaction.CreateAsSystemAdjustment(accountId: account.Id,
                     amount: request.Balance,
                     description: "Initial balance");
 

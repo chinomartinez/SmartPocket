@@ -32,7 +32,7 @@ namespace SmartPocket.Features.Transactions.Update
                 amount: request.Amount,
                 effectiveDate: request.EffectiveDate,
                 isIncome: request.IsIncome,
-                description: request.Description);            
+                description: request.Description);
 
             await _smartPocketContext.SaveChangesAsync(cancellationToken);
 

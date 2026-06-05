@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartPocket.Domain.Accounts;
 using SmartPocket.Domain.Security;
 using SmartPocket.Domain.Transactions;
+using SmartPocket.Domain.Transfers;
 using SmartPocket.Persistence.DatabaseTransactions;
 using SmartPocket.Persistence.EntityConfigurations;
 using SmartPocket.SharedKernel.Entities;
@@ -19,6 +20,10 @@ namespace SmartPocket.Persistence
         internal DbSet<Category> Categories { get; private set; }
 
         internal DbSet<Transaction> Transactions { get; private set; }
+
+        internal DbSet<TransactionSource> TransactionSources { get; private set; }
+
+        internal DbSet<Transfer> Transfers { get; private set; }
 
         public SmartPocketContext(DbContextOptions options) : base(options)
         {

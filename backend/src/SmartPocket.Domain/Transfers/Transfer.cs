@@ -1,6 +1,5 @@
 ﻿using SmartPocket.Domain.Transactions;
 using SmartPocket.SharedKernel.Entities;
-using SmartPocket.SharedKernel.Guards;
 
 namespace SmartPocket.Domain.Transfers
 {
@@ -22,6 +21,7 @@ namespace SmartPocket.Domain.Transfers
                 amount: amount,
                 effectiveDate: effectiveDate,
                 isIncome: false,
+                transfer: this,
                 description: description
             );
 
@@ -30,6 +30,7 @@ namespace SmartPocket.Domain.Transfers
                 amount: amount,
                 effectiveDate: effectiveDate,
                 isIncome: true,
+                transfer: this,
                 description: description
             );
         }

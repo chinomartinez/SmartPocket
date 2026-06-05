@@ -24,7 +24,7 @@ namespace SmartPocket.Features.Transfers.GetById
                     Amount = x.OriginTransaction.Amount,
                     Description = x.Description,
                     EffectiveDate = x.EffectiveDate,
-                    OriginAcount = new()
+                    OriginAccount = new()
                     {
                         Id = x.OriginTransaction.AccountId,
                         Name = x.OriginTransaction.Account.Name,

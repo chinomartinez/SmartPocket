@@ -55,16 +55,20 @@ namespace SmartPocket.Features.Dashboard.MonthlyBalance
         {
             var rv = await _smartPocketContext.Query<Transaction>()
                 .Where(x => x.Account.IncludeInBalanceGlobal)
+                .Where(x => !x.TransferId.HasValue)
                 .Where(x => x.EffectiveDate.Month == month && x.EffectiveDate.Year == year)
-                .GroupBy(x => x.IsIncome)
+                .GroupBy(x => 1)
                 .Select(g => new
                 {
-                    Income = g.Key ? g.Sum(t => t.Amount) : 0,
-                    Expense = !g.Key ? g.Sum(t => t.Amount) : 0
+                    Income = g.Sum(t => t.IsIncome ? t.Amount : 0),
+                    Expense = g.Sum(t => !t.IsIncome ? t.Amount : 0)
                 })
-                .FirstOrDefaultAsync(cancellation);
+                .ToListAsync(cancellation);
 
-            return rv is null ? (0, 0) : (rv.Income, rv.Expense);
+            if (rv.Count > 1)
+                throw new InvalidOperationException("No puede haber mas de uno");
+
+            return rv.Count == 0 ? (0, 0) : (rv[0].Income, rv[0].Expense);
         }
 
         private decimal CalculateMonthlyVariation(decimal currentAmount, decimal previousAmount)

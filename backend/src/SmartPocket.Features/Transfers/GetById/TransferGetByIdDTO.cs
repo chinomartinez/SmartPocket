@@ -6,7 +6,7 @@ namespace SmartPocket.Features.Transfers.GetById
     {
         public int Id { get; set; }
 
-        public AccountTransferGetByIdDTO OriginAcount { get; set; } = default!;
+        public AccountTransferGetByIdDTO OriginAccount { get; set; } = default!;
         public AccountTransferGetByIdDTO DestinationAccount { get; set; } = default!;
 
         public decimal Amount { get; set; }

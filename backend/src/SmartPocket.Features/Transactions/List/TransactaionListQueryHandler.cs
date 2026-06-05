@@ -20,6 +20,8 @@ namespace SmartPocket.Features.Transactions.List
         {
             var query = _smartPocketContext.Query<Transaction>()
                 .Where(x => x.IsSystemAdjustment == false)
+                .Where(x => !x.TransferId.HasValue)
+                .Where(x => x.CategoryId.HasValue)
                 .Where(x => x.AccountId == request.AccountId)
                 .Where(x => x.IsIncome == request.IsIncome)
                 .Where(x => x.EffectiveDate >= request.From && x.EffectiveDate <= request.To);

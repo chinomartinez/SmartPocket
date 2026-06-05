@@ -55,9 +55,14 @@ namespace SmartPocket.Domain.Transactions
             decimal amount,
             DateTime effectiveDate,
             bool isIncome,
+            Transfer transfer,
             string? description)
         {
+            ArgumentNullException.ThrowIfNull(transfer, nameof(transfer));
+
             Update(accountId, amount, effectiveDate, isIncome, description);
+            Transfer = transfer;
+            TransferId = transfer.Id;
         }
 
         public void Update(int accountId,

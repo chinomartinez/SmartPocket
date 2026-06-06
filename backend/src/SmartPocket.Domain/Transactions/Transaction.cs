@@ -36,17 +36,29 @@ namespace SmartPocket.Domain.Transactions
         /// <summary>
         /// Campo calculado para facilitar las consultas
         /// </summary>
-        public bool IsSystemAdjustment { get; private set; }
+        public bool IsSystemAdjustment 
+        { 
+            get  => TransactionSourceId == TransactionSourceType.SystemAdjustment; 
+            private set { }
+        }
 
         /// <summary>
         /// Campo calculado para facilitar las consultas
         /// </summary>
-        public bool IsTransfer { get; private set; }
+        public bool IsTransfer 
+        { 
+            get  => TransactionSourceId == TransactionSourceType.Transfer; 
+            private set { }
+        }
 
         /// <summary>
         /// Campo calculado para facilitar las consultas
         /// </summary>
-        public bool IsManualEntry { get; private set; }
+        public bool IsManualEntry 
+        { 
+            get  => TransactionSourceId == TransactionSourceType.ManualEntry; 
+            private set { }
+        }
 
         private Transaction()
         {

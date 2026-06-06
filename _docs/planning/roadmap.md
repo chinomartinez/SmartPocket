@@ -162,16 +162,16 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 
 #### 3.6: Financial Overview Dashboard
 
-**Estado:** ⏳ Pendiente
+**Estado:** ⏳ **Implementado 80%**
 
 **Resultado de Usuario:** El usuario puede ver su estado financiero consolidado de un vistazo (balance total, ingresos, gastos, ahorros), revisar transacciones recientes, ver próximos pagos pendientes, y filtrar datos por rangos de fecha para análisis operacional rápido.
 
 **FRs:**
 
-- [] FR31: Ver tarjetas de resumen financiero consolidado
-- [] FR32: Ver transacciones recientes de todas las cuentas
+- [x] FR31: Ver tarjetas de resumen financiero consolidado
+- [x] FR32: Ver transacciones recientes de todas las cuentas
 - [] FR33: Ver próximos pagos/ingresos en dashboard
-- [] FR34: Filtrar datos de dashboard por rangos de fecha
+- [x] FR34: Filtrar datos de dashboard por rangos de fecha
 
 ---
 

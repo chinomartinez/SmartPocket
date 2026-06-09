@@ -9,6 +9,15 @@ namespace SmartPocket.Persistence.EntityConfigurations
         internal static PropertyBuilder<T> IsNotRequired<T>(this PropertyBuilder<T> property)
             => property.IsRequired(false);
 
+        internal static PropertyBuilder<string> ConfigureCurrency<T>(this EntityTypeBuilder<T> entityTypeBuilder,
+            Expression<Func<T, string>> expression)
+            where T : class
+        {
+            return entityTypeBuilder.Property(expression)
+                .HasMaxLength(3)
+                .IsRequired();
+        }
+
         internal static EntityTypeBuilder<T> ConfigureIcon<T>(this EntityTypeBuilder<T> entityTypeBuilder,
             Expression<Func<T, Icon>> expression)
             where T : class

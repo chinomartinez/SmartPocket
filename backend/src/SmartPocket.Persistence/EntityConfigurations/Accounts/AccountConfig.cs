@@ -11,10 +11,9 @@ namespace SmartPocket.Persistence.EntityConfigurations.Accounts
             builder.Property(x => x.Name).HasMaxLength(200).IsRequired();
 
             builder.ConfigureIcon(x => x.Icon);
+            builder.ConfigureCurrency(x => x.CurrencyCode);
             
             builder.Property(x => x.InitialBalance).IsRequired();
-
-            builder.Property(x => x.CurrencyCode).IsRequired().HasMaxLength(3);
         }
     }
 }

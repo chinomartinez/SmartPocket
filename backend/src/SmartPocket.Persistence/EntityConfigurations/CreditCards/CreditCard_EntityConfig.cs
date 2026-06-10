@@ -16,7 +16,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
             builder.ConfigureCurrency(x => x.CurrencyCode);
 
             // Los coloco solamente para saber que estas props tambien se configuran en la tabla
-            builder.Property(x => x.CreditLimit);
+            builder.Property(x => x.CreditLimit).HasPrecision(18, 2);
             builder.Property(x => x.StatementClosingDay);
             builder.Property(x => x.PaymentDueDay);
 

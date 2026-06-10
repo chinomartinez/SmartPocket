@@ -17,6 +17,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
                 .WithMany()
                 .HasForeignKey(p => p.TransactionId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasQueryFilter(x => !x.CreditCardStatement.IsDeleted && !x.Transaction.IsDeleted);
         }
     }
 }

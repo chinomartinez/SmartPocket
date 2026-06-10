@@ -23,11 +23,6 @@ namespace SmartPocket.Domain.CreditCards
         /// </summary>
         public ICollection<CreditCardStatementPayment> Payments { get; private set; } = new List<CreditCardStatementPayment>();
 
-        /// <summary>
-        /// Calculado: el resumen está completamente pagado cuando todos los pagos cubren todas las cuotas
-        /// </summary>
-        public bool IsFullyPaid => Status == CreditCardStatementStatus.Paid;
-
         private CreditCardStatement() { }
 
         public CreditCardStatement(int creditCardId, int periodYear, int periodMonth, DateOnly closingDate, DateOnly dueDate)

@@ -1,5 +1,6 @@
 ﻿using SmartPocket.Domain.Transactions;
 using SmartPocket.SharedKernel.Entities;
+using System.Net.NetworkInformation;
 
 namespace SmartPocket.Domain.CreditCards
 {
@@ -50,7 +51,8 @@ namespace SmartPocket.Domain.CreditCards
                     return CreditCardPurchaseStatus.PaidOff;
 
                 return CreditCardPurchaseStatus.InProgress;
-            } 
+            }
+            private set { } // Necesario para EF Core, aunque no se use directamente
         }
 
         public ICollection<CreditCardInstallment> Installments { get; private set; } = new List<CreditCardInstallment>();

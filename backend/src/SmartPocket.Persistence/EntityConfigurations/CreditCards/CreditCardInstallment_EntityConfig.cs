@@ -18,6 +18,9 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
                 .HasForeignKey(i => i.CreditCardStatementId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasIndex(i => new { i.CreditCardPurchaseId, i.InstallmentNumber })
+                .IsUnique();
+
             // Configuraciones por defecto
             builder.Property(x => x.Amount).HasPrecision(18, 2);
             builder.Property(x => x.InstallmentNumber);

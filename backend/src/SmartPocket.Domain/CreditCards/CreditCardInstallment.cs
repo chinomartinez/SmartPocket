@@ -17,7 +17,7 @@ namespace SmartPocket.Domain.CreditCards
         public int PeriodYear { get; private set; }
         public int PeriodMonth { get; private set; }
 
-        public CreditCardStatement? CreditCardStatement { get; private set; }
+        public CreditCardStatement CreditCardStatement { get; private set; } = default!;
         public int? CreditCardStatementId { get; private set; }
 
         private CreditCardInstallment()

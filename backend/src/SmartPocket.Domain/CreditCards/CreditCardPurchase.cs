@@ -1,6 +1,6 @@
 ﻿using SmartPocket.Domain.Transactions;
 using SmartPocket.SharedKernel.Entities;
-using System.Net.NetworkInformation;
+using SmartPocket.SharedKernel.Guards;
 
 namespace SmartPocket.Domain.CreditCards
 {
@@ -69,16 +69,40 @@ namespace SmartPocket.Domain.CreditCards
             DateOnly effectiveDate,
             Money purchaseAmount,
             CreditCardPurchaseType purchaseType,
+            int installmentCount,
             decimal? originalAmount = default
             )
         {
-            CreditCardId = creditCardId;
-            CategoryId = categoryId;
-            Description = description;
+            Status = CreditCardPurchaseStatus.InProgress;
+
+            CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
+            CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
+            Description = description.GetIfNotNullOrWhiteSpace(nameof(description));
             EffectiveDate = effectiveDate;
             PurchaseAmount = purchaseAmount;
             OriginalAmount = originalAmount;
             PurchaseType = purchaseType;
+
+            if (purchaseType == CreditCardPurchaseType.Installment)
+            {
+                if (installmentCount <= 0)
+                {
+                    var error = $"El número de cuotas debe ser mayor a cero para compras en cuotas.";
+                    throw new ArgumentException(error, nameof(installmentCount));
+                }
+
+                var installmentAmount = purchaseAmount.Amount / installmentCount;
+                DateOnly? dueDate = purchaseType == CreditCardPurchaseType.Subscription
+                    ? effectiveDate.AddMonths(1)
+                    : null;
+
+                Installments ??= [];
+
+                for (int i = 1; i <= installmentCount; i++)
+                {
+                    Installments.Add(new CreditCardInstallment(this, i, installmentAmount, dueDate));
+                }
+            }
         }
 
         public void Update(int creditCardId,

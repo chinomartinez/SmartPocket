@@ -14,8 +14,10 @@ namespace SmartPocket.Domain.CreditCards
 
         public decimal Amount { get; private set; }
 
-        public int PeriodYear { get; private set; }
-        public int PeriodMonth { get; private set; }
+        /// <summary>
+        /// Fecha de facturación de la subscripción. Es posible que una subscripcion se facture 2 veces en un mismo resumen.
+        /// </summary>
+        public DateOnly? DueDate { get; private set; }
 
         public CreditCardStatement CreditCardStatement { get; private set; } = default!;
         public int? CreditCardStatementId { get; private set; }
@@ -25,31 +27,16 @@ namespace SmartPocket.Domain.CreditCards
             // Para EF Core
         }
 
-        public CreditCardInstallment(int creditPurchaseId,
+        public CreditCardInstallment(CreditCardPurchase creditCardPurchase,
             int installmentNumber,
             decimal amount,
-            int periodYear,
-            int periodMonth)
+            DateOnly? dueDate)
         {
-            CreditCardPurchaseId = creditPurchaseId;
+            CreditCardPurchase = creditCardPurchase ?? throw new ArgumentNullException(nameof(creditCardPurchase));
+            CreditCardPurchaseId = creditCardPurchase.Id;
             InstallmentNumber = installmentNumber;
             Amount = amount;
-            PeriodYear = periodYear;
-            PeriodMonth = periodMonth;
-        }
-
-        public void Update(
-            int creditPurchaseId,
-            int installmentNumber,
-            decimal amount,
-            int periodYear,
-            int periodMonth)
-        {
-            CreditCardPurchaseId = creditPurchaseId;
-            InstallmentNumber = installmentNumber;
-            Amount = amount;
-            PeriodYear = periodYear;
-            PeriodMonth = periodMonth;
+            DueDate = dueDate;
         }
 
         public void LinkToStatement(int statementId)

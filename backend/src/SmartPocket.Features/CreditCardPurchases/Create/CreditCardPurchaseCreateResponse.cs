@@ -1,4 +1,4 @@
 ﻿namespace SmartPocket.Features.CreditCardPurchases.Create
 {
-    public record CreditCardPurchaseResponse(int Id);
+    public record CreditCardPurchaseCreateResponse(int Id);
 }

@@ -39,6 +39,18 @@ namespace SmartPocket.Domain.CreditCards
             DueDate = dueDate;
         }
 
+        public void UpdateAmount(decimal newAmount)
+        {
+            if (newAmount <= 0)
+                throw new ArgumentException("El monto de la cuota debe ser un valor positivo.", nameof(newAmount));
+            Amount = newAmount;
+        }
+
+        public void UpdateDueDate(DateOnly? newDueDate)
+        {
+            DueDate = newDueDate;
+        }
+
         public void LinkToStatement(int statementId)
         {
             if (CreditCardStatementId != null)

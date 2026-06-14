@@ -24,8 +24,6 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
             // Configuraciones por defecto
             builder.Property(x => x.Amount).HasPrecision(18, 2);
             builder.Property(x => x.InstallmentNumber);
-            builder.Property(x => x.PeriodYear);
-            builder.Property(x => x.PeriodMonth);
 
             builder.HasQueryFilter(x => !x.CreditCardPurchase.IsDeleted);
         }

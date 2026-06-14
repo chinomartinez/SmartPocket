@@ -6,6 +6,10 @@ namespace SmartPocket.SharedKernel.Errors
     {
         private readonly List<ErrorDetail> _errors = new();
 
+        private ErrorDetailList()
+        {
+        }
+
         public ErrorDetailList(IEnumerable<ErrorDetail> errors)
         {
             ArgumentNullException.ThrowIfNull(errors);
@@ -14,6 +18,26 @@ namespace SmartPocket.SharedKernel.Errors
                 return;
 
             _errors.AddRange(errors);
+        }
+
+        public ErrorDetailList(params ErrorDetail[] errors)
+        {
+            ArgumentNullException.ThrowIfNull(errors);
+
+            if (!errors.Any())
+                return;
+
+            _errors.AddRange(errors);
+        }
+
+        public ErrorDetailList(params string[] errorMessages)
+        {
+            ArgumentNullException.ThrowIfNull(errorMessages);
+
+            if (!errorMessages.Any())
+                return;
+
+            _errors.AddRange(errorMessages.Select(m => new ErrorDetail(m)));
         }
 
         public IEnumerator<ErrorDetail> GetEnumerator()
@@ -43,6 +67,6 @@ namespace SmartPocket.SharedKernel.Errors
 
         public bool IsEmpty => _errors.Count == 0;
 
-        public static ErrorDetailList Empty => new([]);
+        public static ErrorDetailList Empty => new();
     }
 }

@@ -1,9 +1,11 @@
 ﻿using SmartPocket.Features.Transactions;
 
-namespace SmartPocket.Features.CreditCardPurchases.Create
+namespace SmartPocket.Features.CreditCardPurchases.Update
 {
-    public class CreditCardPurchaseCommand
+    public class CreditCardPurchaseUpdateCommand
     {
+        public int Id { get; set; }
+
         public int CreditCardId { get; set; }
         public int CategoryId { get; set; }
         public string Description { get; set; } = default!;

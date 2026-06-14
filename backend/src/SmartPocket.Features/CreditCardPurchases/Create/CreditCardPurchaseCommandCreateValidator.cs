@@ -7,9 +7,9 @@ using SmartPocket.Persistence;
 
 namespace SmartPocket.Features.CreditCardPurchases.Create
 {
-    public class CreditCardPurchaseCommandValidator : AbstractValidator<CreditCardPurchaseCommand>
+    public class CreditCardPurchaseCommandCreateValidator : AbstractValidator<CreditCardPurchaseCreateCommand>
     {
-        public CreditCardPurchaseCommandValidator(ISmartPocketContext smartPocketContext)
+        public CreditCardPurchaseCommandCreateValidator(ISmartPocketContext smartPocketContext)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
 

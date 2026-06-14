@@ -8,19 +8,19 @@ using SmartPocket.SharedKernel.Results;
 
 namespace SmartPocket.Features.CreditCardPurchases.Create
 {
-    public class CreditCardPurchaseCommandHandler : IHandler
+    public class CreditCardPurchaseCommandCreateHandler : IHandler
     {
         private readonly ISmartPocketContext _smartPocketContext;
-        private readonly IValidator<CreditCardPurchaseCommand> _validator;
+        private readonly IValidator<CreditCardPurchaseCreateCommand> _validator;
 
-        public CreditCardPurchaseCommandHandler(ISmartPocketContext smartPocketContext,
-            IValidator<CreditCardPurchaseCommand> validator)
+        public CreditCardPurchaseCommandCreateHandler(ISmartPocketContext smartPocketContext,
+            IValidator<CreditCardPurchaseCreateCommand> validator)
         {
             _smartPocketContext = smartPocketContext;
             _validator = validator;
         }
 
-        public async Task<Result<CreditCardPurchaseResponse, ErrorDetailList>> Create(CreditCardPurchaseCommand command,
+        public async Task<Result<CreditCardPurchaseCreateResponse, ErrorDetailList>> Create(CreditCardPurchaseCreateCommand command,
             CancellationToken cancellation)
         {
             var validations = await _validator.ValidateCommand(command, cancellation);
@@ -33,14 +33,14 @@ namespace SmartPocket.Features.CreditCardPurchases.Create
                 effectiveDate: command.EffectiveDate,
                 purchaseAmount: command.PurchaseAmount.ToDomainMoney(),
                 purchaseType: command.IsInstallment ? CreditCardPurchaseType.Installment : CreditCardPurchaseType.Subscription,
-                installmentCount: command.IsInstallment ? command.Installments.GetValueOrDefault() : 1,
+                installmentCount: command.Installments,
                 originalAmount: command.OriginalAmount);
 
             _smartPocketContext.AddEntity(entity);
 
             await _smartPocketContext.SaveChangesAsync(cancellation);
 
-            return new CreditCardPurchaseResponse(Id: entity.Id);
+            return new CreditCardPurchaseCreateResponse(Id: entity.Id);
         }
     }
 }

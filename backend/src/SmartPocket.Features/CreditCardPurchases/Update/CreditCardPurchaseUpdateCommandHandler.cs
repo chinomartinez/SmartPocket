@@ -36,6 +36,27 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 return new ErrorDetailList(error);
             }
 
+            if (entity.PurchaseType == CreditCardPurchaseType.Installment && !command.IsInstallment)
+            {
+                if (entity.Status != CreditCardPurchaseStatus.Created)
+                {
+                    var error = "Only purchases with status 'Created' can be changed from installment to subscription.";
+                    return new ErrorDetailList(error);
+                }
+            }
+
+            if (entity.Status == CreditCardPurchaseStatus.PaidOff)
+            {
+                var error = "Cannot update a purchase with status 'PaidOff'.";
+                return new ErrorDetailList(error);
+            }
+
+            if (entity.Status == CreditCardPurchaseStatus.Cancelled)
+            {
+                var error = "Cannot update a purchase with status 'Cancelled'.";
+                return new ErrorDetailList(error);
+            }
+
             entity.Update(
                 creditCardId: command.CreditCardId,
                 categoryId: command.CategoryId,

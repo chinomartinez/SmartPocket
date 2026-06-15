@@ -119,45 +119,52 @@ namespace SmartPocket.Domain.CreditCards
             int? installmentCount,
             decimal? originalAmount = default)
         {
-            if (PurchaseType != purchaseType)
-            {
-                var error = "No se puede cambiar el tipo de compra. Crea una nueva compra con el tipo deseado.";
-                throw new InvalidOperationException(error);
-            }
-
-            if (Installments == null || Installments.Count == 0)
-                throw new InvalidOperationException("Solo se pueden modificar compras que tengan cuotas asociadas.");
-
             if (Status == CreditCardPurchaseStatus.PaidOff)
                 throw new InvalidOperationException("No se pueden modificar compras ya saldadas.");
 
             if (Status == CreditCardPurchaseStatus.Cancelled)
                 throw new InvalidOperationException("No se pueden modificar suscripciones ya canceladas.");
 
-            if (purchaseType == CreditCardPurchaseType.Installment && installmentCount.GetValueOrDefault() <= 0)
-            {
-                var error = $"El número de cuotas debe ser mayor a cero para compras en cuotas.";
-                throw new ArgumentException(error, nameof(installmentCount));
-            }
+            if (purchaseType != PurchaseType && Status == CreditCardPurchaseStatus.InProgress)
+                throw new InvalidOperationException("No se puede cambiar el tipo de compra mientras esté en progreso.");
 
             CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
             CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
             Description = description.GetIfNotNullOrWhiteSpace(nameof(description));
+            OriginalAmount = originalAmount;
+
+            // Si no se modifican ni la fecha, ni el monto, ni el tipo de compra, no es necesario hacer nada más
+            if (EffectiveDate == effectiveDate && PurchaseAmount == purchaseAmount && PurchaseType == purchaseType)
+                return;
+
             EffectiveDate = effectiveDate;
             PurchaseAmount = purchaseAmount;
-            OriginalAmount = originalAmount;
+
+            if (Installments == null || Installments.Count == 0)
+                throw new InvalidOperationException("Solo se pueden modificar compras que tengan cuotas asociadas.");
 
             if (purchaseType == CreditCardPurchaseType.Installment)
             {
+                // Si se cambia de suscripción a cuota, se eliminan las cuotas anteriores y se crean nuevas
+                if (PurchaseType == CreditCardPurchaseType.Subscription)
+                    Installments = []; 
+
                 UpdateInstallments(purchaseAmount, installmentCount.GetValueOrDefault());
             }
 
             else if (purchaseType == CreditCardPurchaseType.Subscription)
             {
+                if (PurchaseType == CreditCardPurchaseType.Installment)
+                {
+                    Installments = [ new CreditCardInstallment(this, 1, purchaseAmount.Amount, effectiveDate.AddMonths(1)) ];
+                    return;
+                }
+
                 UpdateSubscription(effectiveDate, purchaseAmount);
             }
+            
+            PurchaseType = purchaseType;
         }
-
 
         private void UpdateInstallments(Money purchaseAmount,int installmentCount)
         {
@@ -193,8 +200,6 @@ namespace SmartPocket.Domain.CreditCards
                     Installments = [.. Installments.Take(installmentCount)];
                 }
             }
-
-            
         }
 
         private void UpdateSubscription(
@@ -204,7 +209,7 @@ namespace SmartPocket.Domain.CreditCards
             if (PurchaseType != CreditCardPurchaseType.Subscription)
                 throw new InvalidOperationException("Solo se pueden modificar compras de tipo Subscription."); 
 
-            if (Installments.Count > 1)
+            if (Installments.Count == 1)
                 throw new InvalidOperationException("Solo se pueden modificar suscripciones que tengan una única cuota asociada.");
 
             if (PurchaseAmount != purchaseAmount || EffectiveDate != effectiveDate)

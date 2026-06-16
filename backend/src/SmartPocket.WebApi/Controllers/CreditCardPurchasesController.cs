@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartPocket.Features.CreditCardPurchases.Create;
+using SmartPocket.Features.CreditCardPurchases.Delete;
 using SmartPocket.Features.CreditCardPurchases.Update;
 using SmartPocket.WebApi.Extensions;
 
@@ -40,6 +41,16 @@ namespace SmartPocket.WebApi.Controllers
             };
 
             var result = await handler.Update(updateCommand, cancellation);
+            return result.ToActionResult();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(
+            [FromServices] CreditCardPurchaseDeleteHandler handler,
+            [FromRoute] int id,
+            CancellationToken cancellation)
+        {
+            var result = await handler.Delete(id, cancellation);
             return result.ToActionResult();
         }
     }

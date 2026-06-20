@@ -15,18 +15,10 @@ namespace SmartPocket.WebApi.Controllers
         public async Task<CreditCardPurchaseListResponse> Get(
             [FromServices] CreditCardPurchaseListQueryHandler queryHandler,
             [FromRoute] int creditCardId,
-            [FromQuery] CreditCardPurchaseListRequest filters,
+            [FromQuery] CreditCardPurchaseListFilters filters,
             CancellationToken cancellation)
         {
-            var request = new CreditCardPurchaseListRequest
-            {
-                CreditCardId = creditCardId,
-                IncludePaidOff = filters.IncludePaidOff,
-                IncludeCancelled = filters.IncludeCancelled,
-                IncludePending = filters.IncludePending
-            };
-
-            var result = await queryHandler.Get(request, cancellation);
+            var result = await queryHandler.Get(creditCardId, filters, cancellation);
             return result;
         }
 

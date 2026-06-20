@@ -15,13 +15,15 @@ namespace SmartPocket.Features.CreditCardPurchases.List
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<CreditCardPurchaseListResponse> Get(CreditCardPurchaseListRequest request,
+        public async Task<CreditCardPurchaseListResponse> Get(
+            int creditCardId,
+            CreditCardPurchaseListFilters filters,
             CancellationToken cancellation)
         {
             var queryBase = _smartPocketContext.Query<CreditCardPurchase>()
-                .Where(x => x.CreditCardId == request.CreditCardId);
+                .Where(x => x.CreditCardId == creditCardId);
 
-            var statusFilters = GetByFilters(request);
+            var statusFilters = GetByFilters(filters);
 
             if (statusFilters.Any())
                 queryBase = queryBase.Where(x => statusFilters.Contains(x.Status));
@@ -102,17 +104,17 @@ namespace SmartPocket.Features.CreditCardPurchases.List
             };
         }
 
-        private IEnumerable<CreditCardPurchaseStatus> GetByFilters(CreditCardPurchaseListRequest request)
+        private IEnumerable<CreditCardPurchaseStatus> GetByFilters(CreditCardPurchaseListFilters filters)
         {
             var list = new List<CreditCardPurchaseStatus>();
 
-            if (request.IncludePaidOff)
+            if (filters.IncludePaidOff)
                 list.Add(CreditCardPurchaseStatus.PaidOff);
 
-            if (request.IncludeCancelled)
+            if (filters.IncludeCancelled)
                 list.Add(CreditCardPurchaseStatus.Cancelled);
 
-            if (request.IncludePending)
+            if (filters.IncludePending)
                 list.Add(CreditCardPurchaseStatus.InProgress);
 
             return list;

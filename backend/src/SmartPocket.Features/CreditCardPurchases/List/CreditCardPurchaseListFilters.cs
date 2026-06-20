@@ -1,9 +1,7 @@
 ﻿namespace SmartPocket.Features.CreditCardPurchases.List
 {
-    public class CreditCardPurchaseListRequest
+    public class CreditCardPurchaseListFilters
     {
-        public int CreditCardId { get; set; }
-
         public bool IncludePaidOff { get; set; } = false;
 
         public bool IncludeCancelled { get; set; } = false;

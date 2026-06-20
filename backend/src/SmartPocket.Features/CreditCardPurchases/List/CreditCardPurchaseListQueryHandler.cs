@@ -43,7 +43,7 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                     Description = x.Description,
                     PurchaseAmount = new MoneyDTO
                     {
-                        Amount = x.OriginalAmount,
+                        Amount = x.TotalAmount,
                         CurrencyCode = x.CurrencyCode
                     },
                     EffectiveDate = x.EffectiveDate,

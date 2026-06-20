@@ -40,20 +40,21 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
             {
                 if (entity.Installments.Any(x => x.CreditCardStatementId.HasValue))
                 {
-                    var error = "Cannot change an installment purchase to a subscription if any of its installments are associated with a closed or paid statement.";
+                    var error = "No se puede cambiar una compra en cuotas a suscripción si alguna de sus cuotas" +
+                        " está asociada a un resumen cerrado o pagado.";
                     return new ErrorDetailList(error);
                 }
             }
 
             if (entity.Status == CreditCardPurchaseStatus.PaidOff)
             {
-                var error = "Cannot update a purchase with status 'PaidOff'.";
+                var error = "No se puede actualizar una compra con estado 'PaidOff'.";
                 return new ErrorDetailList(error);
             }
 
             if (entity.Status == CreditCardPurchaseStatus.Cancelled)
             {
-                var error = "Cannot update a purchase with status 'Cancelled'.";
+                var error = "No se puede actualizar una compra con estado 'Cancelled'.";
                 return new ErrorDetailList(error);
             }
 

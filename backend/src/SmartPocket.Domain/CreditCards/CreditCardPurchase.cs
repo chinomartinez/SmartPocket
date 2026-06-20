@@ -25,7 +25,7 @@ namespace SmartPocket.Domain.CreditCards
         /// <summary>
         /// Solo informativo, no afecta cálculos
         /// </summary>
-        public decimal OriginalAmount { get; private set; }
+        public decimal TotalAmount { get; private set; }
 
         public CreditCardPurchaseType PurchaseType { get; private set; }
 
@@ -84,7 +84,7 @@ namespace SmartPocket.Domain.CreditCards
             Description = description.GetIfNotNullOrWhiteSpace(nameof(description));
             EffectiveDate = effectiveDate;
             CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));
-            OriginalAmount = amount;
+            TotalAmount = amount;
             PurchaseType = purchaseType;
 
             var ic = PurchaseType == CreditCardPurchaseType.Installment
@@ -129,7 +129,7 @@ namespace SmartPocket.Domain.CreditCards
             CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));            
 
             // Si no se modifican ni la fecha, ni el monto, ni el tipo de compra, no es necesario hacer nada más
-            if (EffectiveDate == effectiveDate && OriginalAmount == amount && PurchaseType == purchaseType)
+            if (EffectiveDate == effectiveDate && TotalAmount == amount && PurchaseType == purchaseType)
                 return;
 
             if (purchaseType == CreditCardPurchaseType.Installment)
@@ -153,12 +153,18 @@ namespace SmartPocket.Domain.CreditCards
             }
             
             PurchaseType = purchaseType;
-            OriginalAmount = amount.GetIfNotNegativeOrZero(nameof(amount));
+            TotalAmount = amount.GetIfNotNegativeOrZero(nameof(amount));
             EffectiveDate = effectiveDate;
         }
 
         private void UpdateInstallments(decimal amount,int installmentCount)
-        {            
+        {
+            if (installmentCount <= 0)
+                throw new ArgumentException("El número de cuotas debe ser mayor a cero.", nameof(installmentCount));
+
+            if (amount <= 0)
+                throw new ArgumentException("El monto total debe ser mayor a cero.", nameof(amount));
+
             if (installmentCount < Installments.Count)
             {
                 var canRemove = Installments
@@ -169,7 +175,7 @@ namespace SmartPocket.Domain.CreditCards
                     throw new InvalidOperationException($"No se pueden reducir las cuotas porque algunas de las cuotas a eliminar ya están asociadas a un resumen cerrado o pagado.");
             }
 
-            if (installmentCount != Installments.Count || OriginalAmount != amount)
+            if (installmentCount != Installments.Count || TotalAmount != amount)
             {
                 var installmentAmount = amount / installmentCount;
 
@@ -199,7 +205,10 @@ namespace SmartPocket.Domain.CreditCards
             if (Installments.Count == 1)
                 throw new InvalidOperationException("Solo se pueden modificar suscripciones que tengan una única cuota asociada.");
 
-            foreach(var i in Installments)
+            if (amount <= 0)
+                throw new ArgumentException("El monto total debe ser mayor a cero.", nameof(amount));
+
+            foreach (var i in Installments)
             {
                 i.UpdateAmount(amount);
                 i.UpdateDueDate(effectiveDate.AddMonths(1));

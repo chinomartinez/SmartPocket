@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartPocket.Features.CreditCardPurchases.Create;
 using SmartPocket.Features.CreditCardPurchases.Delete;
+using SmartPocket.Features.CreditCardPurchases.List;
 using SmartPocket.Features.CreditCardPurchases.Update;
 using SmartPocket.WebApi.Extensions;
 
@@ -10,6 +11,26 @@ namespace SmartPocket.WebApi.Controllers
     [ApiController]
     public class CreditCardPurchasesController : ControllerBase
     {
+        [HttpGet("creditCards/{creditCardId}")]
+        public async Task<CreditCardPurchaseListResponse> Get(
+            [FromServices] CreditCardPurchaseListQueryHandler queryHandler,
+            [FromRoute] int creditCardId,
+            [FromQuery] CreditCardPurchaseListRequest filters,
+            CancellationToken cancellation)
+        {
+            var request = new CreditCardPurchaseListRequest
+            {
+                CreditCardId = creditCardId,
+                IncludePaidOff = filters.IncludePaidOff,
+                IncludeCancelled = filters.IncludeCancelled,
+                IncludePending = filters.IncludePending
+            };
+
+            var result = await queryHandler.Get(request, cancellation);
+            return result;
+        }
+
+
         [HttpPost]
         public async Task<ActionResult<CreditCardPurchaseCreateResponse>> Create(
             [FromServices] CreditCardPurchaseCommandCreateHandler handler,

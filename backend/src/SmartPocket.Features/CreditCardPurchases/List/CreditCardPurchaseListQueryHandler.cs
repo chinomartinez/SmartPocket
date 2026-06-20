@@ -15,19 +15,20 @@ namespace SmartPocket.Features.CreditCardPurchases.List
             _smartPocketContext = smartPocketContext;
         }
 
-        public Task<List<CreditCardPurchaseListItemDTO>> Get(CreditCardPurchaseListRequest request,
+        public async Task<CreditCardPurchaseListResponse> Get(CreditCardPurchaseListRequest request,
             CancellationToken cancellation)
         {
-            var query = _smartPocketContext.Query<CreditCardPurchase>()
+            var queryBase = _smartPocketContext.Query<CreditCardPurchase>()
                 .Where(x => x.CreditCardId == request.CreditCardId);
 
             var statusFilters = GetByFilters(request);
 
             if (statusFilters.Any())
-                query = query.Where(x => statusFilters.Contains(x.Status));
+                queryBase = queryBase.Where(x => statusFilters.Contains(x.Status));
 
-            var result = query
-                .Select(x => new CreditCardPurchaseListItemDTO
+            var installments = await queryBase
+                .Where(x => x.PurchaseType == CreditCardPurchaseType.Installment)
+                .Select(x => new CreditCardInstallmentPurchaseListItemDTO
                 {
                     Id = x.Id,
                     CreditCard = new CreditCardCreditCardPurchaseListItemDTO
@@ -51,9 +52,7 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                     CancelledAt = x.CancelledAt,
                     PurchaseType = x.PurchaseType.ToString(),
                     Status = x.Status.ToString(),
-                    InstallmentsCount = x.PurchaseType == CreditCardPurchaseType.Installment 
-                        ? x.Installments.Count 
-                        : 1,
+                    InstallmentsCount = x.Installments.Count,
                     InstallmentsPaid = x.Installments
                         .Where(i => i.CreditCardStatementId.HasValue)
                         .Where(i => i.CreditCardStatement.Status == CreditCardStatementStatus.Paid)
@@ -61,7 +60,46 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                 })
                 .ToListAsync(cancellation);
 
-            return result;
+            var subscriptions = await queryBase
+                .Where(x => x.PurchaseType == CreditCardPurchaseType.Subscription)
+                .Select(x => new CreditCardSubscriptionListItemDTO
+                {
+                    Id = x.Id,
+                    CreditCard = new CreditCardCreditCardPurchaseListItemDTO
+                    {
+                        Id = x.CreditCard.Id,
+                        Name = x.CreditCard.Name
+                    },
+                    Category = new CategoryCreditCardPurchaseListItemDTO
+                    {
+                        Id = x.Category.Id,
+                        Name = x.Category.Name
+                    },
+                    Description = x.Description,
+                    PurchaseAmount = new MoneyDTO
+                    {
+                        Amount = x.TotalAmount,
+                        CurrencyCode = x.CurrencyCode
+                    },
+                    EffectiveDate = x.EffectiveDate,
+                    PaidOffAt = x.PaidOffAt,
+                    CancelledAt = x.CancelledAt,
+                    PurchaseType = x.PurchaseType.ToString(),
+                    Status = x.Status.ToString(),
+                    ChargesCount = x.Installments.Count,
+                    LastChargeAmount = x.Installments
+                        .OrderByDescending(i => i.InstallmentNumber)
+                        .Select(i => i.Amount)
+                        .FirstOrDefault(),
+                    IsActive = x.Status == CreditCardPurchaseStatus.InProgress
+                })
+                .ToListAsync(cancellation);
+
+            return new CreditCardPurchaseListResponse
+            {
+                Installments = installments,
+                Subscriptions = subscriptions
+            };
         }
 
         private IEnumerable<CreditCardPurchaseStatus> GetByFilters(CreditCardPurchaseListRequest request)

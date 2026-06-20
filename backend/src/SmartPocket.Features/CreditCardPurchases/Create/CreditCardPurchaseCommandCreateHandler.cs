@@ -31,10 +31,10 @@ namespace SmartPocket.Features.CreditCardPurchases.Create
                 categoryId: command.CategoryId,
                 description: command.Description,
                 effectiveDate: command.EffectiveDate,
-                purchaseAmount: command.PurchaseAmount.ToDomainMoney(),
+                currencyCode: command.PurchaseAmount.CurrencyCode,
+                amount: command.PurchaseAmount.Amount,
                 purchaseType: command.IsInstallment ? CreditCardPurchaseType.Installment : CreditCardPurchaseType.Subscription,
-                installmentCount: command.Installments,
-                originalAmount: command.OriginalAmount);
+                installmentCount: command.Installments);
 
             _smartPocketContext.AddEntity(entity);
 

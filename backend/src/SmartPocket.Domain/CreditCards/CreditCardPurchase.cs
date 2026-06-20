@@ -20,12 +20,12 @@ namespace SmartPocket.Domain.CreditCards
         /// Moneda real de la compra. Puede diferir de la moneda base de la tarjeta.
         /// Ej: tarjeta ARS pero compra en USD (suscripción Spotify, Netflix, etc.)
         /// </summary>
-        public Money PurchaseAmount { get; private set; } = default!;
+        public string CurrencyCode { get; private set; } = default!;
 
         /// <summary>
         /// Solo informativo, no afecta cálculos
         /// </summary>
-        public decimal? OriginalAmount { get; private set; }
+        public decimal OriginalAmount { get; private set; }
 
         public CreditCardPurchaseType PurchaseType { get; private set; }
 
@@ -50,10 +50,7 @@ namespace SmartPocket.Domain.CreditCards
                 if (PaidOffAt.HasValue)
                     return CreditCardPurchaseStatus.PaidOff;
 
-                if (Installments != null && Installments.Any(i => !i.CreditCardStatementId.HasValue))
-                    return CreditCardPurchaseStatus.InProgress;
-
-                return CreditCardPurchaseStatus.Created;
+                return CreditCardPurchaseStatus.InProgress;
             }
             private set { } // Necesario para EF Core, aunque no se use directamente
         }
@@ -70,10 +67,10 @@ namespace SmartPocket.Domain.CreditCards
             int categoryId,
             string description,
             DateOnly effectiveDate,
-            Money purchaseAmount,
+            string currencyCode,
+            decimal amount,
             CreditCardPurchaseType purchaseType,
-            int? installmentCount = default,
-            decimal? originalAmount = default
+            int? installmentCount = default
             )
         {
             if (purchaseType == CreditCardPurchaseType.Installment && installmentCount.GetValueOrDefault() <= 0)
@@ -82,21 +79,19 @@ namespace SmartPocket.Domain.CreditCards
                 throw new ArgumentException(error, nameof(installmentCount));
             }
 
-            Status = CreditCardPurchaseStatus.Created;
-
             CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
             CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
             Description = description.GetIfNotNullOrWhiteSpace(nameof(description));
             EffectiveDate = effectiveDate;
-            PurchaseAmount = purchaseAmount;
-            OriginalAmount = originalAmount;
+            CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));
+            OriginalAmount = amount;
             PurchaseType = purchaseType;
 
             var ic = PurchaseType == CreditCardPurchaseType.Installment
-                ? installmentCount.GetValueOrDefault()
+                ? installmentCount.GetValueOrDefault().GetIfNotNegativeOrZero(nameof(installmentCount))
                 : 1;
 
-            var installmentAmount = purchaseAmount.Amount / ic;
+            var installmentAmount = amount / ic;
             DateOnly? dueDate = purchaseType == CreditCardPurchaseType.Subscription
                 ? effectiveDate.AddMonths(1)
                 : null;
@@ -114,34 +109,28 @@ namespace SmartPocket.Domain.CreditCards
             int categoryId,
             string description,
             DateOnly effectiveDate,
-            Money purchaseAmount,
+            string currencyCode,
+            decimal amount,
             CreditCardPurchaseType purchaseType,
-            int? installmentCount,
-            decimal? originalAmount = default)
+            int? installmentCount = default)
         {
+            if (Installments == null || Installments.Count == 0)
+                throw new InvalidOperationException("Solo se pueden modificar compras que tengan cuotas asociadas.");
+
             if (Status == CreditCardPurchaseStatus.PaidOff)
                 throw new InvalidOperationException("No se pueden modificar compras ya saldadas.");
 
             if (Status == CreditCardPurchaseStatus.Cancelled)
                 throw new InvalidOperationException("No se pueden modificar suscripciones ya canceladas.");
 
-            if (purchaseType != PurchaseType && Status == CreditCardPurchaseStatus.InProgress)
-                throw new InvalidOperationException("No se puede cambiar el tipo de compra mientras esté en progreso.");
-
             CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
             CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
             Description = description.GetIfNotNullOrWhiteSpace(nameof(description));
-            OriginalAmount = originalAmount;
+            CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));            
 
             // Si no se modifican ni la fecha, ni el monto, ni el tipo de compra, no es necesario hacer nada más
-            if (EffectiveDate == effectiveDate && PurchaseAmount == purchaseAmount && PurchaseType == purchaseType)
+            if (EffectiveDate == effectiveDate && OriginalAmount == amount && PurchaseType == purchaseType)
                 return;
-
-            EffectiveDate = effectiveDate;
-            PurchaseAmount = purchaseAmount;
-
-            if (Installments == null || Installments.Count == 0)
-                throw new InvalidOperationException("Solo se pueden modificar compras que tengan cuotas asociadas.");
 
             if (purchaseType == CreditCardPurchaseType.Installment)
             {
@@ -149,39 +138,40 @@ namespace SmartPocket.Domain.CreditCards
                 if (PurchaseType == CreditCardPurchaseType.Subscription)
                     Installments = []; 
 
-                UpdateInstallments(purchaseAmount, installmentCount.GetValueOrDefault());
+                UpdateInstallments(amount, installmentCount.GetValueOrDefault());
             }
 
             else if (purchaseType == CreditCardPurchaseType.Subscription)
             {
                 if (PurchaseType == CreditCardPurchaseType.Installment)
                 {
-                    Installments = [ new CreditCardInstallment(this, 1, purchaseAmount.Amount, effectiveDate.AddMonths(1)) ];
+                    Installments = [ new CreditCardInstallment(this, 1, amount, effectiveDate.AddMonths(1)) ];
                     return;
                 }
 
-                UpdateSubscription(effectiveDate, purchaseAmount);
+                UpdateSubscription(effectiveDate, amount);
             }
             
             PurchaseType = purchaseType;
+            OriginalAmount = amount.GetIfNotNegativeOrZero(nameof(amount));
+            EffectiveDate = effectiveDate;
         }
 
-        private void UpdateInstallments(Money purchaseAmount,int installmentCount)
-        {
-            if (PurchaseType != CreditCardPurchaseType.Installment)
-                throw new InvalidOperationException("Solo se pueden modificar compras de tipo Installment.");            
-            
-            if (installmentCount < Installments.Count && Status == CreditCardPurchaseStatus.InProgress)
+        private void UpdateInstallments(decimal amount,int installmentCount)
+        {            
+            if (installmentCount < Installments.Count)
             {
-                var canRemove = Installments.Skip(installmentCount).All(i => !i.CreditCardStatementId.HasValue);
+                var canRemove = Installments
+                    .Skip(installmentCount)
+                    .All(i => !i.CreditCardStatementId.HasValue);
 
                 if (!canRemove)
-                    throw new InvalidOperationException("No se pueden reducir las cuotas porque algunas ya fueron abonadas.");
+                    throw new InvalidOperationException($"No se pueden reducir las cuotas porque algunas de las cuotas a eliminar ya están asociadas a un resumen cerrado o pagado.");
             }
 
-            if (installmentCount != Installments.Count || PurchaseAmount != purchaseAmount)
+            if (installmentCount != Installments.Count || OriginalAmount != amount)
             {
-                var installmentAmount = purchaseAmount.Amount / installmentCount;
+                var installmentAmount = amount / installmentCount;
 
                 foreach (var i in Installments)
                 {
@@ -204,22 +194,15 @@ namespace SmartPocket.Domain.CreditCards
 
         private void UpdateSubscription(
             DateOnly effectiveDate,
-            Money purchaseAmount)
+            decimal amount)
         {
-            if (PurchaseType != CreditCardPurchaseType.Subscription)
-                throw new InvalidOperationException("Solo se pueden modificar compras de tipo Subscription."); 
-
             if (Installments.Count == 1)
                 throw new InvalidOperationException("Solo se pueden modificar suscripciones que tengan una única cuota asociada.");
 
-            if (PurchaseAmount != purchaseAmount || EffectiveDate != effectiveDate)
+            foreach(var i in Installments)
             {
-                var nextDueDate = effectiveDate.AddMonths(1);
-                foreach (var i in Installments)
-                {
-                    i.UpdateAmount(purchaseAmount.Amount);
-                    i.UpdateDueDate(nextDueDate);
-                }
+                i.UpdateAmount(amount);
+                i.UpdateDueDate(effectiveDate.AddMonths(1));
             }
         }
 
@@ -233,6 +216,12 @@ namespace SmartPocket.Domain.CreditCards
 
         public void MarkAsPaidOff(DateOnly paidOffDate)
         {
+            if (PurchaseType != CreditCardPurchaseType.Installment)
+                throw new InvalidOperationException("Solo se pueden marcar como saldadas las compras de tipo Installment.");
+
+            if (Status == CreditCardPurchaseStatus.Cancelled)
+                throw new InvalidOperationException("No se pueden marcar como saldadas las suscripciones canceladas.");
+
             PaidOffAt = paidOffDate;
         }
     }
@@ -245,7 +234,6 @@ namespace SmartPocket.Domain.CreditCards
 
     public enum CreditCardPurchaseStatus
     {
-        Created = 1, // Estado inicial, todavia no se ha pagado ninguna cuota o mes de suscripción.
         InProgress,
         PaidOff, // Todas las cuotas fueron abonadas y la compra quedó completamente saldada.
         Cancelled // Solo para suscripciones canceladas ya saldadas

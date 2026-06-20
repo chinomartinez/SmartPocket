@@ -38,9 +38,9 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
 
             if (entity.PurchaseType == CreditCardPurchaseType.Installment && !command.IsInstallment)
             {
-                if (entity.Status != CreditCardPurchaseStatus.Created)
+                if (entity.Installments.Any(x => x.CreditCardStatementId.HasValue))
                 {
-                    var error = "Only purchases with status 'Created' can be changed from installment to subscription.";
+                    var error = "Cannot change an installment purchase to a subscription if any of its installments are associated with a closed or paid statement.";
                     return new ErrorDetailList(error);
                 }
             }
@@ -62,10 +62,10 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 categoryId: command.CategoryId,
                 description: command.Description,
                 effectiveDate: command.EffectiveDate,
-                purchaseAmount: command.PurchaseAmount.ToDomainMoney(),
+                currencyCode: command.PurchaseAmount.CurrencyCode,
+                amount: command.PurchaseAmount.Amount,
                 purchaseType: command.IsInstallment ? CreditCardPurchaseType.Installment : CreditCardPurchaseType.Subscription,
-                installmentCount: command.Installments,
-                originalAmount: command.OriginalAmount);
+                installmentCount: command.Installments);
 
             await _smartPocketContext.SaveChangesAsync(cancellation);
 

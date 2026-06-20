@@ -32,40 +32,28 @@ namespace SmartPocket.Domain.CreditCards
             PeriodMonth = periodMonth;
             ClosingDate = closingDate;
             DueDate = dueDate;
-            Status = CreditCardStatementStatus.Open;
+            Status = CreditCardStatementStatus.Closed;
         }
 
         public void Update(DateOnly closingDate, DateOnly dueDate)
         {
-            if (Status != CreditCardStatementStatus.Open)
-                throw new InvalidOperationException("Only open statements can be updated.");
+            if (Status != CreditCardStatementStatus.Closed)
+                throw new InvalidOperationException("Only closed statements can be updated.");
 
             ClosingDate = closingDate;
             DueDate = dueDate;
         }
 
-        public void CloseStatement()
-        {
-            if (Status != CreditCardStatementStatus.Open)
-                throw new InvalidOperationException("Only open statements can be closed.");
-            Status = CreditCardStatementStatus.Closed;
-        }
-
         public void PaidStatement()
         {
-            if (Status == CreditCardStatementStatus.Paid)
-                throw new InvalidOperationException("Statement is already paid.");
-
-            if (Status == CreditCardStatementStatus.Open)
-                throw new InvalidOperationException("Only closed statements can be marked as paid.");
+            if (Status != CreditCardStatementStatus.Closed)
+                throw new InvalidOperationException("Only closed statements can be paid.");
 
             Status = CreditCardStatementStatus.Paid;
         }
 
         public void PaidPartiallyStatement()
         {
-            if (Status == CreditCardStatementStatus.Paid)
-                throw new InvalidOperationException("Statement is already paid.");
             if (Status != CreditCardStatementStatus.Closed)
                 throw new InvalidOperationException("Only closed statements can be marked as partially paid.");
 
@@ -75,9 +63,8 @@ namespace SmartPocket.Domain.CreditCards
 
     public enum CreditCardStatementStatus
     {
-        Open = 1,
-        Closed = 2,
-        Paid = 3,
+        Closed = 2, // El resumen se cerró pero aún no se pagó
+        Paid = 3, // Pagaste el resumen completo
         PartiallyPaid = 4   // Pagaste la sección USD pero no la ARS, o viceversa
     }
 }

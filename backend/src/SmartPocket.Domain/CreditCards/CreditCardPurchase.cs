@@ -126,11 +126,20 @@ namespace SmartPocket.Domain.CreditCards
             CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
             CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
             Description = description.GetIfNotNullOrWhiteSpace(nameof(description));
-            CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));            
+            CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));
 
-            // Si no se modifican ni la fecha, ni el monto, ni el tipo de compra, no es necesario hacer nada más
-            if (EffectiveDate == effectiveDate && TotalAmount == amount && PurchaseType == purchaseType)
+
+            if (EffectiveDate == effectiveDate &&
+                TotalAmount == amount &&
+                PurchaseType == purchaseType &&
+                (Installments.Count == installmentCount && PurchaseType == CreditCardPurchaseType.Installment))
                 return;
+
+            if (PurchaseType != purchaseType && Installments.Any(x => x.CreditCardStatementId.HasValue))
+            {
+                var error = $"No se puede cambiar el tipo de compra, cuando esta en resumenes";
+                throw new InvalidOperationException(error);
+            }
 
             if (purchaseType == CreditCardPurchaseType.Installment)
             {

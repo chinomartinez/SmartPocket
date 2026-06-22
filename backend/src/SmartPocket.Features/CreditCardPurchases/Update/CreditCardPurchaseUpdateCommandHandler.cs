@@ -36,14 +36,16 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 return new ErrorDetailList(error);
             }
 
-            if (entity.PurchaseType == CreditCardPurchaseType.Installment && !command.IsInstallment)
+            var newPurchaseType = command.IsInstallment
+                ? CreditCardPurchaseType.Installment
+                : CreditCardPurchaseType.Subscription;
+
+            if (entity.PurchaseType != newPurchaseType && entity.Installments.Any(x => x.CreditCardStatementId.HasValue))
             {
-                if (entity.Installments.Any(x => x.CreditCardStatementId.HasValue))
-                {
-                    var error = "No se puede cambiar una compra en cuotas a suscripción si alguna de sus cuotas" +
-                        " está asociada a un resumen cerrado o pagado.";
-                    return new ErrorDetailList(error);
-                }
+                var error = "No se puede cambiar de tipo de operación si la compra/subscripcion ha sido " +
+                    "emitida en algun resumen";
+
+                return new ErrorDetailList(error);
             }
 
             if (entity.Status == CreditCardPurchaseStatus.PaidOff)
@@ -65,7 +67,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 effectiveDate: command.EffectiveDate,
                 currencyCode: command.PurchaseAmount.CurrencyCode,
                 amount: command.PurchaseAmount.Amount,
-                purchaseType: command.IsInstallment ? CreditCardPurchaseType.Installment : CreditCardPurchaseType.Subscription,
+                purchaseType: newPurchaseType,
                 installmentCount: command.Installments);
 
             await _smartPocketContext.SaveChangesAsync(cancellation);

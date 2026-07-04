@@ -1,6 +1,7 @@
 ﻿using SmartPocket.Domain.Transactions;
 using SmartPocket.SharedKernel.Entities;
 using SmartPocket.SharedKernel.Guards;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartPocket.Domain.CreditCards
 {
@@ -87,24 +88,26 @@ namespace SmartPocket.Domain.CreditCards
             TotalAmount = amount;
             PurchaseType = purchaseType;
 
-            var ic = PurchaseType == CreditCardPurchaseType.Installment
-                ? installmentCount.GetValueOrDefault().GetIfNotNegativeOrZero(nameof(installmentCount))
-                : 1;
+            // Una compra en cuotas tiene N cuotas, una suscripción tiene pagos indefinidos hasta cancelación.
+            // No se añade "pagos" a una compra hasta que se efectuen.
+            if (PurchaseType == CreditCardPurchaseType.Subscription)
+                return;
+
+            var ic = installmentCount
+                .GetValueOrDefault()
+                .GetIfNotNegativeOrZero(nameof(installmentCount));
 
             var installmentAmount = amount / ic;
-            DateOnly? dueDate = purchaseType == CreditCardPurchaseType.Subscription
-                ? effectiveDate.AddMonths(1)
-                : null;
 
             Installments ??= [];
 
             for (int i = 1; i <= ic; i++)
             {
-                Installments.Add(new CreditCardInstallment(this, i, installmentAmount, dueDate));
+                Installments.Add(new CreditCardInstallment(this, i, installmentAmount));
             }
         }
 
-        public void Update(
+        public bool TryUpdate(
             int creditCardId,
             int categoryId,
             string description,
@@ -112,58 +115,73 @@ namespace SmartPocket.Domain.CreditCards
             string currencyCode,
             decimal amount,
             CreditCardPurchaseType purchaseType,
-            int? installmentCount = default)
+            int? installmentCount,
+            [NotNullWhen(false)] out string error)
         {
-            if (Installments == null || Installments.Count == 0)
-                throw new InvalidOperationException("Solo se pueden modificar compras que tengan cuotas asociadas.");
+            error = string.Empty;
+
+            if (Installments == null)
+            {
+                throw new InvalidOperationException($"La lista de cuotas debe estar inicializada antes de actualizar la compra.");
+            }
 
             if (Status == CreditCardPurchaseStatus.PaidOff)
-                throw new InvalidOperationException("No se pueden modificar compras ya saldadas.");
+            {
+                error = "No se pueden modificar compras ya saldadas.";
+                return false;
+            }
 
             if (Status == CreditCardPurchaseStatus.Cancelled)
-                throw new InvalidOperationException("No se pueden modificar suscripciones ya canceladas.");
-
-            CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
+            {
+                error = "No se pueden modificar suscripciones ya canceladas.";
+                return false;
+            }
+            
             CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
             Description = description.GetIfNotNullOrWhiteSpace(nameof(description));
             CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));
+            EffectiveDate = effectiveDate;
 
+            var anyInstallmentClosedOrPaid = Installments.Any(i => i.CreditCardStatementId.HasValue);
 
-            if (EffectiveDate == effectiveDate &&
-                TotalAmount == amount &&
+            if (CreditCardId != creditCardId && anyInstallmentClosedOrPaid)
+            {
+                error = $"No se puede cambiar la tarjeta, cuando esta en resumenes";
+                return false;
+            }
+            else
+            {
+                CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
+            }
+
+            if (PurchaseType != purchaseType && anyInstallmentClosedOrPaid)
+            {
+                error = $"No se puede cambiar el tipo de compra, cuando esta en resumenes";
+                return false;
+            }
+
+            if (TotalAmount == amount &&
                 PurchaseType == purchaseType &&
                 (Installments.Count == installmentCount && PurchaseType == CreditCardPurchaseType.Installment))
-                return;
-
-            if (PurchaseType != purchaseType && Installments.Any(x => x.CreditCardStatementId.HasValue))
             {
-                var error = $"No se puede cambiar el tipo de compra, cuando esta en resumenes";
-                throw new InvalidOperationException(error);
+                return true;
             }
 
             if (purchaseType == CreditCardPurchaseType.Installment)
             {
-                // Si se cambia de suscripción a cuota, se eliminan las cuotas anteriores y se crean nuevas
-                if (PurchaseType == CreditCardPurchaseType.Subscription)
-                    Installments = []; 
-
                 UpdateInstallments(amount, installmentCount.GetValueOrDefault());
             }
 
             else if (purchaseType == CreditCardPurchaseType.Subscription)
             {
-                if (PurchaseType == CreditCardPurchaseType.Installment)
-                {
-                    Installments = [ new CreditCardInstallment(this, 1, amount, effectiveDate.AddMonths(1)) ];
-                    return;
-                }
-
-                UpdateSubscription(effectiveDate, amount);
+                Installments = [];
             }
-            
+
             PurchaseType = purchaseType;
             TotalAmount = amount.GetIfNotNegativeOrZero(nameof(amount));
             EffectiveDate = effectiveDate;
+
+            return true;
         }
 
         private void UpdateInstallments(decimal amount,int installmentCount)
@@ -174,6 +192,8 @@ namespace SmartPocket.Domain.CreditCards
             if (amount <= 0)
                 throw new ArgumentException("El monto total debe ser mayor a cero.", nameof(amount));
 
+            // Validar si se pueden eliminar cuotas existentes.
+            // Si antes era una subscripcion, no hay problema, por que no hay cuotas.
             if (installmentCount < Installments.Count)
             {
                 var canRemove = Installments
@@ -184,6 +204,9 @@ namespace SmartPocket.Domain.CreditCards
                     throw new InvalidOperationException($"No se pueden reducir las cuotas porque algunas de las cuotas a eliminar ya están asociadas a un resumen cerrado o pagado.");
             }
 
+            // Crear o actualizas las cuotas si cambio el monto total o la cantidad de cuotas.
+            // Si antes era una subscripción, deberia crear las cuotas nuevas.
+            // Si sigue siendo una compra en cuotas, actualizar y/o crea las cuotas nuevas.
             if (installmentCount != Installments.Count || TotalAmount != amount)
             {
                 var installmentAmount = amount / installmentCount;
@@ -197,30 +220,13 @@ namespace SmartPocket.Domain.CreditCards
                 {
                     for (int i = Installments.Count + 1; i <= installmentCount; i++)
                     {
-                        Installments.Add(new CreditCardInstallment(this, i, installmentAmount, null));
+                        Installments.Add(new CreditCardInstallment(this, i, installmentAmount));
                     }
                 }
                 else if (installmentCount < Installments.Count)
                 {
                     Installments = [.. Installments.Take(installmentCount)];
                 }
-            }
-        }
-
-        private void UpdateSubscription(
-            DateOnly effectiveDate,
-            decimal amount)
-        {
-            if (Installments.Count == 1)
-                throw new InvalidOperationException("Solo se pueden modificar suscripciones que tengan una única cuota asociada.");
-
-            if (amount <= 0)
-                throw new ArgumentException("El monto total debe ser mayor a cero.", nameof(amount));
-
-            foreach (var i in Installments)
-            {
-                i.UpdateAmount(amount);
-                i.UpdateDueDate(effectiveDate.AddMonths(1));
             }
         }
 

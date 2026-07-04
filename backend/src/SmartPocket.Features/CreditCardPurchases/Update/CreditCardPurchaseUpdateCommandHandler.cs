@@ -32,35 +32,15 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
 
             if (entity is null)
             {
-                var error = $"Credit card purchase with id {command.Id} not found.";
-                return new ErrorDetailList(error);
+                var notFoundError = $"Credit card purchase with id {command.Id} not found.";
+                return new ErrorDetailList(notFoundError);
             }
 
             var newPurchaseType = command.IsInstallment
                 ? CreditCardPurchaseType.Installment
                 : CreditCardPurchaseType.Subscription;
 
-            if (entity.PurchaseType != newPurchaseType && entity.Installments.Any(x => x.CreditCardStatementId.HasValue))
-            {
-                var error = "No se puede cambiar de tipo de operación si la compra/subscripcion ha sido " +
-                    "emitida en algun resumen";
-
-                return new ErrorDetailList(error);
-            }
-
-            if (entity.Status == CreditCardPurchaseStatus.PaidOff)
-            {
-                var error = "No se puede actualizar una compra con estado 'PaidOff'.";
-                return new ErrorDetailList(error);
-            }
-
-            if (entity.Status == CreditCardPurchaseStatus.Cancelled)
-            {
-                var error = "No se puede actualizar una compra con estado 'Cancelled'.";
-                return new ErrorDetailList(error);
-            }
-
-            entity.Update(
+            var updated = entity.TryUpdate(
                 creditCardId: command.CreditCardId,
                 categoryId: command.CategoryId,
                 description: command.Description,
@@ -68,7 +48,13 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 currencyCode: command.PurchaseAmount.CurrencyCode,
                 amount: command.PurchaseAmount.Amount,
                 purchaseType: newPurchaseType,
-                installmentCount: command.Installments);
+                installmentCount: command.Installments,
+                error: out var error);
+
+            if (!updated)
+            {
+                return new ErrorDetailList(error);
+            }
 
             await _smartPocketContext.SaveChangesAsync(cancellation);
 

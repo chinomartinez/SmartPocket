@@ -29,14 +29,12 @@ namespace SmartPocket.Domain.CreditCards
 
         public CreditCardInstallment(CreditCardPurchase creditCardPurchase,
             int installmentNumber,
-            decimal amount,
-            DateOnly? dueDate)
+            decimal amount)
         {
             CreditCardPurchase = creditCardPurchase ?? throw new ArgumentNullException(nameof(creditCardPurchase));
             CreditCardPurchaseId = creditCardPurchase.Id;
             InstallmentNumber = installmentNumber;
             Amount = amount;
-            DueDate = dueDate;
         }
 
         public void UpdateAmount(decimal newAmount)

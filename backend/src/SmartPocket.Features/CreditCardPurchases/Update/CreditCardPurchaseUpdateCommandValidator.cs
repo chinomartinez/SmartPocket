@@ -42,6 +42,14 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 RuleFor(x => x.Installments)
                     .NotEmpty()
                     .GreaterThanOrEqualTo(1);
+
+                When(x => x.InstallmentNumberStart.HasValue, () =>
+                {
+                    RuleFor(x => x.InstallmentNumberStart)
+                        .NotEmpty()
+                        .GreaterThanOrEqualTo(1)
+                        .LessThan(x => x.Installments.GetValueOrDefault(1));
+                });
             }).Otherwise(() =>
             {
                 RuleFor(x => x.Installments)

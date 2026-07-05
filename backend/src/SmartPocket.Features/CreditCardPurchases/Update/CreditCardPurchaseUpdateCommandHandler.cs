@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.CreditCards;
+using SmartPocket.Domain.CreditCards.Enums;
 using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Features.Shared.Validators;
 using SmartPocket.Persistence;
@@ -26,7 +27,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
             if (validations.IsNotValid) return validations.Errors;
 
             var entity = await _smartPocketContext.Query<CreditCardPurchase>()
-                .Include(x => x.Installments)
+                .Include(x => x.Installments.OrderBy(x => x.InstallmentNumber))
                 .Where(x => x.Id == command.Id)
                 .FirstOrDefaultAsync(cancellation);
 
@@ -49,6 +50,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 amount: command.PurchaseAmount.Amount,
                 purchaseType: newPurchaseType,
                 installmentCount: command.Installments,
+                installmentNumberStart: command.InstallmentNumberStart,
                 error: out var error);
 
             if (!updated)

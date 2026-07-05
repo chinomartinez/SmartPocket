@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.CreditCards;
+using SmartPocket.Domain.CreditCards.Enums;
 using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Features.Transactions;
 using SmartPocket.Persistence;

@@ -44,6 +44,14 @@ namespace SmartPocket.Domain.CreditCards
             Amount = newAmount;
         }
 
+        public void UpdateInstallmentNumber(int newInstallmentNumber)
+        {
+            if (newInstallmentNumber <= 0)
+                throw new ArgumentException("El número de cuota debe ser un entero positivo.", nameof(newInstallmentNumber));
+
+            InstallmentNumber = newInstallmentNumber;
+        }
+
         public void UpdateDueDate(DateOnly? newDueDate)
         {
             DueDate = newDueDate;

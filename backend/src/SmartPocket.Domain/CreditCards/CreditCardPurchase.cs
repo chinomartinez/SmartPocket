@@ -1,4 +1,5 @@
-﻿using SmartPocket.Domain.Transactions;
+﻿using SmartPocket.Domain.CreditCards.Enums;
+using SmartPocket.Domain.Transactions;
 using SmartPocket.SharedKernel.Entities;
 using SmartPocket.SharedKernel.Guards;
 using System.Diagnostics.CodeAnalysis;
@@ -41,8 +42,8 @@ namespace SmartPocket.Domain.CreditCards
         /// </summary>
         public DateOnly? CancelledAt { get; private set; }
 
-        public CreditCardPurchaseStatus Status 
-        { 
+        public CreditCardPurchaseStatus Status
+        {
             get
             {
                 if (CancelledAt.HasValue)
@@ -56,11 +57,11 @@ namespace SmartPocket.Domain.CreditCards
             private set { } // Necesario para EF Core, aunque no se use directamente
         }
 
-        public ICollection<CreditCardInstallment> Installments { get; private set; } = new List<CreditCardInstallment>();
+        public ICollection<CreditCardInstallment> Installments { get; private set; }
 
         private CreditCardPurchase()
         {
-            
+            Installments = [];
         }
 
         public CreditCardPurchase(
@@ -71,8 +72,9 @@ namespace SmartPocket.Domain.CreditCards
             string currencyCode,
             decimal amount,
             CreditCardPurchaseType purchaseType,
-            int? installmentCount = default
-            )
+            int? installmentCount,
+            int? installmentNumberStart)
+            :this()
         {
             if (purchaseType == CreditCardPurchaseType.Installment && installmentCount.GetValueOrDefault() <= 0)
             {
@@ -97,13 +99,23 @@ namespace SmartPocket.Domain.CreditCards
                 .GetValueOrDefault()
                 .GetIfNotNegativeOrZero(nameof(installmentCount));
 
+            var startNumber = installmentNumberStart.HasValue
+                ? installmentNumberStart.Value.GetIfNotNegativeOrZero(nameof(installmentNumberStart))
+                : 1;
+
+            if (startNumber >= ic)
+            {
+                var error = $"El número de cuota inicial debe ser menor que el número total de cuotas.";
+                throw new ArgumentException(error, nameof(installmentNumberStart));
+            }
+
             var installmentAmount = amount / ic;
 
             Installments ??= [];
 
-            for (int i = 1; i <= ic; i++)
+            for (int start = 1; start <= ic; start++)
             {
-                Installments.Add(new CreditCardInstallment(this, i, installmentAmount));
+                Installments.Add(new CreditCardInstallment(this, start, installmentAmount));
             }
         }
 
@@ -116,6 +128,7 @@ namespace SmartPocket.Domain.CreditCards
             decimal amount,
             CreditCardPurchaseType purchaseType,
             int? installmentCount,
+            int? installmentNumberStart,
             [NotNullWhen(false)] out string error)
         {
             error = string.Empty;
@@ -136,7 +149,7 @@ namespace SmartPocket.Domain.CreditCards
                 error = "No se pueden modificar suscripciones ya canceladas.";
                 return false;
             }
-            
+
             CategoryId = categoryId.GetIfNotNegativeOrZero(nameof(categoryId));
             Description = description.GetIfNotNullOrWhiteSpace(nameof(description));
             CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));
@@ -169,7 +182,13 @@ namespace SmartPocket.Domain.CreditCards
 
             if (purchaseType == CreditCardPurchaseType.Installment)
             {
-                UpdateInstallments(amount, installmentCount.GetValueOrDefault());
+                if (!TryUpdateInstallments(amount,
+                    installmentCount.GetValueOrDefault(),
+                    installmentNumberStart,
+                    out error))
+                {
+                    return false;
+                }
             }
 
             else if (purchaseType == CreditCardPurchaseType.Subscription)
@@ -184,13 +203,25 @@ namespace SmartPocket.Domain.CreditCards
             return true;
         }
 
-        private void UpdateInstallments(decimal amount,int installmentCount)
+        private bool TryUpdateInstallments(decimal amount, int installmentCount, int? installmentNumberStart, out string error)
         {
-            if (installmentCount <= 0)
-                throw new ArgumentException("El número de cuotas debe ser mayor a cero.", nameof(installmentCount));
+            error = string.Empty;
 
             if (amount <= 0)
-                throw new ArgumentException("El monto total debe ser mayor a cero.", nameof(amount));
+                throw new ArgumentException("El monto total debe ser mayor a cero.",
+                    nameof(amount));
+
+            if (installmentCount <= 0)
+                throw new ArgumentException("El número de cuotas debe ser mayor a cero.",
+                    nameof(installmentCount));
+
+            if (installmentNumberStart.HasValue && installmentNumberStart <= 0)
+                throw new ArgumentException("El número de cuota inicial debe ser mayor a cero.",
+                    nameof(installmentNumberStart));
+
+            if (installmentNumberStart.HasValue && installmentNumberStart >= installmentCount)
+                throw new ArgumentException("El número de cuota inicial debe ser menor que el número total de cuotas.",
+                    nameof(installmentNumberStart));
 
             // Validar si se pueden eliminar cuotas existentes.
             // Si antes era una subscripcion, no hay problema, por que no hay cuotas.
@@ -201,7 +232,20 @@ namespace SmartPocket.Domain.CreditCards
                     .All(i => !i.CreditCardStatementId.HasValue);
 
                 if (!canRemove)
-                    throw new InvalidOperationException($"No se pueden reducir las cuotas porque algunas de las cuotas a eliminar ya están asociadas a un resumen cerrado o pagado.");
+                {
+                    error = "No se pueden reducir las cuotas porque algunas de las cuotas a eliminar ya están asociadas a un resumen cerrado o pagado.";
+
+                    return false;
+                }
+            }
+
+            if (installmentNumberStart.HasValue)
+            {
+                var startNumber = installmentNumberStart.Value;
+                foreach (var installment in Installments)
+                {
+                    installment.UpdateInstallmentNumber(startNumber++);
+                }
             }
 
             // Crear o actualizas las cuotas si cambio el monto total o la cantidad de cuotas.
@@ -228,6 +272,8 @@ namespace SmartPocket.Domain.CreditCards
                     Installments = [.. Installments.Take(installmentCount)];
                 }
             }
+
+            return true;
         }
 
         public void CancelSubscription(DateOnly cancellationDate)
@@ -248,18 +294,5 @@ namespace SmartPocket.Domain.CreditCards
 
             PaidOffAt = paidOffDate;
         }
-    }
-
-    public enum CreditCardPurchaseType
-    {
-        Installment = 1,    // Compra en cuotas finitas
-        Subscription = 2    // Cargo mensual indefinido hasta cancelación
-    }
-
-    public enum CreditCardPurchaseStatus
-    {
-        InProgress,
-        PaidOff, // Todas las cuotas fueron abonadas y la compra quedó completamente saldada.
-        Cancelled // Solo para suscripciones canceladas ya saldadas
     }
 }

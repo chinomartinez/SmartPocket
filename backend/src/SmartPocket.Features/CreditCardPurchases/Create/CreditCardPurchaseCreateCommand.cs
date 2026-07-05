@@ -11,6 +11,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Create
         public MoneyDTO PurchaseAmount { get; set; } = default!;
         public decimal? OriginalAmount { get; set; }
         public int? Installments { get; set; }
+        public int? InstallmentNumberStart { get; set; }
         public bool IsInstallment { get; set; }
     }
 }

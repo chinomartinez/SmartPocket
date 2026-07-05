@@ -1,4 +1,5 @@
-﻿using SmartPocket.Features.Transactions;
+﻿using SmartPocket.Features.Shared.Icons;
+using SmartPocket.Features.Transactions;
 
 namespace SmartPocket.Features.CreditCardPurchases.List
 {
@@ -61,11 +62,13 @@ namespace SmartPocket.Features.CreditCardPurchases.List
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public IconDTO Icon { get; set; } = default!;
     }
 
     public class CategoryCreditCardPurchaseListItemDTO
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public IconDTO Icon { get; set; } = default!;
     }
 }

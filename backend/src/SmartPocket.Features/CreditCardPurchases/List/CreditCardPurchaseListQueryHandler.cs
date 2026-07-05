@@ -30,18 +30,31 @@ namespace SmartPocket.Features.CreditCardPurchases.List
 
             var installments = await queryBase
                 .Where(x => x.PurchaseType == CreditCardPurchaseType.Installment)
+                .OrderByDescending(x => x.EffectiveDate)
+                    .ThenBy(x => x.CurrencyCode)
+                    .ThenBy(x => x.TotalAmount)
                 .Select(x => new CreditCardInstallmentPurchaseListItemDTO
                 {
                     Id = x.Id,
-                    CreditCard = new CreditCardCreditCardPurchaseListItemDTO
+                    CreditCard = new()
                     {
                         Id = x.CreditCard.Id,
-                        Name = x.CreditCard.Name
+                        Name = x.CreditCard.Name,
+                        Icon = new()
+                        {
+                            Code = x.Category.Icon.Code,
+                            ColorHex = x.Category.Icon.ColorHex
+                        }
                     },
-                    Category = new CategoryCreditCardPurchaseListItemDTO
+                    Category = new()
                     {
                         Id = x.Category.Id,
-                        Name = x.Category.Name
+                        Name = x.Category.Name,
+                        Icon = new()
+                        {
+                            Code = x.Category.Icon.Code,
+                            ColorHex = x.Category.Icon.ColorHex
+                        }
                     },
                     Description = x.Description,
                     PurchaseAmount = new MoneyDTO
@@ -64,18 +77,31 @@ namespace SmartPocket.Features.CreditCardPurchases.List
 
             var subscriptions = await queryBase
                 .Where(x => x.PurchaseType == CreditCardPurchaseType.Subscription)
+                .OrderByDescending(x => x.EffectiveDate)
+                    .ThenBy(x => x.CurrencyCode)
+                    .ThenBy(x => x.TotalAmount)
                 .Select(x => new CreditCardSubscriptionListItemDTO
                 {
                     Id = x.Id,
-                    CreditCard = new CreditCardCreditCardPurchaseListItemDTO
+                    CreditCard = new()
                     {
                         Id = x.CreditCard.Id,
-                        Name = x.CreditCard.Name
+                        Name = x.CreditCard.Name,
+                        Icon = new()
+                        {
+                            Code = x.Category.Icon.Code,
+                            ColorHex = x.Category.Icon.ColorHex
+                        }
                     },
-                    Category = new CategoryCreditCardPurchaseListItemDTO
+                    Category = new()
                     {
                         Id = x.Category.Id,
-                        Name = x.Category.Name
+                        Name = x.Category.Name,
+                        Icon = new()
+                        {
+                            Code = x.Category.Icon.Code,
+                            ColorHex = x.Category.Icon.ColorHex
+                        }
                     },
                     Description = x.Description,
                     PurchaseAmount = new MoneyDTO

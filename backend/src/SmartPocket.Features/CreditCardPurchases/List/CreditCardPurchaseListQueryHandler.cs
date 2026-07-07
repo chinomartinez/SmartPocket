@@ -37,16 +37,6 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                 .Select(x => new CreditCardInstallmentPurchaseListItemDTO
                 {
                     Id = x.Id,
-                    CreditCard = new()
-                    {
-                        Id = x.CreditCard.Id,
-                        Name = x.CreditCard.Name,
-                        Icon = new()
-                        {
-                            Code = x.Category.Icon.Code,
-                            ColorHex = x.Category.Icon.ColorHex
-                        }
-                    },
                     Category = new()
                     {
                         Id = x.Category.Id,
@@ -84,16 +74,6 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                 .Select(x => new CreditCardSubscriptionListItemDTO
                 {
                     Id = x.Id,
-                    CreditCard = new()
-                    {
-                        Id = x.CreditCard.Id,
-                        Name = x.CreditCard.Name,
-                        Icon = new()
-                        {
-                            Code = x.Category.Icon.Code,
-                            ColorHex = x.Category.Icon.ColorHex
-                        }
-                    },
                     Category = new()
                     {
                         Id = x.Category.Id,
@@ -115,12 +95,12 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                     CancelledAt = x.CancelledAt,
                     PurchaseType = x.PurchaseType.ToString(),
                     Status = x.Status.ToString(),
+
                     ChargesCount = x.Installments.Count,
                     LastChargeAmount = x.Installments
                         .OrderByDescending(i => i.InstallmentNumber)
                         .Select(i => i.Amount)
                         .FirstOrDefault(),
-                    IsActive = x.Status == CreditCardPurchaseStatus.InProgress
                 })
                 .ToListAsync(cancellation);
 

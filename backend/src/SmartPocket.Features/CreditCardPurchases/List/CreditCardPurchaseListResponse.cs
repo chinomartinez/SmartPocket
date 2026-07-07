@@ -30,18 +30,11 @@ namespace SmartPocket.Features.CreditCardPurchases.List
         /// Ultimo monto pagado
         /// </summary>
         public decimal LastChargeAmount { get; set; }
-
-        /// <summary>
-        /// Si esta activa la subscription
-        /// </summary>
-        public bool IsActive { get; set; }
     }
 
     public abstract class CreditCardPurchaseListItemDTOBase
     {
         public int Id { get; set; }
-
-        public CreditCardCreditCardPurchaseListItemDTO CreditCard { get; set; } = default!;
 
         public CategoryCreditCardPurchaseListItemDTO Category { get; set; } = default!;
 

@@ -198,7 +198,6 @@ namespace SmartPocket.Domain.CreditCards
 
             PurchaseType = purchaseType;
             TotalAmount = amount.GetIfNotNegativeOrZero(nameof(amount));
-            EffectiveDate = effectiveDate;
 
             return true;
         }
@@ -276,23 +275,44 @@ namespace SmartPocket.Domain.CreditCards
             return true;
         }
 
-        public void CancelSubscription(DateOnly cancellationDate)
+        public bool TryCancelSubscription(DateOnly cancellationDate, out string error)
         {
+            error = string.Empty;
+
             if (PurchaseType != CreditCardPurchaseType.Subscription)
-                throw new InvalidOperationException("Solo se pueden cancelar compras de tipo Subscription.");
+            {
+                error = "Solo se pueden cancelar compras de tipo Subscription.";
+                return false;
+            }
+
+            if (Status == CreditCardPurchaseStatus.PaidOff)
+            {
+                error = "No se pueden cancelar suscripciones ya saldadas.";
+                return false;
+            }
 
             CancelledAt = cancellationDate;
+            return true;
         }
 
-        public void MarkAsPaidOff(DateOnly paidOffDate)
+        public bool TryMarkAsPaidOff(DateOnly paidOffDate, out string error)
         {
+            error = string.Empty;
+
             if (PurchaseType != CreditCardPurchaseType.Installment)
-                throw new InvalidOperationException("Solo se pueden marcar como saldadas las compras de tipo Installment.");
+            {
+                error = "Solo se pueden marcar como saldadas las compras de tipo Installment.";
+                return false;
+            }
 
             if (Status == CreditCardPurchaseStatus.Cancelled)
-                throw new InvalidOperationException("No se pueden marcar como saldadas las suscripciones canceladas.");
+            {
+                error = "No se pueden marcar como saldadas las suscripciones canceladas.";
+                return false;
+            }
 
             PaidOffAt = paidOffDate;
+            return true;
         }
     }
 }

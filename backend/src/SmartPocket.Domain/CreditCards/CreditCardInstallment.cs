@@ -1,4 +1,5 @@
 ﻿using SmartPocket.SharedKernel.Entities;
+using SmartPocket.SharedKernel.Guards;
 
 namespace SmartPocket.Domain.CreditCards
 {
@@ -10,14 +11,9 @@ namespace SmartPocket.Domain.CreditCards
         /// <summary>
         /// Para Installment: 1..N. Para Subscription: número de ciclo (1, 2, 3...)
         /// </summary>
-        public int InstallmentNumber { get; private set; }
+        public int Number { get; private set; }
 
         public decimal Amount { get; private set; }
-
-        /// <summary>
-        /// Fecha de facturación de la subscripción. Es posible que una subscripcion se facture 2 veces en un mismo resumen.
-        /// </summary>
-        public DateOnly? DueDate { get; private set; }
 
         public CreditCardStatement CreditCardStatement { get; private set; } = default!;
         public int? CreditCardStatementId { get; private set; }
@@ -28,33 +24,23 @@ namespace SmartPocket.Domain.CreditCards
         }
 
         public CreditCardInstallment(CreditCardPurchase creditCardPurchase,
-            int installmentNumber,
+            int number,
             decimal amount)
         {
             CreditCardPurchase = creditCardPurchase ?? throw new ArgumentNullException(nameof(creditCardPurchase));
             CreditCardPurchaseId = creditCardPurchase.Id;
-            InstallmentNumber = installmentNumber;
-            Amount = amount;
+            Number = number.GetIfNotNegativeOrZero(nameof(number));
+            Amount = amount.GetIfNotNegativeOrZero(nameof(amount));
         }
 
         public void UpdateAmount(decimal newAmount)
         {
-            if (newAmount <= 0)
-                throw new ArgumentException("El monto de la cuota debe ser un valor positivo.", nameof(newAmount));
-            Amount = newAmount;
+            Amount = newAmount.GetIfNotNegativeOrZero(nameof(newAmount));
         }
 
-        public void UpdateInstallmentNumber(int newInstallmentNumber)
+        public void UpdateInstallmentNumber(int newNumber)
         {
-            if (newInstallmentNumber <= 0)
-                throw new ArgumentException("El número de cuota debe ser un entero positivo.", nameof(newInstallmentNumber));
-
-            InstallmentNumber = newInstallmentNumber;
-        }
-
-        public void UpdateDueDate(DateOnly? newDueDate)
-        {
-            DueDate = newDueDate;
+            Number = newNumber.GetIfNotNegativeOrZero(nameof(newNumber));
         }
 
         public void LinkToStatement(int statementId)
@@ -62,10 +48,7 @@ namespace SmartPocket.Domain.CreditCards
             if (CreditCardStatementId != null)
                 throw new InvalidOperationException("Esta cuota ya está vinculada a un resumen.");
 
-            if (statementId <= 0)
-                throw new ArgumentException("El statementId debe ser un entero positivo.", nameof(statementId));
-
-            CreditCardStatementId = statementId;
+            CreditCardStatementId = statementId.GetIfNotNegativeOrZero(nameof(statementId));
         }
     }
 }

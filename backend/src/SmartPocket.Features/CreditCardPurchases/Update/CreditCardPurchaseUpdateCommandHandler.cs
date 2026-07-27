@@ -27,7 +27,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
             if (validations.IsNotValid) return validations.Errors;
 
             var entity = await _smartPocketContext.Query<CreditCardPurchase>()
-                .Include(x => x.Installments.OrderBy(x => x.InstallmentNumber))
+                .Include(x => x.Installments.OrderBy(x => x.Number))
                 .Where(x => x.Id == command.Id)
                 .FirstOrDefaultAsync(cancellation);
 

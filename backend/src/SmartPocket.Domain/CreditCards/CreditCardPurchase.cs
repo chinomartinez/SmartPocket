@@ -42,6 +42,12 @@ namespace SmartPocket.Domain.CreditCards
         /// </summary>
         public DateOnly? CancelledAt { get; private set; }
 
+        /// <summary>
+        /// Solo aplica para PurchaseType = Installment.
+        /// Null = en curso, fecha = finalizada ese día
+        /// </summary>
+        public DateOnly? FinishedAt { get; private set; }
+
         public CreditCardPurchaseStatus Status
         {
             get
@@ -51,6 +57,9 @@ namespace SmartPocket.Domain.CreditCards
 
                 if (PaidOffAt.HasValue)
                     return CreditCardPurchaseStatus.PaidOff;
+
+                if (FinishedAt.HasValue)
+                    return CreditCardPurchaseStatus.Finished;
 
                 return CreditCardPurchaseStatus.InProgress;
             }
@@ -147,6 +156,12 @@ namespace SmartPocket.Domain.CreditCards
             if (Status == CreditCardPurchaseStatus.Cancelled)
             {
                 error = "No se pueden modificar suscripciones ya canceladas.";
+                return false;
+            }
+
+            if (Status == CreditCardPurchaseStatus.Finished)
+            {
+                error = "No se pueden modificar compras ya finalizadas.";
                 return false;
             }
 
@@ -275,7 +290,7 @@ namespace SmartPocket.Domain.CreditCards
             return true;
         }
 
-        public bool TryCancelSubscription(DateOnly cancellationDate, out string error)
+        public bool TryCancelSubscription(out string error)
         {
             error = string.Empty;
 
@@ -291,11 +306,11 @@ namespace SmartPocket.Domain.CreditCards
                 return false;
             }
 
-            CancelledAt = cancellationDate;
+            CancelledAt = DateOnly.FromDateTime(DateTime.UtcNow);
             return true;
         }
 
-        public bool TryMarkAsPaidOff(DateOnly paidOffDate, out string error)
+        public bool TryMarkAsPaidOff(out string error)
         {
             error = string.Empty;
 
@@ -311,7 +326,36 @@ namespace SmartPocket.Domain.CreditCards
                 return false;
             }
 
-            PaidOffAt = paidOffDate;
+            PaidOffAt = DateOnly.FromDateTime(DateTime.UtcNow);
+            return true;
+        }
+
+        public bool TryMarkAsFinished(out string error)
+        {
+            error = string.Empty;
+
+            if (Installments == null || Installments.Count == 0)
+                throw new InvalidOperationException($"La lista de cuotas debe estar inicializada antes de marcar la compra como finalizada.");
+
+            if (PurchaseType != CreditCardPurchaseType.Installment)
+            {
+                error = "Solo se pueden marcar como finalizadas las compras de tipo Installment.";
+                return false;
+            }
+
+            if (Status == CreditCardPurchaseStatus.PaidOff)
+            {
+                error = "No se pueden marcar como finalizadas las compras ya saldadas.";
+                return false;
+            }
+
+            if (Status == CreditCardPurchaseStatus.Cancelled)
+            {
+                error = "No se pueden marcar como finalizadas las suscripciones canceladas.";
+                return false;
+            }
+
+            FinishedAt = DateOnly.FromDateTime(DateTime.UtcNow);
             return true;
         }
     }

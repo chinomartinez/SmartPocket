@@ -11,8 +11,10 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
             // Configuraciones por defecto
             builder.Property(x => x.ClosingDate);
             builder.Property(x => x.DueDate);
-            builder.Property(x => x.PeriodYear);
-            builder.Property(x => x.PeriodMonth);
+
+            builder.Property(x => x.Description)
+                .IsRequired()
+                .HasMaxLength(200);
 
             builder.HasOne(s => s.CreditCard)
                 .WithMany(c => c.Statements)

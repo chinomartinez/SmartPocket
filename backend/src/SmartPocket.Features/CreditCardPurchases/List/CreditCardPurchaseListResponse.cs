@@ -12,6 +12,9 @@ namespace SmartPocket.Features.CreditCardPurchases.List
 
     public class CreditCardInstallmentPurchaseListItemDTO : CreditCardPurchaseListItemDTOBase
     {
+        public DateOnly? PaidOffAt { get; set; }
+        public DateOnly? FinishedAt { get; set; }
+
         public int InstallmentsCount { get; set; }
 
         public int InstallmentsPaid { get; set; }
@@ -21,6 +24,8 @@ namespace SmartPocket.Features.CreditCardPurchases.List
 
     public class CreditCardSubscriptionListItemDTO : CreditCardPurchaseListItemDTOBase
     {
+        public DateOnly? CancelledAt { get; set; }
+
         /// <summary>
         /// Cuantos cargos lleva generado
         /// </summary>
@@ -43,9 +48,6 @@ namespace SmartPocket.Features.CreditCardPurchases.List
         public MoneyDTO PurchaseAmount { get; set; } = default!;
 
         public DateOnly EffectiveDate { get; set; } = default!;
-
-        public DateOnly? PaidOffAt { get; set; }
-        public DateOnly? CancelledAt { get; set; }
 
         public string PurchaseType { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;

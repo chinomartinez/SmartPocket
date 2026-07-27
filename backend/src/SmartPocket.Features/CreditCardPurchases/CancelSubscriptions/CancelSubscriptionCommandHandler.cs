@@ -29,7 +29,7 @@ namespace SmartPocket.Features.CreditCardPurchases.CancelSubscriptions
                 return new ErrorDetailList(error);
             }
 
-            if (entity.TryCancelSubscription(DateOnly.FromDateTime(DateTime.UtcNow), out var errorCancel))
+            if (entity.TryCancelSubscription(out var errorCancel))
             {
                 await _smartPocketContext.SaveChangesAsync(cancellation);
                 return Result<ErrorDetailList>.Success();

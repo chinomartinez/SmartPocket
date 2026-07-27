@@ -1,5 +1,6 @@
 ﻿using SmartPocket.Domain.CreditCards.Enums;
 using SmartPocket.SharedKernel.Entities;
+using SmartPocket.SharedKernel.Guards;
 
 namespace SmartPocket.Domain.CreditCards
 {
@@ -8,11 +9,10 @@ namespace SmartPocket.Domain.CreditCards
         public CreditCard CreditCard { get; private set; } = default!;
         public int CreditCardId { get; private set; }
 
-        public int PeriodYear { get; private set; }
-        public int PeriodMonth { get; private set; }
+        public string Description { get; private set; } = string.Empty;
 
-        public DateOnly ClosingDate { get; private set; }
-        public DateOnly DueDate { get; private set; }
+        public DateTime ClosingDate { get; private set; }
+        public DateTime? DueDate { get; private set; }
 
         public CreditCardStatementStatus Status { get; private set; }
 
@@ -26,23 +26,19 @@ namespace SmartPocket.Domain.CreditCards
 
         private CreditCardStatement() { }
 
-        public CreditCardStatement(int creditCardId, int periodYear, int periodMonth, DateOnly closingDate, DateOnly dueDate)
+        public CreditCardStatement(int creditCardId, string description, DateTime? closingDate = null)
         {
-            CreditCardId = creditCardId;
-            PeriodYear = periodYear;
-            PeriodMonth = periodMonth;
-            ClosingDate = closingDate;
-            DueDate = dueDate;
+            CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
+            Description = description;
+            ClosingDate = closingDate ?? DateTime.UtcNow;
             Status = CreditCardStatementStatus.Closed;
         }
 
-        public void Update(DateOnly closingDate, DateOnly dueDate)
+        public void Update(int creditCardId, string description, DateTime closingDate)
         {
-            if (Status != CreditCardStatementStatus.Closed)
-                throw new InvalidOperationException("Only closed statements can be updated.");
-
+            CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
+            Description = description;
             ClosingDate = closingDate;
-            DueDate = dueDate;
         }
 
         public void PaidStatement()
@@ -51,6 +47,7 @@ namespace SmartPocket.Domain.CreditCards
                 throw new InvalidOperationException("Only closed statements can be paid.");
 
             Status = CreditCardStatementStatus.Paid;
+            DueDate = DateTime.UtcNow;
         }
 
         public void PaidPartiallyStatement()

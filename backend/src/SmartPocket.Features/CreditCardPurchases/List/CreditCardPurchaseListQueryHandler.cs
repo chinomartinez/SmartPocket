@@ -55,9 +55,10 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                     },
                     EffectiveDate = x.EffectiveDate,
                     PaidOffAt = x.PaidOffAt,
-                    CancelledAt = x.CancelledAt,
+                    FinishedAt = x.FinishedAt,
                     PurchaseType = x.PurchaseType.ToString(),
                     Status = x.Status.ToString(),
+
                     InstallmentsCount = x.Installments.Count,
                     InstallmentsPaid = x.Installments
                         .Where(i => i.CreditCardStatementId.HasValue)
@@ -91,14 +92,13 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                         CurrencyCode = x.CurrencyCode
                     },
                     EffectiveDate = x.EffectiveDate,
-                    PaidOffAt = x.PaidOffAt,
                     CancelledAt = x.CancelledAt,
                     PurchaseType = x.PurchaseType.ToString(),
                     Status = x.Status.ToString(),
 
                     ChargesCount = x.Installments.Count,
                     LastChargeAmount = x.Installments
-                        .OrderByDescending(i => i.InstallmentNumber)
+                        .OrderByDescending(i => i.Number)
                         .Select(i => i.Amount)
                         .FirstOrDefault(),
                 })

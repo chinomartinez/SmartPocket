@@ -4,9 +4,9 @@ using SmartPocket.Domain.CreditCards;
 
 namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
 {
-    internal class CreditCardInstallment_EntityConfig : IEntityTypeConfiguration<CreditCardInstallment>
+    internal class CreditCardInstallment_EntityConfig : IEntityTypeConfiguration<CreditCardPurchaseInstallment>
     {
-        public void Configure(EntityTypeBuilder<CreditCardInstallment> builder)
+        public void Configure(EntityTypeBuilder<CreditCardPurchaseInstallment> builder)
         {
             builder.HasOne(i => i.CreditCardPurchase)
                 .WithMany(p => p.Installments)

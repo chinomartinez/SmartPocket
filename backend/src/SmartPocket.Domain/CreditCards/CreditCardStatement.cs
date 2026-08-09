@@ -1,5 +1,4 @@
-﻿using SmartPocket.Domain.CreditCards.Enums;
-using SmartPocket.SharedKernel.Entities;
+﻿using SmartPocket.SharedKernel.Entities;
 using SmartPocket.SharedKernel.Guards;
 
 namespace SmartPocket.Domain.CreditCards
@@ -16,7 +15,7 @@ namespace SmartPocket.Domain.CreditCards
 
         public CreditCardStatementStatus Status { get; private set; }
 
-        public ICollection<CreditCardInstallment> Installments { get; private set; } = new List<CreditCardInstallment>();
+        public ICollection<CreditCardPurchaseInstallment> Installments { get; private set; } = new List<CreditCardPurchaseInstallment>();
 
         /// <summary>
         /// Uno o más pagos, uno por moneda utilizada al saldar el resumen.

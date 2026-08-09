@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SmartPocket.Features.CreditCardPurchases.CancelSubscriptions;
 using SmartPocket.Features.CreditCardPurchases.Create;
 using SmartPocket.Features.CreditCardPurchases.Delete;
 using SmartPocket.Features.CreditCardPurchases.List;
@@ -13,7 +12,7 @@ namespace SmartPocket.WebApi.Controllers
     public class CreditCardPurchasesController : ControllerBase
     {
         [HttpGet("creditCards/{creditCardId}")]
-        public async Task<CreditCardPurchaseListResponse> Get(
+        public async Task<List<CreditCardPurchaseListItemDTO>> Get(
             [FromServices] CreditCardPurchaseListQueryHandler queryHandler,
             [FromRoute] int creditCardId,
             [FromQuery] CreditCardPurchaseListFilters filters,
@@ -48,9 +47,7 @@ namespace SmartPocket.WebApi.Controllers
                 Description = command.Description,
                 EffectiveDate = command.EffectiveDate,
                 PurchaseAmount = command.PurchaseAmount,
-                IsInstallment = command.IsInstallment,
                 Installments = command.Installments,
-                OriginalAmount = command.OriginalAmount
             };
 
             var result = await handler.Update(updateCommand, cancellation);
@@ -64,16 +61,6 @@ namespace SmartPocket.WebApi.Controllers
             CancellationToken cancellation)
         {
             var result = await handler.Delete(id, cancellation);
-            return result.ToActionResult();
-        }
-
-        [HttpPut("{id}/cancel")]
-        public async Task<ActionResult> Cancel(
-            [FromServices] CancelSubscriptionCommandHandler handler,
-            [FromRoute] int id,
-            CancellationToken cancellation)
-        {
-            var result = await handler.Cancel(id, cancellation);
             return result.ToActionResult();
         }
     }

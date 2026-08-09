@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.CreditCards;
-using SmartPocket.Domain.CreditCards.Enums;
 using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Features.Shared.Validators;
 using SmartPocket.Persistence;
@@ -37,10 +36,6 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 return new ErrorDetailList(notFoundError);
             }
 
-            var newPurchaseType = command.IsInstallment
-                ? CreditCardPurchaseType.Installment
-                : CreditCardPurchaseType.Subscription;
-
             var updated = entity.TryUpdate(
                 creditCardId: command.CreditCardId,
                 categoryId: command.CategoryId,
@@ -48,9 +43,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
                 effectiveDate: command.EffectiveDate,
                 currencyCode: command.PurchaseAmount.CurrencyCode,
                 amount: command.PurchaseAmount.Amount,
-                purchaseType: newPurchaseType,
                 installmentCount: command.Installments,
-                installmentNumberStart: command.InstallmentNumberStart,
                 error: out var error);
 
             if (!updated)

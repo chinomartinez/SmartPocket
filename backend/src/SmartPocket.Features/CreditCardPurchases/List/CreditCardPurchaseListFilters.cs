@@ -4,8 +4,8 @@
     {
         public bool IncludePaidOff { get; set; } = false;
 
-        public bool IncludeCancelled { get; set; } = false;
+        public bool IncludeFinished { get; set; } = false;
 
-        public bool IncludePending { get; set; } = true;
+        public bool IncludeActive { get; set; } = true;
     }
 }

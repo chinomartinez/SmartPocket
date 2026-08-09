@@ -33,28 +33,8 @@ namespace SmartPocket.Features.CreditCardPurchases.Create
                 .NotNull()
                 .SetValidator(new MoneyDTOValidator());
 
-            RuleFor(x => x.OriginalAmount)
-                .GreaterThan(0)
-                .When(x => x.IsInstallment);
-
-            When(x => x.IsInstallment, () =>
-            {
-                RuleFor(x => x.Installments)
-                    .NotEmpty()
-                    .GreaterThanOrEqualTo(1);
-
-                When(x => x.InstallmentNumberStart.HasValue, () =>
-                {
-                    RuleFor(x => x.InstallmentNumberStart)
-                        .GreaterThanOrEqualTo(1)
-                        .LessThan(x => x.Installments.GetValueOrDefault(1));
-                });
-
-            }).Otherwise(() =>
-            {
-                RuleFor(x => x.Installments)
-                    .Null();
-            });
+            RuleFor(x => x.Installments)
+                .GreaterThan(0);
         }
     }
 }

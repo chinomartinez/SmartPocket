@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using SmartPocket.Domain.CreditCards;
-using SmartPocket.Domain.CreditCards.Enums;
 using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Features.Shared.Validators;
 using SmartPocket.Persistence;
@@ -34,11 +33,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Create
                 effectiveDate: command.EffectiveDate,
                 currencyCode: command.PurchaseAmount.CurrencyCode,
                 amount: command.PurchaseAmount.Amount,
-                purchaseType: command.IsInstallment 
-                    ? CreditCardPurchaseType.Installment 
-                    : CreditCardPurchaseType.Subscription,
-                installmentCount: command.Installments,
-                installmentNumberStart: command.InstallmentNumberStart);
+                installmentCount: command.Installments);
 
             _smartPocketContext.AddEntity(entity);
 

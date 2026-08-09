@@ -11,9 +11,6 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
         public string Description { get; set; } = default!;
         public DateOnly EffectiveDate { get; set; }
         public MoneyDTO PurchaseAmount { get; set; } = default!;
-        public decimal? OriginalAmount { get; set; }
-        public bool IsInstallment { get; set; }
-        public int? Installments { get; set; }
-        public int? InstallmentNumberStart { get; set; }
+        public int Installments { get; set; }
     }
 }

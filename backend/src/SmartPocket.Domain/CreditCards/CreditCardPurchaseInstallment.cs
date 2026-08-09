@@ -3,13 +3,13 @@ using SmartPocket.SharedKernel.Guards;
 
 namespace SmartPocket.Domain.CreditCards
 {
-    public class CreditCardInstallment : BaseEntity<int>
+    public class CreditCardPurchaseInstallment : BaseEntity<int>
     {
         public CreditCardPurchase CreditCardPurchase { get; private set; } = default!;
         public int CreditCardPurchaseId { get; private set; }
 
         /// <summary>
-        /// Para Installment: 1..N. Para Subscription: número de ciclo (1, 2, 3...)
+        /// Para Installment: 1..N.
         /// </summary>
         public int Number { get; private set; }
 
@@ -18,12 +18,12 @@ namespace SmartPocket.Domain.CreditCards
         public CreditCardStatement CreditCardStatement { get; private set; } = default!;
         public int? CreditCardStatementId { get; private set; }
 
-        private CreditCardInstallment()
+        private CreditCardPurchaseInstallment()
         {
             // Para EF Core
         }
 
-        public CreditCardInstallment(CreditCardPurchase creditCardPurchase,
+        public CreditCardPurchaseInstallment(CreditCardPurchase creditCardPurchase,
             int number,
             decimal amount)
         {

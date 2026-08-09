@@ -1,4 +1,4 @@
-﻿namespace SmartPocket.Domain.CreditCards.Enums
+﻿namespace SmartPocket.Domain.CreditCards
 {
     public enum CreditCardStatementStatus
     {

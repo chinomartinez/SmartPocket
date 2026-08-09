@@ -13,22 +13,11 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
                 .IsRequired();
 
             // Solo para saber que se mapea
-            builder.Property(x => x.CancelledAt);
             builder.Property(x => x.EffectiveDate);
             builder.Property(x => x.PaidOffAt);
 
             builder.Property(x => x.TotalAmount).HasPrecision(18, 2);
             builder.ConfigureCurrency(x => x.CurrencyCode);
-
-            builder.Property(x => x.PurchaseType)
-                .HasConversion<string>()
-                .HasMaxLength(100)
-                .IsRequired();
-
-            builder.Property(x => x.Status)
-                .HasConversion<string>()
-                .HasMaxLength(100)
-                .IsRequired();
 
             builder.HasOne(e => e.CreditCard)
                 .WithMany(c => c.Purchases)
@@ -39,8 +28,6 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
                 .WithMany()
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-
         }
     }
 }

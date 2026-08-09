@@ -15,4 +15,8 @@
     <ProjectReference Include="..\SmartPocket.Persistence\SmartPocket.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CreditCardStatements\" />
+  </ItemGroup>
+
 </Project>

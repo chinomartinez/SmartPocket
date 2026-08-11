@@ -27,13 +27,6 @@ namespace SmartPocket.Features.CreditCardPurchases.List
         public IEnumerable<CredictCardPurchaseInstallmentListItemDTO> RemainingInstallments { get; set; } = default!;
     }
 
-    public class CreditCardCreditCardPurchaseListItemDTO
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public IconDTO Icon { get; set; } = default!;
-    }
-
     public class CategoryCreditCardPurchaseListItemDTO
     {
         public int Id { get; set; }

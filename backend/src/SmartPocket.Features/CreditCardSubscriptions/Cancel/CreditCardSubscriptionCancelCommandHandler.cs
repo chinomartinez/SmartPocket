@@ -5,13 +5,13 @@ using SmartPocket.Persistence;
 using SmartPocket.SharedKernel.Errors;
 using SmartPocket.SharedKernel.Results;
 
-namespace SmartPocket.Features.CreditCardSubscriptions.CancelSubscriptions
+namespace SmartPocket.Features.CreditCardSubscriptions.Cancel
 {
-    public class CancelSubscriptionCommandHandler : IHandler
+    public class CreditCardSubscriptionCancelCommandHandler : IHandler
     {
         private readonly ISmartPocketContext _smartPocketContext;
 
-        public CancelSubscriptionCommandHandler(ISmartPocketContext smartPocketContext)
+        public CreditCardSubscriptionCancelCommandHandler(ISmartPocketContext smartPocketContext)
         {
             _smartPocketContext = smartPocketContext;
         }

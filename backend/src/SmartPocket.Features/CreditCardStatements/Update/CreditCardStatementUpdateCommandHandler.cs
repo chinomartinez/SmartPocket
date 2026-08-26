@@ -159,7 +159,7 @@ namespace SmartPocket.Features.CreditCardStatements.Update
 
             var anyDuplicatedCharges = existingChargesById
                 .Values
-                .Where(x => !desiredIds.Contains(x.Id)) // No se considera los cargos que se van a eliminar.
+                .Where(x => desiredIds.Contains(x.Id)) // Considerar solo los cargos existentes que se están actualizando. Los eliminados no se consideran
                 .Concat(chargesToAdd)
                 .GroupBy(x => new { x.CreditCardSubscriptionId, x.ChargeNumber })
                 .Where(g => g.Count() > 1)

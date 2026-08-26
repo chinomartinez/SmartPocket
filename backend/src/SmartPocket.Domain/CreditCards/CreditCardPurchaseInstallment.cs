@@ -50,5 +50,10 @@ namespace SmartPocket.Domain.CreditCards
 
             CreditCardStatementId = statementId.GetIfNotNegativeOrZero(nameof(statementId));
         }
+
+        public void UnlinkFromStatement()
+        {
+            CreditCardStatementId = null;
+        }
     }
 }

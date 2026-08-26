@@ -76,14 +76,14 @@ namespace SmartPocket.Persistence
             base.Set<T>().AddRange(entities);
         }
 
-        public T UpdateEntity<T>(T entity) where T : BaseEntity
-        {
-            return base.Set<T>().Update(entity).Entity;
-        }
-
         public T DeleteEntity<T>(T entity) where T : BaseEntity
         {
             return base.Set<T>().Remove(entity).Entity;
+        }
+
+        public void DeleteRange<T>(IEnumerable<T> entities) where T : BaseEntity
+        {
+            base.Set<T>().RemoveRange(entities);
         }
 
         public void DiscardAllChanges()
@@ -116,16 +116,6 @@ namespace SmartPocket.Persistence
             where T : BaseEntity
         {
             var result = AddEntity(entity);
-
-            await SaveChangesAsync(cancellationToken);
-
-            return result;
-        }
-
-        public async Task<T> UpdateAndSaveChangesAsync<T>(T entity, CancellationToken cancellationToken = default)
-            where T : BaseEntity
-        {
-            var result = UpdateEntity(entity);
 
             await SaveChangesAsync(cancellationToken);
 

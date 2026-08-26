@@ -33,9 +33,8 @@ namespace SmartPocket.Domain.CreditCards
             Status = CreditCardStatementStatus.Closed;
         }
 
-        public void Update(int creditCardId, string description, DateTime closingDate)
+        public void Update(string description, DateTime closingDate)
         {
-            CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
             Description = description;
             ClosingDate = closingDate;
         }

@@ -1,0 +1,182 @@
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SmartPocket.Domain.CreditCards;
+using SmartPocket.Features.Abstractions.Handlers;
+using SmartPocket.Features.Shared.Validators;
+using SmartPocket.Persistence;
+using SmartPocket.SharedKernel.Errors;
+
+namespace SmartPocket.Features.CreditCardStatements.Update
+{
+    public class CreditCardStatementUpdateCommandHandler : IHandler
+    {
+        private readonly ISmartPocketContext _smartPocketContext;
+        private readonly IValidator<CreditCardStatementUpdateCommand> _validator;
+
+        public CreditCardStatementUpdateCommandHandler(ISmartPocketContext smartPocketContext,
+            IValidator<CreditCardStatementUpdateCommand> validator)
+        {
+            _smartPocketContext = smartPocketContext;
+            _validator = validator;
+        }
+
+        public async Task<ErrorDetailList> Update(CreditCardStatementUpdateCommand command, CancellationToken cancellation)
+        {
+            var validations = await _validator.ValidateCommand(command, cancellation);
+            if (validations.IsNotValid) return validations.Errors;
+
+            using var transaction = await _smartPocketContext.BeginTransactionAsync(cancellation);
+
+            try
+            {
+                var statement = await _smartPocketContext.Query<CreditCardStatement>()
+                    .Include(x => x.Installments)
+                    .Where(x => x.Id == command.Id)
+                    .FirstOrDefaultAsync(cancellation);
+
+                if (statement is null)
+                {
+                    var notFoundError = $"Credit card Statement with id {command.Id} not found.";
+                    return new ErrorDetailList(notFoundError);
+                }
+
+                if (statement.CreditCardId != command.CreditCardId)
+                {
+                    return new ErrorDetailList("No se puede cambiar la tarjeta del resumen.");
+                }
+
+                var installmentsError = await SyncInstallments(statement, command, cancellation);
+                if (installmentsError is not null) return installmentsError;
+
+                statement.Update(command.Description, command.ClosingDate);
+
+                await _smartPocketContext.SaveChangesAsync(cancellation);
+
+                var chargesError = await SyncSubscriptionCharges(statement, command, cancellation);
+                if (chargesError is not null) return chargesError;
+
+                await _smartPocketContext.SaveChangesAsync(cancellation);
+
+                await transaction.CommitAsync(cancellation);
+
+                return ErrorDetailList.Empty;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync(cancellation);
+                throw;
+            }
+        }
+
+        private async Task<ErrorDetailList?> SyncInstallments(CreditCardStatement statement,
+            CreditCardStatementUpdateCommand command,
+            CancellationToken cancellation)
+        {
+            var desiredInstallmentIds = new HashSet<int>(command.InstallmentIds);
+
+            foreach (var installment in statement.Installments.Where(x => !desiredInstallmentIds.Contains(x.Id)))
+            {
+                installment.UnlinkFromStatement();
+            }
+
+            var linkedInstallmentIds = statement.Installments.Select(x => x.Id);
+            var installmentIdsToAdd = command.InstallmentIds
+                .Except(linkedInstallmentIds)
+                .ToArray();
+
+            if (installmentIdsToAdd.Length == 0) return null;
+
+            var installmentsToAdd = await _smartPocketContext.Query<CreditCardPurchaseInstallment>()
+                .Where(x => x.CreditCardPurchase.CreditCardId == statement.CreditCardId)
+                .Where(x => installmentIdsToAdd.Contains(x.Id))
+                .ToListAsync(cancellation);
+
+            if (installmentsToAdd.Count != installmentIdsToAdd.Length)
+            {
+                return new ErrorDetailList("Alguna cuota no existe o no pertenece a la tarjeta del resumen.");
+            }
+
+            var linkedToOtherStatement = installmentsToAdd.Any(x => x.CreditCardStatementId.HasValue);
+
+            if (linkedToOtherStatement)
+            {
+                return new ErrorDetailList("Existen cuotas asociadas a otros resúmenes.");
+            }
+
+            foreach (var installment in installmentsToAdd)
+            {
+                installment.LinkToStatement(statement.Id);
+            }
+
+            return null;
+        }
+
+        private async Task<ErrorDetailList?> SyncSubscriptionCharges(CreditCardStatement statement,
+            CreditCardStatementUpdateCommand command,
+            CancellationToken cancellation)
+        {
+            var existingChargesById = await _smartPocketContext.Query<CreditCardSubscriptionCharge>()
+                .Where(x => x.CreditCardStatementId == statement.Id)
+                .ToDictionaryAsync(x => x.Id, cancellation);
+
+            var desiredExistingCharges = command.SubscriptionCharges
+                .Where(x => x.Id.HasValue)
+                .Select(x => new
+                {
+                    Id = x.Id.GetValueOrDefault(),
+                    x.SubscriptionId,
+                    x.ChargeNumber,
+                    x.Amount
+                })
+                .ToArray();
+
+            if (desiredExistingCharges.Any(x => !existingChargesById.ContainsKey(x.Id)))
+            {
+                return new ErrorDetailList("Algún cargo de suscripción no existe o no pertenece al resumen.");
+            }
+
+            var desiredIds = desiredExistingCharges
+                .Select(x => x.Id)
+                .ToHashSet();
+
+            _smartPocketContext.DeleteRange(existingChargesById.Values.Where(x => !desiredIds.Contains(x.Id)));
+
+            foreach (var desiredCharge in desiredExistingCharges)
+            {
+                var existingCharge = existingChargesById[desiredCharge.Id];
+                
+                existingCharge.Update(desiredCharge.ChargeNumber, desiredCharge.Amount);
+            }
+
+            var chargesToAdd = command.SubscriptionCharges
+                .Where(x => !x.Id.HasValue)
+                .Select(x => new CreditCardSubscriptionCharge(
+                    creditCardSubscriptionId: x.SubscriptionId,
+                    creditCardStatementId: statement.Id,
+                    chargeNumber: x.ChargeNumber,
+                    amount: x.Amount))
+                .ToArray();
+
+            var anyDuplicatedCharges = existingChargesById
+                .Values
+                .Where(x => !desiredIds.Contains(x.Id)) // No se considera los cargos que se van a eliminar.
+                .Concat(chargesToAdd)
+                .GroupBy(x => new { x.CreditCardSubscriptionId, x.ChargeNumber })
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .Any();
+            
+            if (anyDuplicatedCharges)
+            {
+                return new ErrorDetailList("En este resumen se intenta agregar cargos duplicados para la misma suscripción y número de cargo.");
+            }
+
+            if (chargesToAdd.Length > 0)
+            {
+                _smartPocketContext.AddRange(chargesToAdd);
+            }
+
+            return null;
+        }
+    }
+}

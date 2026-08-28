@@ -25,47 +25,34 @@ namespace SmartPocket.Features.CreditCardStatements.Update
             var validations = await _validator.ValidateCommand(command, cancellation);
             if (validations.IsNotValid) return validations.Errors;
 
-            using var transaction = await _smartPocketContext.BeginTransactionAsync(cancellation);
-
-            try
-            {
-                var statement = await _smartPocketContext.Query<CreditCardStatement>()
+            var statement = await _smartPocketContext.Query<CreditCardStatement>()
                     .Include(x => x.Installments)
+                    .Include(x => x.SubscriptionCharges)
                     .Where(x => x.Id == command.Id)
                     .FirstOrDefaultAsync(cancellation);
 
-                if (statement is null)
-                {
-                    var notFoundError = $"Credit card Statement with id {command.Id} not found.";
-                    return new ErrorDetailList(notFoundError);
-                }
-
-                if (statement.CreditCardId != command.CreditCardId)
-                {
-                    return new ErrorDetailList("No se puede cambiar la tarjeta del resumen.");
-                }
-
-                var installmentsError = await SyncInstallments(statement, command, cancellation);
-                if (installmentsError is not null) return installmentsError;
-
-                statement.Update(command.Description, command.ClosingDate);
-
-                await _smartPocketContext.SaveChangesAsync(cancellation);
-
-                var chargesError = await SyncSubscriptionCharges(statement, command, cancellation);
-                if (chargesError is not null) return chargesError;
-
-                await _smartPocketContext.SaveChangesAsync(cancellation);
-
-                await transaction.CommitAsync(cancellation);
-
-                return ErrorDetailList.Empty;
-            }
-            catch (Exception)
+            if (statement is null)
             {
-                await transaction.RollbackAsync(cancellation);
-                throw;
+                var notFoundError = $"Credit card Statement with id {command.Id} not found.";
+                return new ErrorDetailList(notFoundError);
             }
+
+            if (statement.CreditCardId != command.CreditCardId)
+            {
+                return new ErrorDetailList("No se puede cambiar la tarjeta del resumen.");
+            }
+
+            statement.Update(command.Description, command.ClosingDate);
+
+            var installmentsError = await SyncInstallments(statement, command, cancellation);
+            if (installmentsError is not null) return installmentsError;
+
+            var chargesError = await SyncSubscriptionCharges(statement, command, cancellation);
+            if (chargesError is not null) return chargesError;
+
+            await _smartPocketContext.SaveChangesAsync(cancellation);
+
+            return ErrorDetailList.Empty;
         }
 
         private async Task<ErrorDetailList?> SyncInstallments(CreditCardStatement statement,
@@ -115,41 +102,20 @@ namespace SmartPocket.Features.CreditCardStatements.Update
             CreditCardStatementUpdateCommand command,
             CancellationToken cancellation)
         {
-            var existingChargesById = await _smartPocketContext.Query<CreditCardSubscriptionCharge>()
-                .Where(x => x.CreditCardStatementId == statement.Id)
-                .ToDictionaryAsync(x => x.Id, cancellation);
+            var desiredIds = command.SubsChargesForUpdate.Select(x => x.Id).ToHashSet();
 
-            var desiredExistingCharges = command.SubscriptionCharges
-                .Where(x => x.Id.HasValue)
-                .Select(x => new
-                {
-                    Id = x.Id.GetValueOrDefault(),
-                    x.SubscriptionId,
-                    x.ChargeNumber,
-                    x.Amount
-                })
-                .ToArray();
+            _smartPocketContext.DeleteRange(statement.SubscriptionCharges.Where(x => !desiredIds.Contains(x.Id)));
 
-            if (desiredExistingCharges.Any(x => !existingChargesById.ContainsKey(x.Id)))
-            {
-                return new ErrorDetailList("Algún cargo de suscripción no existe o no pertenece al resumen.");
-            }
+            var existingChargesById = statement.SubscriptionCharges.ToDictionary(x => x.Id);
 
-            var desiredIds = desiredExistingCharges
-                .Select(x => x.Id)
-                .ToHashSet();
-
-            _smartPocketContext.DeleteRange(existingChargesById.Values.Where(x => !desiredIds.Contains(x.Id)));
-
-            foreach (var desiredCharge in desiredExistingCharges)
+            foreach (var desiredCharge in command.SubsChargesForUpdate)
             {
                 var existingCharge = existingChargesById[desiredCharge.Id];
                 
                 existingCharge.Update(desiredCharge.ChargeNumber, desiredCharge.Amount);
             }
 
-            var chargesToAdd = command.SubscriptionCharges
-                .Where(x => !x.Id.HasValue)
+            var chargesToAdd = command.SubsChargesForCreate
                 .Select(x => new CreditCardSubscriptionCharge(
                     creditCardSubscriptionId: x.SubscriptionId,
                     creditCardStatementId: statement.Id,

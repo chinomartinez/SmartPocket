@@ -17,6 +17,8 @@ namespace SmartPocket.Domain.CreditCards
 
         public ICollection<CreditCardPurchaseInstallment> Installments { get; private set; } = new List<CreditCardPurchaseInstallment>();
 
+        public ICollection<CreditCardSubscriptionCharge> SubscriptionCharges { get; private set; } = new List<CreditCardSubscriptionCharge>();
+
         /// <summary>
         /// Uno o más pagos, uno por moneda utilizada al saldar el resumen.
         /// Ej: una Transaction en USD + una en ARS si pagaste ambas secciones por separado.

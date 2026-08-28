@@ -12,17 +12,24 @@ namespace SmartPocket.Features.CreditCardStatements.Update
 
         public int[] InstallmentIds { get; set; } = default!;
 
-        public SubscriptionChargeStatementUpdateCommand[] SubscriptionCharges { get; set; } = default!;
+        public SubsChargeForUpdateStatementUpdateCommand[] SubsChargesForUpdate { get; set; } = default!;
+
+        public SubsChargeForCreateStatementUpdateCommand[] SubsChargesForCreate { get; set; } = default!;
     }
 
-    public class SubscriptionChargeStatementUpdateCommand
+    public class SubsChargeForCreateStatementUpdateCommand
     {
-        public int? Id { get; set; }
-
         public int SubscriptionId { get; set; }
 
         public int ChargeNumber { get; set; }
 
+        public decimal Amount { get; set; }
+    }
+
+    public class SubsChargeForUpdateStatementUpdateCommand
+    {
+        public int Id { get; set; }
+        public int ChargeNumber { get; set; }
         public decimal Amount { get; set; }
     }
 }

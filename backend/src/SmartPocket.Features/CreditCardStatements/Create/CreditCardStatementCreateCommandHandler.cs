@@ -82,7 +82,7 @@ namespace SmartPocket.Features.CreditCardStatements.Create
 
             if (installments.Count != command.InstallmentIds.Length)
             {
-                return $"{nameof(command.InstallmentIds)} invalid.";
+                return "Alguna cuota no existe o no pertenece a la tarjeta del resumen.";
             }
 
             if (installments.Any(x => x.CreditCardStatementId.HasValue))

@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import DashboardPage from "@/features/dashboard/DashboardPage";
 import { PlaceholderPage } from "@/components/PlaceholderPage";
 import { AccountsPage } from "@/features/accounts/AccountsPage";
+import { CreditCardsPage } from "@/features/credit-cards/CreditCardsPage";
 import { CategoriesPage } from "@/features/categories/CategoriesPage";
 import { TransactionsPage } from "@/features/transactions/TransactionsPage";
 import { TransfersPage } from "@/features/transfers/TransfersPage";
@@ -29,6 +30,9 @@ export function AppRouter() {
 
           {/* Accounts - Gestión de Cuentas */}
           <Route path={ROUTES.ACCOUNTS} element={<AccountsPage />} />
+
+          {/* Credit Cards - Gestión de tarjetas, consumos y resúmenes */}
+          <Route path={ROUTES.CREDIT_CARDS} element={<CreditCardsPage />} />
 
           {/* Transactions - Gestión de Transacciones */}
           <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />

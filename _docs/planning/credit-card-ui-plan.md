@@ -6,9 +6,27 @@ Definir el primer diseño de interfaz para el módulo de tarjetas de crédito an
 
 Este documento describe la UI inicial. No reemplaza los FRs de la fase 3.10 del roadmap ni pretende cerrar todavía el contrato de resúmenes y pagos.
 
+## 1.1. Modelo mental del módulo
+
+Este módulo **no representa la gestión bancaria de una tarjeta**. SmartPocket no está conectado a bancos, financieras ni procesadores de pagos, por lo que no existe sincronización automática de consumos, límites, cierres o pagos.
+
+La tarjeta de crédito se trata como una cuenta financiera manual dentro de la aplicación. El usuario registra las actividades que realiza con ella para llevar su propio control, del mismo modo que registra ingresos, gastos y pagos en sus cuentas.
+
+Implicaciones para la UI:
+
+- Los datos mostrados representan registros cargados por el usuario, no información oficial del banco.
+- El límite, consumo, fechas y estados son referencias de control personal.
+- Las fechas de cierre y vencimiento pueden variar en cada resumen. La fecha configurada en la tarjeta es sólo una sugerencia o valor inicial.
+- El usuario puede corregir sus registros en la aplicación según las reglas del dominio. La UI no debe comunicar que una compra es inmutable por haber ocurrido en el mundo real.
+- Eliminar una compra en SmartPocket elimina o archiva el registro de la aplicación; no intenta cancelar la compra real realizada con la tarjeta.
+- Registrar un pago en SmartPocket registra la transacción personal asociada al resumen; no ejecuta ni verifica un pago ante el banco.
+- No se deben usar textos como "sincronizar", "actualizado por el banco", "estado de cuenta oficial" o "pago procesado".
+
+La interfaz debe comunicar control y trazabilidad personal, no autoridad bancaria. Cuando una acción tenga impacto sólo dentro de SmartPocket, ese alcance debe quedar claro en confirmaciones, empty states y mensajes de éxito.
+
 ## 2. Idea central
 
-Agregar una opción **Tarjetas de crédito** en el menú principal. La opción lleva a una pantalla única desde la cual se administra el contexto completo de una tarjeta:
+Agregar una opción **Tarjetas de crédito** en el menú principal. La opción lleva a una pantalla única desde la cual se administra el registro personal de actividad asociado a una tarjeta:
 
 - Tarjetas de crédito.
 - Compras en cuotas.

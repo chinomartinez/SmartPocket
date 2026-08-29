@@ -9,6 +9,7 @@ export const ROUTES = {
   HOME: "/",
   DASHBOARD: "/dashboard",
   ACCOUNTS: "/accounts",
+  CREDIT_CARDS: "/credit-cards",
   TRANSACTIONS: "/transactions",
   TRANSFERS: "/transfers",
   CATEGORIES: "/categories",

@@ -6,7 +6,7 @@ import {
   ChartBarIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, WalletCards } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ROUTES } from "@/router/routes";
 
@@ -20,6 +20,7 @@ const menuItems = [
   { icon: BanknotesIcon, label: "Transacciones", path: ROUTES.TRANSACTIONS },
   { icon: ArrowLeftRight, label: "Transferencias", path: ROUTES.TRANSFERS },
   { icon: CreditCardIcon, label: "Cuentas", path: ROUTES.ACCOUNTS },
+  { icon: WalletCards, label: "Tarjetas de crédito", path: ROUTES.CREDIT_CARDS },
   { icon: TagIcon, label: "Categorías", path: ROUTES.CATEGORIES },
   { icon: ChartBarIcon, label: "Reportes", path: ROUTES.REPORTS },
   { icon: Cog6ToothIcon, label: "Configuración", path: ROUTES.SETTINGS },

@@ -221,6 +221,73 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 
 ---
 
+#### 3.10: Credit Card Management
+
+**Estado:** ⏳ Pendiente
+
+**Objetivo:** Permitir al usuario administrar tarjetas de crédito y registrar el ciclo completo de sus consumos: compras en cuotas, suscripciones, armado de resúmenes y asociación de pagos reales.
+
+**Resultado de Usuario:** El usuario puede conocer el estado de sus tarjetas, registrar consumos con o sin cuotas, administrar suscripciones, revisar y confirmar los resúmenes según sus fechas reales de cierre, y registrar los pagos efectuados sin perder la trazabilidad entre compra, cuota, resumen y transacción.
+
+**Orden de Implementación:** Tarjetas → Compras y suscripciones → Preview y resúmenes → Pagos de resúmenes
+
+##### 3.10.1: Credit Card Management
+
+**FRs**
+
+- [] FR49: Crear tarjetas de crédito con nombre, moneda, límite, ícono, día de cierre sugerido y día de vencimiento
+- [] FR50: Ver listado de tarjetas de crédito con límite y estado de uso
+- [] FR51: Editar los datos configurables de una tarjeta de crédito
+- [] FR52: Eliminar tarjetas de crédito mediante soft delete
+- [] FR53: Ocultar en cascada las compras, suscripciones y cuotas asociadas a una tarjeta eliminada
+
+##### 3.10.2: Credit Card Purchases & Subscriptions
+
+**FRs**
+
+- [] FR54: Registrar compras con categoría, moneda, descripción, fecha efectiva, monto total y cantidad de cuotas
+- [] FR55: Generar todas las cuotas de una compra en cuotas al momento de crearla, con monto fijo y sin resumen asociado inicialmente
+- [] FR56: Registrar suscripciones con monto variable por período y fecha efectiva
+- [] FR57: Ver compras y suscripciones filtradas por tarjeta, tipo y estado
+- [] FR58: Editar compras y suscripciones respetando las restricciones de cuotas y resúmenes ya relacionados
+- [] FR59: Eliminar compras y suscripciones según las reglas de integridad del dominio
+- [] FR60: Cancelar suscripciones indicando fecha de cancelación y detener la generación de pagos posteriores a esa fecha
+- [] FR61: Calcular y mostrar el estado de la compra completa: en proceso, pagada o finalizada
+- [] FR62: Calcular y mostrar el estado de la suscripción: activa o cancelada
+
+##### 3.10.3: Credit Card Statements & Installments
+
+**FRs**
+
+- [] FR63: Generar un preview de resumen sin persistirlo, seleccionando una fecha de cierre real
+- [] FR64: Mostrar en el preview cuotas y pagos sugeridos dentro del rango de fechas del resumen
+- [] FR65: Mostrar en el preview cuotas y pagos atrasados que permanecen pendientes en el pool
+- [] FR66: Incluir o excluir libremente ítems sugeridos y atrasados antes de confirmar el resumen
+- [] FR67: Generar el pago del período de una suscripción al incluirla en el preview del resumen
+- [] FR68: Confirmar y crear un resumen con las cuotas y pagos seleccionados
+- [] FR69: Ver resúmenes ordenados por fecha de cierre, con estado cerrado o pagado
+- [] FR70: Editar o eliminar resúmenes cerrados sin pagar, devolviendo sus cuotas al pool
+- [] FR71: Impedir cambios sobre las cuotas incluidas en un resumen pagado
+
+##### 3.10.4: Credit Card Statement Payments
+
+**FRs**
+
+- [] FR72: Registrar uno o más pagos para un resumen mediante transacciones asociadas
+- [] FR73: Registrar pagos de un resumen en moneda corriente y/o dólar
+- [] FR74: Ver para cada resumen el total incluido, el total efectivamente pagado y la diferencia calculada
+- [] FR75: Editar los datos de las transacciones asociadas a un resumen pagado
+- [] FR76: Editar el monto del pago de una suscripción individual dentro de un resumen pagado
+- [] FR77: Eliminar un resumen pagado con confirmación explícita, incluyendo sus transacciones asociadas y devolviendo sus cuotas al pool
+
+**Referencias:**
+
+- Diseño funcional: `backend/src/SmartPocket.Domain/CreditCards/smart-pocket-tarjeta-credito-diseno.md`
+- Endpoints actuales: `CreditCardsController`, `CreditCardPurchasesController`, `CreditCardSubscriptionsController` y `CreditCardStatementsController`
+- Las cuotas no se gestionan como un CRUD independiente: se generan desde las compras y se asignan o liberan al confirmar, editar o eliminar resúmenes.
+
+---
+
 #### Non-Functional Requirements
 
 #### Performance

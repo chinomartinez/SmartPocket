@@ -30,6 +30,10 @@ namespace SmartPocket.Features.CreditCardStatements.Update
                 .Must(x => x != default)
                 .WithMessage("La fecha de cierre es obligatoria.");
 
+            RuleFor(x => x.DueDate)
+                .Must(x => x != default)
+                .WithMessage("La fecha de vencimiento es obligatoria.");
+
             RuleFor(x => x.InstallmentIds)
                 .CascadeStop()
                 .NotNull()

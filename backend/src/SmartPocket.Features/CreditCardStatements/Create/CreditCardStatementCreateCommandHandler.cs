@@ -38,7 +38,9 @@ namespace SmartPocket.Features.CreditCardStatements.Create
 
                 var statement = new CreditCardStatement(
                     creditCardId: command.CreditCardId,
-                    description: command.Description);
+                    description: command.Description,
+                    closingDate: command.ClosingDate,
+                    dueDate: command.DueDate);
 
                 _smartPocketContext.AddEntity(statement);
 

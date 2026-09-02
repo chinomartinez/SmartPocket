@@ -29,6 +29,7 @@ namespace SmartPocket.WebApi.Controllers
             var command = new CreditCardStatementUpdateCommand
             {
                 ClosingDate = body.ClosingDate,
+                DueDate = body.DueDate,
                 CreditCardId = body.CreditCardId,
                 Description = body.Description,
                 Id = id,
@@ -52,6 +53,8 @@ namespace SmartPocket.WebApi.Controllers
             public string Description { get; set; } = default!;
 
             public DateTime ClosingDate { get; set; }
+
+            public DateTime DueDate { get; set; }
 
             public int[] InstallmentIds { get; set; } = default!;
 

@@ -42,7 +42,7 @@ namespace SmartPocket.Features.CreditCardStatements.Update
                 return new ErrorDetailList("No se puede cambiar la tarjeta del resumen.");
             }
 
-            statement.Update(command.Description, command.ClosingDate);
+            statement.Update(command.Description, command.ClosingDate, command.DueDate);
 
             var installmentsError = await SyncInstallments(statement, command, cancellation);
             if (installmentsError is not null) return installmentsError;

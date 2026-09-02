@@ -11,7 +11,7 @@ namespace SmartPocket.Domain.CreditCards
         public string Description { get; private set; } = string.Empty;
 
         public DateTime ClosingDate { get; private set; }
-        public DateTime? DueDate { get; private set; }
+        public DateTime DueDate { get; private set; }
 
         public CreditCardStatementStatus Status { get; private set; }
 
@@ -27,18 +27,20 @@ namespace SmartPocket.Domain.CreditCards
 
         private CreditCardStatement() { }
 
-        public CreditCardStatement(int creditCardId, string description, DateTime? closingDate = null)
+        public CreditCardStatement(int creditCardId, string description, DateTime closingDate, DateTime dueDate)
         {
             CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
             Description = description;
-            ClosingDate = closingDate ?? DateTime.UtcNow;
+            ClosingDate = closingDate;
+            DueDate = dueDate;
             Status = CreditCardStatementStatus.Closed;
         }
 
-        public void Update(string description, DateTime closingDate)
+        public void Update(string description, DateTime closingDate, DateTime dueDate)
         {
             Description = description;
             ClosingDate = closingDate;
+            DueDate = dueDate;
         }
 
         public void PaidStatement()
@@ -47,7 +49,6 @@ namespace SmartPocket.Domain.CreditCards
                 throw new InvalidOperationException("Only closed statements can be paid.");
 
             Status = CreditCardStatementStatus.Paid;
-            DueDate = DateTime.UtcNow;
         }
 
         public void PaidPartiallyStatement()

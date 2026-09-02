@@ -6,6 +6,10 @@
 
         public string Description { get; set; } = default!;
 
+        public DateTime ClosingDate { get; set; }
+
+        public DateTime DueDate { get; set; }
+
         public int[] InstallmentIds { get; set; } = default!;
 
         public SubscriptionChargeStatementCreateCommand[] SubscriptionCharges { get; set; } = default!;

@@ -10,6 +10,8 @@ namespace SmartPocket.Features.CreditCardStatements.Update
 
         public DateTime ClosingDate { get; set; }
 
+        public DateTime DueDate { get; set; }
+
         public int[] InstallmentIds { get; set; } = default!;
 
         public SubsChargeForUpdateStatementUpdateCommand[] SubsChargesForUpdate { get; set; } = default!;

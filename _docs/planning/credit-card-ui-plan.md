@@ -56,7 +56,8 @@ Cada card debería mostrar, como mínimo:
 - Moneda.
 - Límite de crédito.
 - Un resumen visual de uso disponible o consumos, si el endpoint lo permite.
-- Día de cierre y día de vencimiento.
+- Rango habitual de cierre.
+- Rango habitual de vencimiento.
 - Indicador visual de tarjeta seleccionada.
 - Menú de acciones para editar y eliminar.
 
@@ -139,7 +140,7 @@ Esta sección forma parte del primer layout, pero su contenido exacto queda suje
 Usar un listado compacto por resumen, con información suficiente para identificarlo sin competir visualmente con las compras:
 
 - Fecha de cierre.
-- Fecha de vencimiento, si está disponible.
+- Fecha de vencimiento real.
 - Estado: cerrado o pagado.
 - Total incluido.
 - Total pagado, si está disponible.
@@ -155,10 +156,11 @@ El flujo previsto para crear un resumen es:
 
 1. El usuario inicia **Nuevo resumen** para la tarjeta seleccionada.
 2. Selecciona o confirma la fecha de cierre real.
-3. La UI consulta un preview no persistido.
-4. Se muestran grupos de ítems sugeridos y atrasados.
-5. El usuario incluye o excluye cuotas y pagos.
-6. El usuario confirma y se crea el resumen.
+3. Selecciona o confirma la fecha de vencimiento real.
+4. La UI consulta un preview no persistido.
+5. Se muestran grupos de ítems sugeridos y atrasados.
+6. El usuario incluye o excluye cuotas y pagos.
+7. El usuario confirma y se crea el resumen.
 
 El preview debe diferenciar visualmente sugeridos de atrasados y mantener visible el origen del consumo. No se debe implementar como un formulario de cuotas independientes.
 
@@ -269,7 +271,46 @@ La estructura puede ajustarse a las convenciones actuales del proyecto. Los serv
 - Totales incluido/pagado/diferencia.
 - Edición y eliminación con confirmaciones.
 
-## 10. Decisiones abiertas
+## 10. Fechas de tarjetas y resúmenes
+
+### 10.1 Rangos habituales de la tarjeta
+
+El CRUD de tarjetas utiliza dos rangos de días:
+
+- `StatementClosingRange`: rango habitual de cierre.
+- `PaymentDueRange`: rango habitual de vencimiento.
+
+Cada rango tiene un `StartDay` y un `EndDay`, ambos entre `1` y `31`. Se permite que el inicio sea mayor que el final para representar rangos que cruzan el fin de mes. Por ejemplo, `26 -> 2` representa del 26 al 2 del mes siguiente.
+
+En la card de la tarjeta deben mostrarse como referencias, nunca como fechas exactas:
+
+```text
+Cierre habitual: 26 al 2
+Vencimiento habitual: 4 al 13
+```
+
+Debe utilizarse lenguaje como `habitual`, `sugerido` o `rango de referencia`. No debe mostrarse como `cierra el 26` ni `vence el 4`.
+
+### 10.2 Fechas reales del resumen
+
+Cada resumen tiene sus propias fechas reales y ambas son obligatorias:
+
+- `ClosingDate`: fecha real de cierre del resumen.
+- `DueDate`: fecha real de vencimiento del resumen.
+
+El formulario de creación y edición de resúmenes debe mostrar ambos campos. La UI puede usar los rangos de la tarjeta para proponer valores iniciales, pero el usuario debe poder modificar las dos fechas antes de guardar.
+
+El preview se calcula utilizando el `ClosingDate` confirmado para ese resumen. Los rangos habituales de la tarjeta no reemplazan las fechas reales y no deben utilizarse para afirmar cuál será el próximo cierre.
+
+### 10.3 Impacto en la UI actual
+
+- Reemplazar en las cards los valores puntuales de cierre/vencimiento por sus rangos habituales.
+- Mantener una etiqueta o ayuda visual que indique que son referencias manuales.
+- Mantener eliminada la sección `Próximo cierre`, porque sería redundante y podría comunicar una precisión inexistente.
+- Mostrar en el listado de resúmenes las fechas concretas de cada resumen.
+- Evitar lenguaje de sincronización bancaria: todos los datos son registros manuales del usuario.
+
+## 11. Decisiones abiertas
 
 - Qué métricas mostrar en cada card de tarjeta: límite usado, disponible, total pendiente u otra combinación.
 - Si el detalle de la tarjeta usa tabs, secciones apiladas o un layout con dos columnas.
@@ -280,7 +321,7 @@ La estructura puede ajustarse a las convenciones actuales del proyecto. Los serv
 - Qué endpoints de resumen y pagos estarán disponibles antes de comenzar la Iteración 3.
 - Colores y badges definitivos para estados de compras y suscripciones.
 
-## 11. Criterios para pasar a implementación
+## 12. Criterios para pasar a implementación
 
 - Confirmar la información mínima de la card de tarjeta.
 - Confirmar si compras y suscripciones comparten listado o tienen tabs/filtros.
@@ -289,7 +330,7 @@ La estructura puede ajustarse a las convenciones actuales del proyecto. Los serv
 - Validar el flujo mobile del carrusel y de los formularios.
 - Mantener los cambios de FRs del roadmap sincronizados si las decisiones de producto modifican el alcance.
 
-## 12. Referencias
+## 13. Referencias
 
 - `_docs/planning/roadmap.md`, fase 3.10.
 - `backend/src/SmartPocket.Domain/CreditCards/smart-pocket-tarjeta-credito-diseno.md`.

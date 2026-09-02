@@ -44,8 +44,8 @@ namespace SmartPocket.WebApi.Controllers
                 Icon = command.Icon,
                 CurrencyCode = command.CurrencyCode,
                 CreditLimit = command.CreditLimit,
-                StatementClosingDay = command.StatementClosingDay,
-                PaymentDueDay = command.PaymentDueDay
+                StatementClosingRange = command.StatementClosingRange,
+                PaymentDueRange = command.PaymentDueRange
             };
 
             var result = await handler.Update(updateCommand, cancellation);

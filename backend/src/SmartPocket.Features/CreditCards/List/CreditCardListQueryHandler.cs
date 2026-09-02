@@ -29,8 +29,16 @@ namespace SmartPocket.Features.CreditCards.List
                     },
                     CurrencyCode = x.CurrencyCode,
                     CreditLimit = x.CreditLimit,
-                    StatementClosingDay = x.StatementClosingDay,
-                    PaymentDueDay = x.PaymentDueDay
+                    StatementClosingRange = new()
+                    {
+                        StartDay = x.StatementClosingRange.StartDay,
+                        EndDay = x.StatementClosingRange.EndDay
+                    },
+                    PaymentDueRange = new()
+                    {
+                        StartDay = x.PaymentDueRange.StartDay,
+                        EndDay = x.PaymentDueRange.EndDay
+                    }
                 })
                 .ToListAsync(cancellation);
         }

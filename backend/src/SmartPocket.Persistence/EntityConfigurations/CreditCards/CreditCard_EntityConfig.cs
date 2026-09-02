@@ -17,8 +17,17 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
 
             // Los coloco solamente para saber que estas props tambien se configuran en la tabla
             builder.Property(x => x.CreditLimit).HasPrecision(18, 2);
-            builder.Property(x => x.StatementClosingDay);
-            builder.Property(x => x.PaymentDueDay);
+            builder.ComplexProperty(x => x.StatementClosingRange, rangeBuilder =>
+            {
+                rangeBuilder.Property(x => x.StartDay).IsRequired();
+                rangeBuilder.Property(x => x.EndDay).IsRequired();
+            });
+
+            builder.ComplexProperty(x => x.PaymentDueRange, rangeBuilder =>
+            {
+                rangeBuilder.Property(x => x.StartDay).IsRequired();
+                rangeBuilder.Property(x => x.EndDay).IsRequired();
+            });
 
             builder.HasMany(x => x.Purchases)
                 .WithOne(x => x.CreditCard)

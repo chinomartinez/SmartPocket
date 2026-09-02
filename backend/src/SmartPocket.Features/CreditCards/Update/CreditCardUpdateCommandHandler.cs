@@ -36,6 +36,18 @@ namespace SmartPocket.Features.CreditCards.Update
                 return validations.Errors;
             }
 
+            entity.Update(
+                name: command.Name,
+                icon: command.Icon.ToDomainIcon(),
+                currencyCode: command.CurrencyCode,
+                creditLimit: command.CreditLimit,
+                statementClosingRange: new DayRange(
+                    command.StatementClosingRange.StartDay,
+                    command.StatementClosingRange.EndDay),
+                paymentDueRange: new DayRange(
+                    command.PaymentDueRange.StartDay,
+                    command.PaymentDueRange.EndDay));
+
             await _smartPocketContext.SaveChangesAsync(cancellation);
 
             return ErrorDetailList.Empty;

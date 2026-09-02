@@ -30,8 +30,12 @@ namespace SmartPocket.Features.CreditCards.Create
                 icon: command.Icon.ToDomainIcon(),
                 currencyCode: command.CurrencyCode,
                 creditLimit: command.CreditLimit,
-                statementClosingDay: command.StatementClosingDay,
-                paymentDueDay: command.PaymentDueDay);
+                statementClosingRange: new DayRange(
+                    command.StatementClosingRange.StartDay,
+                    command.StatementClosingRange.EndDay),
+                paymentDueRange: new DayRange(
+                    command.PaymentDueRange.StartDay,
+                    command.PaymentDueRange.EndDay));
 
             _smartPocketContext.AddEntity(entity);
 

@@ -25,11 +25,13 @@ namespace SmartPocket.Features.CreditCards.Update
             RuleFor(x => x.CreditLimit)
                 .GreaterThanOrEqualTo(0);
 
-            RuleFor(x => x.StatementClosingDay)
-                .InclusiveBetween(1, 31);
+            RuleFor(x => x.StatementClosingRange)
+                .NotNull()
+                .SetValidator(new DayRangeDTOValidator());
 
-            RuleFor(x => x.PaymentDueDay)
-                .InclusiveBetween(1, 31);
+            RuleFor(x => x.PaymentDueRange)
+                .NotNull()
+                .SetValidator(new DayRangeDTOValidator());
         }
     }
 }

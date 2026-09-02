@@ -1,4 +1,5 @@
 ﻿using SmartPocket.Features.Shared.Icons;
+using SmartPocket.Features.CreditCards;
 
 namespace SmartPocket.Features.CreditCards.List
 {
@@ -9,7 +10,7 @@ namespace SmartPocket.Features.CreditCards.List
         public IconDTO Icon { get; set; } = null!;
         public string CurrencyCode { get; set; } = null!;
         public decimal CreditLimit { get; set; }
-        public int StatementClosingDay { get; set; }
-        public int PaymentDueDay { get; set; }
+        public DayRangeDTO StatementClosingRange { get; set; } = null!;
+        public DayRangeDTO PaymentDueRange { get; set; } = null!;
     }
 }

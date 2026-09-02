@@ -11,16 +11,16 @@ namespace SmartPocket.Domain.CreditCards
         public decimal CreditLimit { get; private set; } // Límite de la tarjeta
 
         /// <summary>
-        /// Día habitual de cierre. Usado como sugerencia al crear un nuevo resumen.
+        /// Rango habitual de cierre. Usado como sugerencia al crear un nuevo resumen.
         /// La fecha real queda en CreditCardStatement.ClosingDate.
         /// </summary>
-        public int StatementClosingDay { get; private set; }
+        public DayRange StatementClosingRange { get; private set; }
 
         /// <summary>
-        /// Día habitual de vencimiento. Usado como sugerencia al crear un nuevo resumen.
+        /// Rango habitual de vencimiento. Usado como sugerencia al crear un nuevo resumen.
         /// La fecha real queda en CreditCardStatement.DueDate.
         /// </summary>
-        public int PaymentDueDay { get; private set; }
+        public DayRange PaymentDueRange { get; private set; }
 
         public ICollection<CreditCardPurchase> Purchases { get; private set; } = new List<CreditCardPurchase>();
         public ICollection<CreditCardStatement> Statements { get; private set; } = new List<CreditCardStatement>();
@@ -30,25 +30,25 @@ namespace SmartPocket.Domain.CreditCards
             // Para EF Core
         }
 
-        public CreditCard(string name, Icon icon, string currencyCode, decimal creditLimit, int statementClosingDay, int paymentDueDay)
+        public CreditCard(string name, Icon icon, string currencyCode, decimal creditLimit, DayRange statementClosingRange, DayRange paymentDueRange)
         {
             Update(name: name,
                 icon: icon,
                 currencyCode: currencyCode,
                 creditLimit: creditLimit,
-                statementClosingDay: statementClosingDay,
-                paymentDueDay: paymentDueDay
+                statementClosingRange: statementClosingRange,
+                paymentDueRange: paymentDueRange
             );
         }
 
-        public void Update(string name, Icon icon, string currencyCode, decimal creditLimit, int statementClosingDay, int paymentDueDay)
+        public void Update(string name, Icon icon, string currencyCode, decimal creditLimit, DayRange statementClosingRange, DayRange paymentDueRange)
         {
             Name = name.GetIfNotNullOrWhiteSpace(nameof(name));
             Icon = icon;
             CurrencyCode = currencyCode.GetIfNotNullOrWhiteSpace(nameof(currencyCode));
             CreditLimit = creditLimit;
-            StatementClosingDay = statementClosingDay;
-            PaymentDueDay = paymentDueDay;
+            StatementClosingRange = statementClosingRange;
+            PaymentDueRange = paymentDueRange;
         }
     }
 }

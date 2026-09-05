@@ -8,6 +8,7 @@ import {
   Info,
   Filter,
   MoreHorizontal,
+  Pencil,
   Plus,
   Search,
   Sparkles,
@@ -15,6 +16,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CreditCardFormDialog } from "./CreditCardFormDialog";
+import type { CreditCardFormValues } from "./creditCardSchema";
 
 type CardTheme = "violet" | "blue" | "amber";
 
@@ -165,7 +168,10 @@ const themeClasses: Record<CardTheme, string> = {
 export function CreditCardsPage() {
   const [selectedCardId, setSelectedCardId] = useState(1);
   const [filter, setFilter] = useState<"Todos" | "Compras" | "Suscripciones">("Todos");
+  const [cardDialogOpen, setCardDialogOpen] = useState(false);
+  const [editingCardId, setEditingCardId] = useState<number | null>(null);
   const selectedCard = creditCards.find((card) => card.id === selectedCardId) ?? creditCards[0];
+  const editingCard = creditCards.find((card) => card.id === editingCardId);
   const visiblePurchases = purchases.filter(
     (purchase) =>
       filter === "Todos" ||
@@ -174,6 +180,26 @@ export function CreditCardsPage() {
   );
   const estimatedAvailable = Math.max(0, selectedCard.limit - selectedCard.pending);
   const estimatedUsage = Math.round((selectedCard.pending / selectedCard.limit) * 100);
+  const editingCardFormValues: CreditCardFormValues | undefined = editingCard
+    ? {
+        name: editingCard.name,
+        icon: { code: "credit-card", colorHex: "#3B82F6" },
+        currencyCode: editingCard.currency,
+        creditLimit: editingCard.limit,
+        statementClosingRange: editingCard.closingRange,
+        paymentDueRange: editingCard.dueRange,
+      }
+    : undefined;
+
+  const openCreateCardDialog = () => {
+    setEditingCardId(null);
+    setCardDialogOpen(true);
+  };
+
+  const openEditCardDialog = () => {
+    setEditingCardId(selectedCard.id);
+    setCardDialogOpen(true);
+  };
 
   return (
     <div className="space-y-8 pb-8">
@@ -190,7 +216,7 @@ export function CreditCardsPage() {
             Un solo lugar para seguir tus consumos, cuotas y próximos resúmenes.
           </p>
         </div>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" onClick={openCreateCardDialog}>
           <Plus className="size-4" />
           Agregar tarjeta
         </Button>
@@ -268,6 +294,7 @@ export function CreditCardsPage() {
           })}
           <button
             type="button"
+            onClick={openCreateCardDialog}
             className="flex min-h-[187px] w-[285px] shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-sp-blue-400/35 bg-sp-blue-500/5 text-center transition-colors hover:border-sp-blue-400 hover:bg-sp-blue-500/10 lg:w-auto"
           >
             <span className="flex size-11 items-center justify-center rounded-full bg-sp-blue-500/15 text-sp-blue-400">
@@ -338,6 +365,11 @@ export function CreditCardsPage() {
                  <span className="text-xs font-medium text-foreground">{estimatedUsage}%</span>
               </div>
             </div>
+          </div>
+          <div className="mt-5 flex justify-end border-t border-border-subtle pt-4">
+            <Button variant="outline" size="sm" onClick={openEditCardDialog}>
+              <Pencil className="size-4" /> Editar tarjeta
+            </Button>
           </div>
         </div>
       </section>
@@ -511,6 +543,12 @@ export function CreditCardsPage() {
           </div>
         </section>
       </div>
+
+      <CreditCardFormDialog
+        card={editingCardFormValues}
+        open={cardDialogOpen}
+        onOpenChange={setCardDialogOpen}
+      />
     </div>
   );
 }

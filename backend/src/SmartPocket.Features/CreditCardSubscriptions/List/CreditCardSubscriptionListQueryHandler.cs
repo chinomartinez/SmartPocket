@@ -25,8 +25,8 @@ namespace SmartPocket.Features.CreditCardSubscriptions.List
 
             query = query
                 .Where(x =>
-                    x.IsActive == filters.IncludeActive ||
-                    x.IsCancelled == filters.IncludeCancelled
+                    (filters.IncludeActive && !x.IsCancelled) ||
+                    (filters.IncludeCancelled && x.IsCancelled)
                 );
 
             return query

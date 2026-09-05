@@ -23,6 +23,9 @@ namespace SmartPocket.Domain.CreditCards
         public DayRange PaymentDueRange { get; private set; }
 
         public ICollection<CreditCardPurchase> Purchases { get; private set; } = new List<CreditCardPurchase>();
+
+        public ICollection<CreditCardSubscription> Subscriptions { get; private set; } = new List<CreditCardSubscription>();
+
         public ICollection<CreditCardStatement> Statements { get; private set; } = new List<CreditCardStatement>();
 
         private CreditCard()

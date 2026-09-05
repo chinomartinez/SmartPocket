@@ -24,12 +24,17 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
             builder.HasMany(s => s.Installments)
                 .WithOne(i => i.CreditCardStatement)
                 .HasForeignKey(i => i.CreditCardStatementId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(s => s.SubscriptionCharges)
+                .WithOne(c => c.CreditCardStatement)
+                .HasForeignKey(c => c.CreditCardStatementId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             builder.HasMany(s => s.Payments)
                 .WithOne(p => p.CreditCardStatement)
                 .HasForeignKey(p => p.CreditCardStatementId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(s => s.Status)
                 .HasConversion<string>()

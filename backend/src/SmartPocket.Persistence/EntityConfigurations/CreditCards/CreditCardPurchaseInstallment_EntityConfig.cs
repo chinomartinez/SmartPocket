@@ -4,7 +4,7 @@ using SmartPocket.Domain.CreditCards;
 
 namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
 {
-    internal class CreditCardInstallment_EntityConfig : IEntityTypeConfiguration<CreditCardPurchaseInstallment>
+    internal class CreditCardPurchaseInstallment_EntityConfig : IEntityTypeConfiguration<CreditCardPurchaseInstallment>
     {
         public void Configure(EntityTypeBuilder<CreditCardPurchaseInstallment> builder)
         {
@@ -16,7 +16,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
             builder.HasOne(i => i.CreditCardStatement)
                 .WithMany(s => s.Installments)
                 .HasForeignKey(i => i.CreditCardStatementId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasIndex(i => new { i.CreditCardPurchaseId, i.Number })
                 .IsUnique();

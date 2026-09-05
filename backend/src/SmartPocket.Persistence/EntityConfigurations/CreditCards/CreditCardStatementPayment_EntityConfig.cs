@@ -11,7 +11,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
             builder.HasOne(p => p.CreditCardStatement)
                 .WithMany(s => s.Payments)
                 .HasForeignKey(p => p.CreditCardStatementId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
             
             builder.HasOne(p => p.Transaction)
                 .WithMany()

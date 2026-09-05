@@ -17,6 +17,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
 
             // Los coloco solamente para saber que estas props tambien se configuran en la tabla
             builder.Property(x => x.CreditLimit).HasPrecision(18, 2);
+
             builder.ComplexProperty(x => x.StatementClosingRange, rangeBuilder =>
             {
                 rangeBuilder.Property(x => x.StartDay).IsRequired();
@@ -30,6 +31,11 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
             });
 
             builder.HasMany(x => x.Purchases)
+                .WithOne(x => x.CreditCard)
+                .HasForeignKey(x => x.CreditCardId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(x => x.Subscriptions)
                 .WithOne(x => x.CreditCard)
                 .HasForeignKey(x => x.CreditCardId)
                 .OnDelete(DeleteBehavior.Cascade);

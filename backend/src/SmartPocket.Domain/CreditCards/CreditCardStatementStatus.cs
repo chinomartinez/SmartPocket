@@ -2,7 +2,7 @@
 {
     public enum CreditCardStatementStatus
     {
-        Closed = 2, // El resumen se cerró pero aún no se pagó
-        Paid = 3 // Pagaste el resumen completo
+        Closed = 1, // El resumen se cerró pero aún no se pagó
+        Paid = 2 // Pagaste el resumen completo
     }
 }

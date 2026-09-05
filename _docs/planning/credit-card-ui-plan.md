@@ -86,6 +86,21 @@ Debajo del selector se muestra el detalle de la tarjeta activa. El contenido se 
 
 El contenido debe actualizarse al cambiar de tarjeta sin recargar la página completa.
 
+### 3.4 Formulario de tarjeta
+
+El flujo de crear y editar tarjeta utiliza un dialog reutilizable y contiene únicamente datos propios del modelo actual:
+
+- Nombre.
+- Ícono y color.
+- Moneda.
+- Límite configurado.
+- Rango habitual de cierre.
+- Rango habitual de vencimiento.
+
+Los rangos se editan como día inicial y día final. Debe permitirse un rango que cruce el fin de mes, como `26 al 2`. El formulario debe explicar que son referencias habituales y no fechas confirmadas por un banco.
+
+El formulario ya está maquetado con datos locales, pero todavía no está conectado al CRUD del backend.
+
 ## 4. Sección Compras y Suscripciones
 
 ### 4.1 Encabezado y acciones
@@ -309,6 +324,39 @@ El preview se calcula utilizando el `ClosingDate` confirmado para ese resumen. L
 - Mantener eliminada la sección `Próximo cierre`, porque sería redundante y podría comunicar una precisión inexistente.
 - Mostrar en el listado de resúmenes las fechas concretas de cada resumen.
 - Evitar lenguaje de sincronización bancaria: todos los datos son registros manuales del usuario.
+
+### 10.4 Métricas estimadas de la tarjeta
+
+El bloque de la tarjeta seleccionada puede mostrar métricas calculadas por SmartPocket, pero no datos reales de la entidad emisora:
+
+- `Pendiente registrado`.
+- `Disponible estimado`.
+- `Uso estimado del límite`.
+
+El pendiente se calcula únicamente en la moneda base de la tarjeta y considera obligaciones registradas que todavía están pendientes. No debe sumar indiscriminadamente compras históricas ni presentarse como el consumo real informado por el banco.
+
+La UI debe mostrar una ayuda contextual similar a:
+
+```text
+Estimación basada en los registros pendientes de SmartPocket. No representa el disponible real informado por el banco.
+```
+
+El backend dispone de la consulta:
+
+```text
+GET /CreditCards/{id}/overview
+```
+
+La UI todavía no consume este endpoint; las métricas actuales son mock data para validar el diseño.
+
+### 10.5 Estado actual de implementación
+
+- El selector/carrusel de tarjetas está maquetado.
+- El formulario de crear/editar tarjeta está maquetado.
+- Las métricas estimadas están representadas con datos mock.
+- El listado de compras, suscripciones y resúmenes continúa siendo visual y no está conectado a API.
+- El CRUD de tarjetas y el endpoint `overview` todavía requieren integración frontend.
+- Los resúmenes utilizan conceptualmente los estados `Closed` y `Paid`.
 
 ## 11. Decisiones abiertas
 

@@ -51,12 +51,5 @@ namespace SmartPocket.Domain.CreditCards
             Status = CreditCardStatementStatus.Paid;
         }
 
-        public void PaidPartiallyStatement()
-        {
-            if (Status != CreditCardStatementStatus.Closed)
-                throw new InvalidOperationException("Only closed statements can be marked as partially paid.");
-
-            Status = CreditCardStatementStatus.PartiallyPaid;
-        }
     }    
 }

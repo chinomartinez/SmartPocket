@@ -2,6 +2,7 @@
 using SmartPocket.Features.CreditCards.Create;
 using SmartPocket.Features.CreditCards.Delete;
 using SmartPocket.Features.CreditCards.List;
+using SmartPocket.Features.CreditCards.Overview;
 using SmartPocket.Features.CreditCards.Update;
 using SmartPocket.WebApi.Extensions;
 
@@ -28,6 +29,16 @@ namespace SmartPocket.WebApi.Controllers
         {
             var result = await handler.Create(command, cancellation);
             return result.ToActionResult();
+        }
+
+        [HttpGet("{id}/overview")]
+        public async Task<ActionResult<CreditCardOverviewDTO>> Overview(
+            [FromServices] CreditCardOverviewQueryHandler handler,
+            [FromRoute] int id,
+            CancellationToken cancellation)
+        {
+            var result = await handler.Get(id, cancellation);
+            return result is null ? NotFound() : Ok(result);
         }
 
         [HttpPut("{id}")]

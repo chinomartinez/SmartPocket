@@ -32,12 +32,6 @@ namespace SmartPocket.Domain.CreditCards
 
         public DateOnly? FinishedAt { get; private set; }
 
-        public bool IsPaidOff => PaidOffAt.HasValue;
-
-        public bool IsFinished => FinishedAt.HasValue;
-
-        public bool IsActive => !IsPaidOff && !IsFinished;
-
         public ICollection<CreditCardPurchaseInstallment> Installments { get; private set; } = [];
 
         private CreditCardPurchase()

@@ -25,9 +25,9 @@ namespace SmartPocket.Features.CreditCardPurchases.List
 
             query = query
                 .Where(x =>
-                    x.IsActive == filters.IncludeActive ||
-                    x.IsPaidOff == filters.IncludePaidOff ||
-                    x.IsFinished == filters.IncludeFinished
+                   (filters.IncludeActive && !x.PaidOffAt.HasValue && !x.FinishedAt.HasValue) ||
+                   (filters.IncludePaidOff && x.PaidOffAt.HasValue) ||
+                   (filters.IncludeFinished && x.FinishedAt.HasValue)
                 );
 
             return query
@@ -56,7 +56,7 @@ namespace SmartPocket.Features.CreditCardPurchases.List
                     EffectiveDate = x.EffectiveDate,
                     PaidOffAt = x.PaidOffAt,
                     FinishedAt = x.FinishedAt,
-                    IsActive = x.IsActive,
+                    IsActive = !x.PaidOffAt.HasValue && !x.FinishedAt.HasValue,
 
                     InstallmentsCount = x.Installments.Count,
                     InstallmentsPaidCount = x.Installments

@@ -1,15 +1,14 @@
 import { useState } from "react";
 import {
-  ArrowDownRight,
   CalendarDays,
   Check,
   ChevronRight,
   CreditCard,
   Ellipsis,
+  Info,
   Filter,
   MoreHorizontal,
   Plus,
-  Receipt,
   Search,
   Sparkles,
   WalletCards,
@@ -26,9 +25,9 @@ interface CreditCardMock {
   lastFour: string;
   currency: string;
   limit: number;
-  used: number;
-  closingDay: number;
-  dueDay: number;
+  pending: number;
+  closingRange: { startDay: number; endDay: number };
+  dueRange: { startDay: number; endDay: number };
   theme: CardTheme;
 }
 
@@ -52,9 +51,9 @@ const creditCards: CreditCardMock[] = [
     lastFour: "4821",
     currency: "ARS",
     limit: 2500000,
-    used: 684500,
-    closingDay: 14,
-    dueDay: 5,
+    pending: 684500,
+    closingRange: { startDay: 26, endDay: 2 },
+    dueRange: { startDay: 4, endDay: 13 },
     theme: "violet",
   },
   {
@@ -64,9 +63,9 @@ const creditCards: CreditCardMock[] = [
     lastFour: "9037",
     currency: "ARS",
     limit: 1800000,
-    used: 422300,
-    closingDay: 22,
-    dueDay: 10,
+    pending: 422300,
+    closingRange: { startDay: 20, endDay: 24 },
+    dueRange: { startDay: 4, endDay: 10 },
     theme: "blue",
   },
   {
@@ -76,9 +75,9 @@ const creditCards: CreditCardMock[] = [
     lastFour: "1164",
     currency: "USD",
     limit: 4500,
-    used: 1180,
-    closingDay: 8,
-    dueDay: 28,
+    pending: 1180,
+    closingRange: { startDay: 7, endDay: 9 },
+    dueRange: { startDay: 25, endDay: 28 },
     theme: "amber",
   },
 ];
@@ -173,8 +172,8 @@ export function CreditCardsPage() {
       (filter === "Compras" && purchase.type === "Compra") ||
       (filter === "Suscripciones" && purchase.type === "Suscripción"),
   );
-  const available = selectedCard.limit - selectedCard.used;
-  const usage = Math.round((selectedCard.used / selectedCard.limit) * 100);
+  const estimatedAvailable = Math.max(0, selectedCard.limit - selectedCard.pending);
+  const estimatedUsage = Math.round((selectedCard.pending / selectedCard.limit) * 100);
 
   return (
     <div className="space-y-8 pb-8">
@@ -213,7 +212,6 @@ export function CreditCardsPage() {
         <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 md:mx-0 md:px-0 lg:grid lg:grid-cols-4 lg:overflow-visible">
           {creditCards.map((card) => {
             const isSelected = card.id === selectedCardId;
-            const cardAvailable = card.limit - card.used;
             return (
               <article key={card.id} className="w-[285px] shrink-0 snap-start lg:w-auto">
                 <div
@@ -244,9 +242,9 @@ export function CreditCardsPage() {
                     </div>
                     <div className="relative mt-5 flex items-end justify-between text-xs">
                       <div>
-                        <p className="text-white/50">Límite disponible</p>
-                        <p className="mt-1 text-base font-semibold">
-                          {formatAmount(cardAvailable, card.currency)}
+                         <p className="text-white/50">Límite configurado</p>
+                         <p className="mt-1 text-base font-semibold">
+                           {formatAmount(card.limit, card.currency)}
                         </p>
                       </div>
                       <span className="rounded-full bg-white/10 px-2 py-1 font-medium">
@@ -256,7 +254,7 @@ export function CreditCardsPage() {
                   </button>
                   <div className="flex items-center justify-between bg-surface-container-high/80 px-4 py-2.5 text-xs text-text-quaternary">
                     <span>
-                      Cierra {card.closingDay} / vence {card.dueDay}
+                       Cierre habitual: {card.closingRange.startDay} al {card.closingRange.endDay} · vence {card.dueRange.startDay} al {card.dueRange.endDay}
                     </span>
                     {isSelected && (
                       <span className="flex items-center gap-1 font-medium text-sp-blue-400">
@@ -315,27 +313,29 @@ export function CreditCardsPage() {
           </div>
           <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3">
             <div>
-              <p className="text-xs text-text-quaternary">Consumido</p>
-              <p className="mt-1 font-semibold text-foreground">
-                {formatAmount(selectedCard.used, selectedCard.currency)}
-              </p>
+               <p className="flex items-center gap-1 text-xs text-text-quaternary" title="Estimación basada en los registros pendientes de SmartPocket. No representa el disponible real informado por el banco.">
+                 Pendiente registrado <Info className="size-3.5" />
+               </p>
+               <p className="mt-1 font-semibold text-foreground">
+                 {formatAmount(selectedCard.pending, selectedCard.currency)}
+               </p>
             </div>
             <div>
-              <p className="text-xs text-text-quaternary">Disponible</p>
-              <p className="mt-1 font-semibold text-emerald-400">
-                {formatAmount(available, selectedCard.currency)}
+               <p className="text-xs text-text-quaternary">Disponible estimado</p>
+               <p className="mt-1 font-semibold text-emerald-400">
+                 {formatAmount(estimatedAvailable, selectedCard.currency)}
               </p>
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <p className="text-xs text-text-quaternary">Uso del límite</p>
+               <p className="text-xs text-text-quaternary">Uso estimado del límite</p>
               <div className="mt-2 flex items-center gap-2">
                 <div className="h-1.5 w-20 overflow-hidden rounded-full bg-secondary">
                   <div
                     className="h-full rounded-full bg-sp-blue-400"
-                    style={{ width: `${usage}%` }}
+                     style={{ width: `${Math.min(estimatedUsage, 100)}%` }}
                   />
                 </div>
-                <span className="text-xs font-medium text-foreground">{usage}%</span>
+                 <span className="text-xs font-medium text-foreground">{estimatedUsage}%</span>
               </div>
             </div>
           </div>

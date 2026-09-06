@@ -4,11 +4,16 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ErrorAlert } from "@/components/ErrorAlert";
 import { getAccountIcons } from "@/components/iconBoxes/iconMap";
+import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
+import type { ApiError } from "@/api/types";
+import { useCreateCreditCard, useUpdateCreditCard } from "@/api/services/credit-cards/useCreditCards";
 import { creditCardSchema, type CreditCardFormValues } from "./creditCardSchema";
 
 interface CreditCardFormDialogProps {
   card?: CreditCardFormValues;
+  cardId?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -22,21 +27,44 @@ const DEFAULT_FORM_VALUES: CreditCardFormValues = {
   paymentDueRange: { startDay: 4, endDay: 13 },
 };
 
-export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFormDialogProps) {
+export function CreditCardFormDialog({ card, cardId, open, onOpenChange }: CreditCardFormDialogProps) {
   const mode = card ? "edit" : "create";
+  const createMutation = useCreateCreditCard();
+  const updateMutation = useUpdateCreditCard();
+  const activeMutation = mode === "create" ? createMutation : updateMutation;
   const form = useForm<CreditCardFormValues>({
     resolver: zodResolver(creditCardSchema),
     values: card ?? DEFAULT_FORM_VALUES,
   });
+  const handleFormError = useFormErrorHandler(form);
+  const apiError = activeMutation.error as ApiError | null;
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) form.reset(DEFAULT_FORM_VALUES);
+    if (!isOpen) {
+      activeMutation.reset();
+      form.reset(DEFAULT_FORM_VALUES);
+    }
     onOpenChange(isOpen);
   };
 
-  const onSubmit = () => {
-    // Maqueta: la persistencia se conectará cuando se integre el CRUD.
-    handleOpenChange(false);
+  const onSubmit = (data: CreditCardFormValues) => {
+    if (mode === "create") {
+      createMutation.mutate(data, {
+        onSuccess: () => handleOpenChange(false),
+        onError: handleFormError,
+      });
+      return;
+    }
+
+    if (cardId) {
+      updateMutation.mutate(
+        { id: cardId, data },
+        {
+          onSuccess: () => handleOpenChange(false),
+          onError: handleFormError,
+        },
+      );
+    }
   };
 
   return (
@@ -48,6 +76,8 @@ export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFor
             Las fechas son rangos habituales y sirven como referencia para armar resúmenes.
           </DialogDescription>
         </DialogHeader>
+
+        {apiError && <ErrorAlert error={apiError} />}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -141,7 +171,13 @@ export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFor
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancelar</Button>
-              <Button type="submit">{mode === "create" ? "Agregar tarjeta" : "Guardar cambios"}</Button>
+              <Button type="submit" disabled={activeMutation.isPending}>
+                {activeMutation.isPending
+                  ? "Guardando..."
+                  : mode === "create"
+                    ? "Agregar tarjeta"
+                    : "Guardar cambios"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

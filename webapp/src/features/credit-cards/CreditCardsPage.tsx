@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CalendarDays,
   Check,
@@ -16,23 +16,14 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ErrorAlert } from "@/components/ErrorAlert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCreditCardOverview, useCreditCards } from "@/api/services/credit-cards/useCreditCards";
+import type { ApiError } from "@/api/types";
 import { CreditCardFormDialog } from "./CreditCardFormDialog";
 import type { CreditCardFormValues } from "./creditCardSchema";
 
 type CardTheme = "violet" | "blue" | "amber";
-
-interface CreditCardMock {
-  id: number;
-  name: string;
-  issuer: string;
-  lastFour: string;
-  currency: string;
-  limit: number;
-  pending: number;
-  closingRange: { startDay: number; endDay: number };
-  dueRange: { startDay: number; endDay: number };
-  theme: CardTheme;
-}
 
 interface PurchaseMock {
   id: number;
@@ -45,45 +36,6 @@ interface PurchaseMock {
   status: "En proceso" | "Activa" | "Pagada";
   icon: string;
 }
-
-const creditCards: CreditCardMock[] = [
-  {
-    id: 1,
-    name: "Visa Signature",
-    issuer: "Banco Galicia",
-    lastFour: "4821",
-    currency: "ARS",
-    limit: 2500000,
-    pending: 684500,
-    closingRange: { startDay: 26, endDay: 2 },
-    dueRange: { startDay: 4, endDay: 13 },
-    theme: "violet",
-  },
-  {
-    id: 2,
-    name: "Mastercard Black",
-    issuer: "BBVA",
-    lastFour: "9037",
-    currency: "ARS",
-    limit: 1800000,
-    pending: 422300,
-    closingRange: { startDay: 20, endDay: 24 },
-    dueRange: { startDay: 4, endDay: 10 },
-    theme: "blue",
-  },
-  {
-    id: 3,
-    name: "American Express",
-    issuer: "Amex",
-    lastFour: "1164",
-    currency: "USD",
-    limit: 4500,
-    pending: 1180,
-    closingRange: { startDay: 7, endDay: 9 },
-    dueRange: { startDay: 25, endDay: 28 },
-    theme: "amber",
-  },
-];
 
 const purchases: PurchaseMock[] = [
   {
@@ -165,31 +117,38 @@ const themeClasses: Record<CardTheme, string> = {
   amber: "from-[#71441e] via-[#a2632a] to-[#3b2418]",
 };
 
+function themeForCard(id: number): CardTheme {
+  return (["violet", "blue", "amber"] as const)[id % 3];
+}
+
 export function CreditCardsPage() {
-  const [selectedCardId, setSelectedCardId] = useState(1);
+  const { data: creditCards, isLoading, error } = useCreditCards();
+  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [filter, setFilter] = useState<"Todos" | "Compras" | "Suscripciones">("Todos");
   const [cardDialogOpen, setCardDialogOpen] = useState(false);
   const [editingCardId, setEditingCardId] = useState<number | null>(null);
-  const selectedCard = creditCards.find((card) => card.id === selectedCardId) ?? creditCards[0];
-  const editingCard = creditCards.find((card) => card.id === editingCardId);
+  const selectedCard = creditCards?.find((card) => card.id === selectedCardId) ?? creditCards?.[0];
+  const overviewQuery = useCreditCardOverview(selectedCard?.id ?? 0);
+  const editingCard = creditCards?.find((card) => card.id === editingCardId);
   const visiblePurchases = purchases.filter(
     (purchase) =>
       filter === "Todos" ||
       (filter === "Compras" && purchase.type === "Compra") ||
       (filter === "Suscripciones" && purchase.type === "Suscripción"),
   );
-  const estimatedAvailable = Math.max(0, selectedCard.limit - selectedCard.pending);
-  const estimatedUsage = Math.round((selectedCard.pending / selectedCard.limit) * 100);
+  const estimatedUsage = overviewQuery.data && overviewQuery.data.creditLimit > 0
+    ? Math.round((overviewQuery.data.pendingAmount / overviewQuery.data.creditLimit) * 100)
+    : 0;
   const editingCardFormValues: CreditCardFormValues | undefined = editingCard
     ? {
-        name: editingCard.name,
-        icon: { code: "credit-card", colorHex: "#3B82F6" },
-        currencyCode: editingCard.currency,
-        creditLimit: editingCard.limit,
-        statementClosingRange: editingCard.closingRange,
-        paymentDueRange: editingCard.dueRange,
-      }
-    : undefined;
+         name: editingCard.name,
+         icon: editingCard.icon,
+         currencyCode: editingCard.currencyCode,
+         creditLimit: editingCard.creditLimit,
+         statementClosingRange: editingCard.statementClosingRange,
+         paymentDueRange: editingCard.paymentDueRange,
+       }
+     : undefined;
 
   const openCreateCardDialog = () => {
     setEditingCardId(null);
@@ -197,9 +156,56 @@ export function CreditCardsPage() {
   };
 
   const openEditCardDialog = () => {
+    if (!selectedCard) return;
     setEditingCardId(selectedCard.id);
     setCardDialogOpen(true);
   };
+
+  useEffect(() => {
+    if (creditCards?.length && !creditCards.some((card) => card.id === selectedCardId)) {
+      setSelectedCardId(creditCards[0].id);
+    }
+  }, [creditCards, selectedCardId]);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8 pb-8">
+        <Skeleton className="h-20 w-full max-w-xl" />
+        <div className="grid gap-4 md:grid-cols-3">
+          {[1, 2, 3].map((item) => <Skeleton key={item} className="h-48" />)}
+        </div>
+        <Skeleton className="h-32 w-full" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <ErrorAlert error={error} className="m-4" />;
+  }
+
+  if (!creditCards?.length) {
+    return (
+      <div className="space-y-8 pb-8">
+        <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-sp-blue-400"><WalletCards className="size-4" /> Finanzas / Crédito</div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">Tarjetas de crédito</h1>
+            <p className="mt-2 max-w-xl text-sm text-text-quaternary md:text-base">Un solo lugar para seguir tus consumos, cuotas y próximos resúmenes.</p>
+          </div>
+          <Button className="w-full sm:w-auto" onClick={openCreateCardDialog}><Plus className="size-4" /> Agregar tarjeta</Button>
+        </header>
+        <section className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-dashed border-border-subtle bg-surface-container-low/50 p-8 text-center">
+          <CreditCard className="size-12 text-sp-blue-400" />
+          <h2 className="mt-4 text-xl font-semibold text-foreground">Aún no tenés tarjetas de crédito</h2>
+          <p className="mt-2 max-w-md text-sm text-text-quaternary">Agregá tu primera tarjeta para registrar consumos y resúmenes en SmartPocket.</p>
+          <Button className="mt-6" onClick={openCreateCardDialog}><Plus className="size-4" /> Agregar primera tarjeta</Button>
+        </section>
+        <CreditCardFormDialog card={undefined} open={cardDialogOpen} onOpenChange={setCardDialogOpen} />
+      </div>
+    );
+  }
+
+  if (!selectedCard) return null;
 
   return (
     <div className="space-y-8 pb-8">
@@ -247,40 +253,34 @@ export function CreditCardsPage() {
                     type="button"
                     aria-pressed={isSelected}
                     onClick={() => setSelectedCardId(card.id)}
-                    className={`group relative block w-full overflow-hidden bg-gradient-to-br p-5 text-left text-white ${themeClasses[card.theme]}`}
+                    className={`group relative block w-full overflow-hidden bg-gradient-to-br p-5 text-left text-white ${themeClasses[themeForCard(card.id)]}`}
                   >
                     <div className="absolute -right-8 -top-12 size-36 rounded-full border border-white/10" />
                     <div className="absolute -bottom-20 -left-8 size-40 rounded-full border border-white/10" />
                     <div className="relative flex items-start justify-between">
                       <div>
                         <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/60">
-                          {card.issuer}
+                          Registro manual
                         </p>
                         <h3 className="mt-1 text-lg font-semibold">{card.name}</h3>
                       </div>
                       <CreditCard className="size-7 text-white/80" />
                     </div>
-                    <div className="relative mt-8 flex items-center gap-2 font-mono text-sm tracking-[0.22em] text-white/80">
-                      <span>••••</span>
-                      <span>••••</span>
-                      <span>••••</span>
-                      <span>{card.lastFour}</span>
-                    </div>
                     <div className="relative mt-5 flex items-end justify-between text-xs">
                       <div>
                          <p className="text-white/50">Límite configurado</p>
                          <p className="mt-1 text-base font-semibold">
-                           {formatAmount(card.limit, card.currency)}
+                           {formatAmount(card.creditLimit, card.currencyCode)}
                         </p>
                       </div>
                       <span className="rounded-full bg-white/10 px-2 py-1 font-medium">
-                        {card.currency}
+                         {card.currencyCode}
                       </span>
                     </div>
                   </button>
                   <div className="flex items-center justify-between bg-surface-container-high/80 px-4 py-2.5 text-xs text-text-quaternary">
                     <span>
-                       Cierre habitual: {card.closingRange.startDay} al {card.closingRange.endDay} · vence {card.dueRange.startDay} al {card.dueRange.endDay}
+                       Cierre habitual: {card.statementClosingRange.startDay} al {card.statementClosingRange.endDay} · vence {card.paymentDueRange.startDay} al {card.paymentDueRange.endDay}
                     </span>
                     {isSelected && (
                       <span className="flex items-center gap-1 font-medium text-sp-blue-400">
@@ -334,24 +334,27 @@ export function CreditCardsPage() {
                 </Badge>
               </div>
               <p className="mt-1 text-sm text-text-quaternary">
-                {selectedCard.issuer} · terminada en {selectedCard.lastFour}
+                 Registro manual · moneda base {selectedCard.currencyCode}
               </p>
             </div>
           </div>
+          {overviewQuery.error && (
+            <ErrorAlert error={overviewQuery.error as ApiError} className="lg:max-w-sm" />
+          )}
           <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3">
             <div>
                <p className="flex items-center gap-1 text-xs text-text-quaternary" title="Estimación basada en los registros pendientes de SmartPocket. No representa el disponible real informado por el banco.">
                  Pendiente registrado <Info className="size-3.5" />
                </p>
-               <p className="mt-1 font-semibold text-foreground">
-                 {formatAmount(selectedCard.pending, selectedCard.currency)}
-               </p>
+                {overviewQuery.isLoading ? <Skeleton className="mt-2 h-6 w-28" /> : <p className="mt-1 font-semibold text-foreground">
+                  {formatAmount(overviewQuery.data?.pendingAmount ?? 0, selectedCard.currencyCode)}
+                </p>}
             </div>
             <div>
                <p className="text-xs text-text-quaternary">Disponible estimado</p>
-               <p className="mt-1 font-semibold text-emerald-400">
-                 {formatAmount(estimatedAvailable, selectedCard.currency)}
-              </p>
+                {overviewQuery.isLoading ? <Skeleton className="mt-2 h-6 w-28" /> : <p className="mt-1 font-semibold text-emerald-400">
+                  {formatAmount(overviewQuery.data?.estimatedAvailableAmount ?? 0, selectedCard.currencyCode)}
+               </p>}
             </div>
             <div className="col-span-2 sm:col-span-1">
                <p className="text-xs text-text-quaternary">Uso estimado del límite</p>
@@ -544,11 +547,12 @@ export function CreditCardsPage() {
         </section>
       </div>
 
-      <CreditCardFormDialog
-        card={editingCardFormValues}
-        open={cardDialogOpen}
-        onOpenChange={setCardDialogOpen}
-      />
+        <CreditCardFormDialog
+          card={editingCardFormValues}
+          cardId={editingCardId ?? undefined}
+          open={cardDialogOpen}
+          onOpenChange={setCardDialogOpen}
+        />
     </div>
   );
 }

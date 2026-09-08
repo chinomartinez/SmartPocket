@@ -1,6 +1,7 @@
 import { Check, CreditCard, Plus } from "lucide-react";
 import type { CreditCardListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
-import { themeClasses, themeForCard, formatAmount } from "./creditCardHelpers";
+import { formatCurrencyByCode } from "@/utils/formatters";
+import { themeClasses, themeForCard } from "./creditCardHelpers";
 
 interface CreditCardCarouselProps {
   cards: CreditCardListItemDTO[];
@@ -59,7 +60,7 @@ export function CreditCardCarousel({
                     <div>
                       <p className="text-white/50">Límite configurado</p>
                       <p className="mt-1 text-base font-semibold">
-                        {formatAmount(card.creditLimit, card.currencyCode)}
+                        {formatCurrencyByCode(card.creditLimit, card.currencyCode)}
                       </p>
                     </div>
                     <span className="rounded-full bg-white/10 px-2 py-1 font-medium">

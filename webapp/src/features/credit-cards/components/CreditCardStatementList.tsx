@@ -1,6 +1,6 @@
 import { CalendarDays, ChevronRight, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { formatAmount } from "./creditCardHelpers";
+import { formatCurrencyByCode } from "@/utils/formatters";
 
 const statements = [
   {
@@ -22,7 +22,11 @@ const statements = [
   { month: "Mayo 2026", close: "14 may", due: "05 jun", total: 198200, status: "Pagado", items: 7 },
 ];
 
-export function CreditCardStatementList() {
+interface CreditCardStatementListProps {
+  currencyCode: string;
+}
+
+export function CreditCardStatementList({ currencyCode }: CreditCardStatementListProps) {
   return (
     <section className="space-y-4" aria-labelledby="statements-title">
       <div className="flex items-end justify-between">
@@ -68,7 +72,7 @@ export function CreditCardStatementList() {
               <div>
                 <p className="text-xs text-text-quaternary">Total del resumen</p>
                 <p className="mt-1 text-lg font-semibold text-foreground">
-                  {formatAmount(statement.total)}
+                    {formatCurrencyByCode(statement.total, currencyCode)}
                 </p>
               </div>
               <span className="text-xs text-text-quaternary">

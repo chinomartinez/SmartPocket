@@ -5,7 +5,7 @@
 
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { formatSignedCurrency } from "@/utils/formatters";
+import { formatSignedCurrencyByCode } from "@/utils/formatters";
 import { formatDateLocal } from "@/utils/dateHelpers";
 import type { TransactionListItemDTO } from "@/api/services/transactions/transactionTypes";
 import type { ApiError } from "@/api/types";
@@ -146,7 +146,7 @@ export function TransactionList({
 
   // Obtener símbolo de moneda de la primera transacción
   // Asumimos que todas las transacciones tienen la misma moneda
-  const currencySymbol = transactions[0]?.money.currencyCode || "$";
+   const currencyCode = transactions[0]?.money.currencyCode || "ARS";
 
   return (
     <>
@@ -159,7 +159,7 @@ export function TransactionList({
             Total {isIncome ? "ingresos" : "gastos"}
           </span>
           <span className={`text-lg font-bold ${isIncome ? "text-emerald-400" : "text-red-400"}`}>
-            {formatSignedCurrency(totalAmount, isIncome, currencySymbol)}
+             {formatSignedCurrencyByCode(totalAmount, isIncome, currencyCode)}
           </span>
         </div>
       </div>
@@ -210,7 +210,7 @@ export function TransactionList({
                           transaction.isIncome ? "text-emerald-400" : "text-red-400"
                         }`}
                       >
-                        {formatSignedCurrency(
+                         {formatSignedCurrencyByCode(
                           transaction.money.amount,
                           transaction.isIncome,
                           transaction.money.currencyCode,

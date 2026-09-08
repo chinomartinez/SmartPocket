@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChevronRight, Ellipsis, Filter, MoreHorizontal, Plus, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatAmount } from "./creditCardHelpers";
+import { formatCurrencyByCode } from "@/utils/formatters";
 
 type PurchaseType = "Compra" | "Suscripción";
 type PurchaseStatus = "En proceso" | "Activa" | "Pagada";
@@ -68,9 +68,10 @@ const purchases: PurchaseMock[] = [
 
 interface CreditCardActivitySectionProps {
   cardName: string;
+  currencyCode: string;
 }
 
-export function CreditCardActivitySection({ cardName }: CreditCardActivitySectionProps) {
+export function CreditCardActivitySection({ cardName, currencyCode }: CreditCardActivitySectionProps) {
   const [filter, setFilter] = useState<"Todos" | PurchaseType>("Todos");
   const visiblePurchases = purchases.filter(
     (purchase) => filter === "Todos" || purchase.type === filter,
@@ -158,7 +159,7 @@ export function CreditCardActivitySection({ cardName }: CreditCardActivitySectio
             </div>
             <div className="flex items-center justify-between md:block">
               <span className="text-sm font-semibold text-foreground">
-                {formatAmount(purchase.amount)}
+                {formatCurrencyByCode(purchase.amount, currencyCode)}
               </span>
               <Badge
                 variant="outline"

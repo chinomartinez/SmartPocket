@@ -84,8 +84,8 @@ export function CreditCardsPage() {
         onEdit={openEditCardDialog}
       />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(330px,0.8fr)]">
-        <CreditCardActivitySection cardName={selectedCard.name} />
-        <CreditCardStatementList />
+        <CreditCardActivitySection cardName={selectedCard.name} currencyCode={selectedCard.currencyCode} />
+        <CreditCardStatementList currencyCode={selectedCard.currencyCode} />
       </div>
       <CreditCardFormDialog
         card={editingCardFormValues}

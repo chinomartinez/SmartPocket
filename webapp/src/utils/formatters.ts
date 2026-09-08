@@ -45,6 +45,21 @@ export function formatCurrency(
 }
 
 /**
+ * Formatea un monto usando un código ISO 4217, por ejemplo ARS, USD o EUR.
+ */
+export function formatCurrencyByCode(
+  amount: number,
+  currencyCode: string,
+  locale: string = "es-AR",
+): string {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currencyCode,
+    maximumFractionDigits: currencyCode === "ARS" ? 0 : 2,
+  }).format(amount);
+}
+
+/**
  * Formatea un monto de forma compacta para mobile (K/M)
  * @param amount - Monto numérico
  * @param currencySymbol - Símbolo de la moneda
@@ -87,4 +102,17 @@ export function formatSignedCurrency(
   }).format(Math.abs(amount)); // Asegurar valor absoluto
 
   return `${sign}${currencySymbol} ${formatted}`;
+}
+
+/**
+ * Formatea un monto con signo usando un código ISO 4217.
+ */
+export function formatSignedCurrencyByCode(
+  amount: number,
+  isIncome: boolean,
+  currencyCode: string,
+  locale: string = "es-AR",
+): string {
+  const sign = isIncome ? "+" : "-";
+  return `${sign}${formatCurrencyByCode(Math.abs(amount), currencyCode, locale)}`;
 }

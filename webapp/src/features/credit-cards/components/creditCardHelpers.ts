@@ -9,11 +9,3 @@ export const themeClasses: Record<CardTheme, string> = {
 export function themeForCard(id: number): CardTheme {
   return (["violet", "blue", "amber"] as const)[id % 3];
 }
-
-export function formatAmount(amount: number, currency = "ARS") {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: currency === "ARS" ? 0 : 2,
-  }).format(amount);
-}

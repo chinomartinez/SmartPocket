@@ -5,7 +5,7 @@
 
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { formatCurrencyByCode } from "@/utils/formatters";
+import { formatCurrency } from "@/utils/formatters";
 import { formatDateLocal } from "@/utils/dateHelpers";
 import { ArrowRight } from "lucide-react";
 import type { TransferListItemDTO } from "@/api/services/transfers/transferTypes";
@@ -171,7 +171,7 @@ export function TransferList({ transfers, isLoading, error, onTransferClick }: T
                   {/* Right: Amount (neutral color) */}
                   <div className="text-right ml-3">
                     <p className="text-sm font-semibold whitespace-nowrap text-foreground">
-                       {formatCurrencyByCode(transfer.amount, transfer.originAccount.currencyCode)}
+                       {formatCurrency(transfer.amount, transfer.originAccount.currencyCode)}
                     </p>
                   </div>
                 </div>

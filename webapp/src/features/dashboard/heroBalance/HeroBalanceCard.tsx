@@ -39,7 +39,7 @@ export function HeroBalanceCard({ data }: HeroBalanceCardProps) {
           className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground break-all"
           style={{ textShadow: "0 0 30px rgba(248, 250, 252, 0.15)" }}
         >
-          {formatCurrency(totalBalance)}
+          {formatCurrency(totalBalance, "ARS")}
         </h2>
         <Badge
           className={`${variationBgColor} border ${variationColor} mb-1 md:mb-2 flex-shrink-0`}
@@ -60,7 +60,7 @@ export function HeroBalanceCard({ data }: HeroBalanceCardProps) {
                 {account.name}
               </p>
               <p className="text-sm md:text-base text-muted-foreground font-semibold">
-                {formatCurrency(account.balance)}
+                 {formatCurrency(account.balance, account.currencyCode)}
               </p>
             </div>
           </div>

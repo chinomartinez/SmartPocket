@@ -8,7 +8,7 @@ import type {
   CreditCardListItemDTO,
   CreditCardOverviewDTO,
 } from "@/api/services/credit-cards/creditCardTypes";
-import { formatCurrencyByCode } from "@/utils/formatters";
+import { formatCurrency } from "@/utils/formatters";
 
 interface SelectedCreditCardOverviewProps {
   card: CreditCardListItemDTO;
@@ -70,7 +70,7 @@ export function SelectedCreditCardOverview({
               <Skeleton className="mt-2 h-6 w-28" />
             ) : (
               <p className="mt-1 font-semibold text-foreground">
-                  {formatCurrencyByCode(overview?.pendingAmount ?? 0, card.currencyCode)}
+                  {formatCurrency(overview?.pendingAmount ?? 0, card.currencyCode)}
               </p>
             )}
           </div>
@@ -80,7 +80,7 @@ export function SelectedCreditCardOverview({
               <Skeleton className="mt-2 h-6 w-28" />
             ) : (
               <p className="mt-1 font-semibold text-emerald-400">
-                  {formatCurrencyByCode(overview?.estimatedAvailableAmount ?? 0, card.currencyCode)}
+                  {formatCurrency(overview?.estimatedAvailableAmount ?? 0, card.currencyCode)}
               </p>
             )}
           </div>

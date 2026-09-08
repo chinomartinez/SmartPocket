@@ -5,7 +5,7 @@
 
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { formatSignedCurrencyByCode } from "@/utils/formatters";
+import { formatSignedCurrency } from "@/utils/formatters";
 import { formatDateLocal } from "@/utils/dateHelpers";
 import type { TransactionListItemDTO } from "@/api/services/transactions/transactionTypes";
 import type { ApiError } from "@/api/types";
@@ -159,7 +159,7 @@ export function TransactionList({
             Total {isIncome ? "ingresos" : "gastos"}
           </span>
           <span className={`text-lg font-bold ${isIncome ? "text-emerald-400" : "text-red-400"}`}>
-             {formatSignedCurrencyByCode(totalAmount, isIncome, currencyCode)}
+             {formatSignedCurrency(totalAmount, isIncome, currencyCode)}
           </span>
         </div>
       </div>
@@ -210,7 +210,7 @@ export function TransactionList({
                           transaction.isIncome ? "text-emerald-400" : "text-red-400"
                         }`}
                       >
-                         {formatSignedCurrencyByCode(
+                         {formatSignedCurrency(
                           transaction.money.amount,
                           transaction.isIncome,
                           transaction.money.currencyCode,

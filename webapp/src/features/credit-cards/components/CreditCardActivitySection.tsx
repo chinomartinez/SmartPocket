@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChevronRight, Ellipsis, Filter, MoreHorizontal, Plus, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatCurrencyByCode } from "@/utils/formatters";
+import { formatCurrency } from "@/utils/formatters";
 
 type PurchaseType = "Compra" | "Suscripción";
 type PurchaseStatus = "En proceso" | "Activa" | "Pagada";
@@ -159,7 +159,7 @@ export function CreditCardActivitySection({ cardName, currencyCode }: CreditCard
             </div>
             <div className="flex items-center justify-between md:block">
               <span className="text-sm font-semibold text-foreground">
-                {formatCurrencyByCode(purchase.amount, currencyCode)}
+                {formatCurrency(purchase.amount, currencyCode)}
               </span>
               <Badge
                 variant="outline"

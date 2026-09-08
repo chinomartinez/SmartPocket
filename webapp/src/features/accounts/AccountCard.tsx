@@ -24,7 +24,7 @@ export function AccountCard({ account, onEdit, onDelete, isDeleting }: AccountCa
   const { name, icon, currency, balance } = account;
 
   // Formatear balance con símbolo de moneda
-  const formattedBalance = formatCurrency(balance, currency.symbol);
+  const formattedBalance = formatCurrency(balance, currency.code);
 
   // Determinar color del balance (positivo/negativo)
   const balanceColor = balance >= 0 ? "text-emerald-400" : "text-red-400";

@@ -1,6 +1,6 @@
 import { CalendarDays, ChevronRight, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrencyByCode } from "@/utils/formatters";
+import { formatCurrency } from "@/utils/formatters";
 
 const statements = [
   {
@@ -72,7 +72,7 @@ export function CreditCardStatementList({ currencyCode }: CreditCardStatementLis
               <div>
                 <p className="text-xs text-text-quaternary">Total del resumen</p>
                 <p className="mt-1 text-lg font-semibold text-foreground">
-                    {formatCurrencyByCode(statement.total, currencyCode)}
+                    {formatCurrency(statement.total, currencyCode)}
                 </p>
               </div>
               <span className="text-xs text-text-quaternary">

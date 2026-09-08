@@ -22,34 +22,11 @@ export function formatRelativeTime(date: Date): string {
 }
 
 /**
- * Formatea un monto como moneda
- * @param amount - Monto a formatear
- * @param currencySymbol - Símbolo de la moneda (ej: "$", "€", "£")
- * @param locale - Locale para el formato (default: undefined = navegador)
- * @returns String formateado con símbolo y decimales
- * @example
- * formatCurrency(1234.56, "$") // "$ 1,234.56"
- * formatCurrency(-500, "€") // "€ -500.00"
+ * Formatea un monto con un código ISO 4217, por ejemplo ARS, USD o EUR.
  */
 export function formatCurrency(
   amount: number,
-  currencySymbol: string = "$",
-  locale?: string,
-): string {
-  const formatted = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-
-  return `${currencySymbol} ${formatted}`;
-}
-
-/**
- * Formatea un monto usando un código ISO 4217, por ejemplo ARS, USD o EUR.
- */
-export function formatCurrencyByCode(
-  amount: number,
-  currencyCode: string,
+  currencyCode: string = "ARS",
   locale: string = "es-AR",
 ): string {
   return new Intl.NumberFormat(locale, {
@@ -60,59 +37,30 @@ export function formatCurrencyByCode(
 }
 
 /**
- * Formatea un monto de forma compacta para mobile (K/M)
- * @param amount - Monto numérico
- * @param currencySymbol - Símbolo de la moneda
- * @returns String abreviado (ej: $84.2K, $1.2M)
+ * Formatea un monto compacto con un código ISO 4217.
  */
-export function formatCompactCurrency(amount: number, currencySymbol: string = "$"): string {
-  const absAmount = Math.abs(amount);
-  const sign = amount >= 0 ? "" : "-";
-
-  if (absAmount >= 1_000_000) {
-    return `${sign}${currencySymbol}${(absAmount / 1_000_000).toFixed(1)}M`;
-  } else if (absAmount >= 1_000) {
-    return `${sign}${currencySymbol}${(absAmount / 1_000).toFixed(1)}K`;
-  } else {
-    return `${sign}${currencySymbol}${absAmount.toFixed(0)}`;
-  }
-}
-
-/**
- * Formatea un monto como moneda con signo (+ o -) según tipo de transacción
- * @param amount - Monto a formatear (siempre valor absoluto)
- * @param isIncome - Si es ingreso (true = +) o gasto (false = -)
- * @param currencySymbol - Símbolo de la moneda (ej: "$", "€", "£")
- * @param locale - Locale para el formato (default: undefined = navegador)
- * @returns String formateado con signo, símbolo y decimales
- * @example
- * formatSignedCurrency(1234.56, true, "$") // "+$ 1,234.56"
- * formatSignedCurrency(500, false, "$") // "-$ 500.00"
- */
-export function formatSignedCurrency(
+export function formatCompactCurrency(
   amount: number,
-  isIncome: boolean,
-  currencySymbol: string = "$",
-  locale?: string,
+  currencyCode: string = "ARS",
+  locale: string = "es-AR",
 ): string {
-  const sign = isIncome ? "+" : "-";
-  const formatted = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Math.abs(amount)); // Asegurar valor absoluto
-
-  return `${sign}${currencySymbol} ${formatted}`;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currencyCode,
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(amount);
 }
 
 /**
  * Formatea un monto con signo usando un código ISO 4217.
  */
-export function formatSignedCurrencyByCode(
+export function formatSignedCurrency(
   amount: number,
   isIncome: boolean,
-  currencyCode: string,
+  currencyCode: string = "ARS",
   locale: string = "es-AR",
 ): string {
   const sign = isIncome ? "+" : "-";
-  return `${sign}${formatCurrencyByCode(Math.abs(amount), currencyCode, locale)}`;
+  return `${sign}${formatCurrency(Math.abs(amount), currencyCode, locale)}`;
 }

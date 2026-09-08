@@ -41,8 +41,8 @@ export default function CardItem({
   onTap,
 }: CardItemProps) {
   const colorClass = getMetricColor(type);
-  const formattedAmount = formatCurrency(amount, "$");
-  const compactAmount = formatCompactCurrency(amount, "$");
+  const formattedAmount = formatCurrency(amount, "ARS");
+  const compactAmount = formatCompactCurrency(amount, "ARS");
   const variationText = formatVariation(variation);
 
   return (

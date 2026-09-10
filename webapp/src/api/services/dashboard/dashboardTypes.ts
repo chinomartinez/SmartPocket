@@ -30,5 +30,6 @@ export interface MonthlyBalanceDTO {
 
 export interface MonthlyBalanceTypeDTO {
   amount: number;
+  currencyCode: string;
   monthlyVariation: number;
 }

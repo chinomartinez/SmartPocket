@@ -9,6 +9,7 @@ export type FinancialMetricType = "income" | "expense" | "saving";
 export interface FinancialCardProps {
   title: string;
   amount: number; // Valor numérico (ej: 84200.00)
+  currencyCode: string; // Código del currency (ej: "ARS", "USD")
   type: FinancialMetricType; // Determina color semántico
   variation: number; // Variación porcentual (ej: 12.5 para +12.5%, -3.2 para -3.2%)
 }

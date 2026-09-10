@@ -4,10 +4,14 @@
  * Diseño basado en Direction A del documento ux-design-directions.html
  */
 
-import type { HeroBalanceCardProps } from "./heroBalanceTypes";
 import { formatCurrency } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";
 import { IconBox } from "@/components/iconBoxes/IconBox";
+import type { AccountBalancesResponse } from "@/api/services/dashboard/dashboardTypes";
+
+export interface HeroBalanceCardProps {
+  data: AccountBalancesResponse;
+}
 
 export function HeroBalanceCard({ data }: HeroBalanceCardProps) {
   const { totalBalance, monthlyVariation, accounts } = data;
@@ -60,7 +64,7 @@ export function HeroBalanceCard({ data }: HeroBalanceCardProps) {
                 {account.name}
               </p>
               <p className="text-sm md:text-base text-muted-foreground font-semibold">
-                 {formatCurrency(account.balance, account.currencyCode)}
+                {formatCurrency(account.balance, account.currencyCode)}
               </p>
             </div>
           </div>

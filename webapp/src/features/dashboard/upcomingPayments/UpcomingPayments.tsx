@@ -100,7 +100,7 @@ export default function UpcomingPayments() {
               {/* Right: Amount + Badge */}
               <div className="text-right flex-shrink-0">
                 <p className={cn("text-sm font-semibold mb-1", styles.amount)}>
-                  {formatCurrency(payment.amount, "ARS")}
+                  {formatCurrency(payment.amount)}
                 </p>
                 <span
                   className={cn(

@@ -146,7 +146,7 @@ export function TransactionList({
 
   // Obtener símbolo de moneda de la primera transacción
   // Asumimos que todas las transacciones tienen la misma moneda
-   const currencyCode = transactions[0]?.money.currencyCode || "ARS";
+  const currencyCode = transactions[0]?.money.currencyCode || "ARS";
 
   return (
     <>
@@ -159,7 +159,7 @@ export function TransactionList({
             Total {isIncome ? "ingresos" : "gastos"}
           </span>
           <span className={`text-lg font-bold ${isIncome ? "text-emerald-400" : "text-red-400"}`}>
-             {formatSignedCurrency(totalAmount, isIncome, currencyCode)}
+            {formatSignedCurrency(totalAmount, isIncome, currencyCode)}
           </span>
         </div>
       </div>
@@ -210,7 +210,7 @@ export function TransactionList({
                           transaction.isIncome ? "text-emerald-400" : "text-red-400"
                         }`}
                       >
-                         {formatSignedCurrency(
+                        {formatSignedCurrency(
                           transaction.money.amount,
                           transaction.isIncome,
                           transaction.money.currencyCode,

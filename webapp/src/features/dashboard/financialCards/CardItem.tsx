@@ -34,6 +34,7 @@ interface CardItemProps extends FinancialCardProps {
 export default function CardItem({
   title,
   amount,
+  currencyCode,
   type,
   variation,
   isExpanded = false,
@@ -41,8 +42,8 @@ export default function CardItem({
   onTap,
 }: CardItemProps) {
   const colorClass = getMetricColor(type);
-  const formattedAmount = formatCurrency(amount, "ARS");
-  const compactAmount = formatCompactCurrency(amount, "ARS");
+  const formattedAmount = formatCurrency(amount, currencyCode);
+  const compactAmount = formatCompactCurrency(amount, currencyCode);
   const variationText = formatVariation(variation);
 
   return (

@@ -31,18 +31,21 @@ export default function FinancialCards({ data }: FinancialCardsProps) {
     {
       title: "Ingresos del Mes",
       amount: data.income.amount,
+      currencyCode: data.income.currencyCode,
       type: "income",
       variation: data.income.monthlyVariation,
     },
     {
       title: "Gastos del Mes",
       amount: data.expense.amount,
+      currencyCode: data.expense.currencyCode,
       type: "expense",
       variation: data.expense.monthlyVariation,
     },
     {
       title: "Ahorro del Mes",
       amount: data.savings.amount,
+      currencyCode: data.savings.currencyCode,
       type: "saving",
       variation: data.savings.monthlyVariation,
     },

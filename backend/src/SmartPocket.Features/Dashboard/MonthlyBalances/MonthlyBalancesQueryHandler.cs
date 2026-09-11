@@ -14,7 +14,7 @@ namespace SmartPocket.Features.Dashboard.MonthlyBalance
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<MonthlyBalanceDTO> Get(CancellationToken cancellation)
+        public async Task<MonthlyBalanceDTO> Get(int accountId, CancellationToken cancellation)
         {
             var currentDate = DateTime.UtcNow;
             var currentMonth = currentDate.Month;
@@ -23,8 +23,8 @@ namespace SmartPocket.Features.Dashboard.MonthlyBalance
             var previousMonth = currentDate.AddMonths(-1).Month;
             var previousYear = currentDate.AddMonths(-1).Year;
 
-            var currentMonthBalance = await GetMonthlyBalance(currentMonth, currentYear, cancellation);
-            var previousMonthBalance = await GetMonthlyBalance(previousMonth, previousYear, cancellation);
+            var currentMonthBalance = await GetMonthlyBalance(accountId, currentMonth, currentYear, cancellation);
+            var previousMonthBalance = await GetMonthlyBalance(accountId, previousMonth, previousYear, cancellation);
 
             var incomeVariation = CalculateMonthlyVariation(
                 currentMonthBalance.Income,
@@ -51,10 +51,14 @@ namespace SmartPocket.Features.Dashboard.MonthlyBalance
             };
         }
 
-        private async Task<(decimal Income, decimal Expense)> GetMonthlyBalance(int month, int year, CancellationToken cancellation)
+        private async Task<(decimal Income, decimal Expense)> GetMonthlyBalance(
+            int accountId,
+            int month,
+            int year,
+            CancellationToken cancellation)
         {
             var rv = await _smartPocketContext.Query<Transaction>()
-                .Where(x => x.Account.IncludeInBalanceGlobal)
+                .Where(x => x.AccountId == accountId)
                 .Where(x => x.IsManualEntry)
                 .Where(x => x.EffectiveDate.Month == month && x.EffectiveDate.Year == year)
                 .GroupBy(x => 1)

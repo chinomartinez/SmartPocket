@@ -5,9 +5,10 @@ import type { FinancialCardProps } from "./financialCardTypes";
 
 interface FinancialCardsProps {
   data: MonthlyBalanceDTO;
+  currencyCode: string;
 }
 
-export default function FinancialCards({ data }: FinancialCardsProps) {
+export default function FinancialCards({ data, currencyCode }: FinancialCardsProps) {
   const [expandedCardIndex, setExpandedCardIndex] = useState<number | null>(null);
 
   // Auto-colapsar después de 4 segundos
@@ -31,21 +32,21 @@ export default function FinancialCards({ data }: FinancialCardsProps) {
     {
       title: "Ingresos del Mes",
       amount: data.income.amount,
-      currencyCode: data.income.currencyCode,
+      currencyCode,
       type: "income",
       variation: data.income.monthlyVariation,
     },
     {
       title: "Gastos del Mes",
       amount: data.expense.amount,
-      currencyCode: data.expense.currencyCode,
+      currencyCode,
       type: "expense",
       variation: data.expense.monthlyVariation,
     },
     {
       title: "Ahorro del Mes",
       amount: data.savings.amount,
-      currencyCode: data.savings.currencyCode,
+      currencyCode,
       type: "saving",
       variation: data.savings.monthlyVariation,
     },

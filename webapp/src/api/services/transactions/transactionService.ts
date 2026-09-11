@@ -27,9 +27,10 @@ export const transactionService = {
    * Obtener transacciones recientes
    * @param count Cantidad de transacciones a obtener (default: 5)
    */
-  getRecents: async (count: number = 5) => {
+  getRecents: async (count: number = 5, accountId?: number) => {
     const response = await spApiClient.get<RecentTransactionItemDTO[]>(
-      `${BASE_PATH}/recents?count=${count}`,
+      `${BASE_PATH}/recents`,
+      { params: { count, accountId } },
     );
     return response.data;
   },

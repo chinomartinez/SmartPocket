@@ -4,13 +4,17 @@ import type { AccountBalancesResponse, MonthlyBalanceDTO } from "./dashboardType
 const BASE_PATH = "/dashboard";
 
 export const dashboardService = {
-  getAccountBalances: async () => {
-    const response = await spApiClient.get<AccountBalancesResponse>(`${BASE_PATH}/accountBalances`);
+  getAccountBalances: async (accountId: number) => {
+    const response = await spApiClient.get<AccountBalancesResponse>(`${BASE_PATH}/accountBalances`, {
+      params: { accountId },
+    });
     return response.data;
   },
 
-  getMonthlyMetrics: async () => {
-    const response = await spApiClient.get<MonthlyBalanceDTO>(`${BASE_PATH}/monthlybalances`);
+  getMonthlyMetrics: async (accountId: number) => {
+    const response = await spApiClient.get<MonthlyBalanceDTO>(`${BASE_PATH}/monthlybalances`, {
+      params: { accountId },
+    });
     return response.data;
   },
 };

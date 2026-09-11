@@ -1,4 +1,4 @@
 ﻿namespace SmartPocket.Features.Transactions.GetRecents
 {
-    public record TransactionGeRecentsRequest(int Count = 5);
+    public record TransactionGeRecentsRequest(int Count = 5, int AccountId = 0);
 }

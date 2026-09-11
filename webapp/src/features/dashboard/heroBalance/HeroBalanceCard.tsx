@@ -11,9 +11,10 @@ import type { AccountBalancesResponse } from "@/api/services/dashboard/dashboard
 
 export interface HeroBalanceCardProps {
   data: AccountBalancesResponse;
+  currencyCode: string;
 }
 
-export function HeroBalanceCard({ data }: HeroBalanceCardProps) {
+export function HeroBalanceCard({ data, currencyCode }: HeroBalanceCardProps) {
   const { totalBalance, monthlyVariation, accounts } = data;
 
   // Determinar color de variación (verde si positivo, rojo si negativo)
@@ -43,7 +44,7 @@ export function HeroBalanceCard({ data }: HeroBalanceCardProps) {
           className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground break-all"
           style={{ textShadow: "0 0 30px rgba(248, 250, 252, 0.15)" }}
         >
-          {formatCurrency(totalBalance, "ARS")}
+          {formatCurrency(totalBalance, currencyCode)}
         </h2>
         <Badge
           className={`${variationBgColor} border ${variationColor} mb-1 md:mb-2 flex-shrink-0`}

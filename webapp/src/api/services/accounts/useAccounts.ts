@@ -62,7 +62,7 @@ export function useCreateAccount() {
       // Invalidar lista de cuentas para refrescar
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
       // Invalidar dashboard queries para actualizar balances
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }
@@ -85,7 +85,7 @@ export function useUpdateAccount() {
         queryKey: accountKeys.detail(variables.id),
       });
       // Invalidar dashboard queries para actualizar balances
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }
@@ -103,7 +103,7 @@ export function useDeleteAccount() {
       // Invalidar lista de cuentas para refrescar
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
       // Invalidar dashboard queries para actualizar balances
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }

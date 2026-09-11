@@ -65,11 +65,13 @@ namespace SmartPocket.WebApi.Controllers
         public async Task<List<RecentTransactionItemDTO>> GetRecents(
             [FromServices] TransactionGetRecentsQueryHandler handler,
             [FromQuery] int count = 5,
+            [FromQuery] int accountId = 0,
             CancellationToken cancellation = default)
         {
             var request = new TransactionGeRecentsRequest
             {
-                Count = count
+                Count = count,
+                AccountId = accountId
             };
 
             var result = await handler.Get(request, cancellation);

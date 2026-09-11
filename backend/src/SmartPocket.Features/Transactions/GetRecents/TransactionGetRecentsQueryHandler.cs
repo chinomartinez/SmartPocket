@@ -19,6 +19,7 @@ namespace SmartPocket.Features.Transactions.GetRecents
         {
             var transactions = await _smartPocketContext.Query<Transaction>()
                 .Where(x => x.IsManualEntry)
+                .Where(x => request.AccountId == 0 || x.AccountId == request.AccountId)
                 .OrderByDescending(t => t.EffectiveDate)
                 .ThenByDescending(x => x.CreatedAt)
                 .Select(t => new RecentTransactionItemDTO

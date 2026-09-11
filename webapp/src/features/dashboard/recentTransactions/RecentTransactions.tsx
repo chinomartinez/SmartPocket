@@ -9,12 +9,16 @@ import { ROUTES } from "@/router/routes";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 
-export default function RecentTransactions() {
+interface RecentTransactionsProps {
+  accountId: number;
+}
+
+export default function RecentTransactions({ accountId }: RecentTransactionsProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState<number | undefined>();
 
   // Fetch recent transactions (últimas 4)
-  const { data: transactions, isLoading, error } = useRecentTransactions(4);
+  const { data: transactions, isLoading, error } = useRecentTransactions(4, accountId);
 
   const handleEditTransaction = (id: number) => {
     setSelectedTransactionId(id);

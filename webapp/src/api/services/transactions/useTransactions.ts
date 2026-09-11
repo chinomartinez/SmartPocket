@@ -20,7 +20,8 @@ export const transactionKeys = {
   all: ["transactions"] as const,
   lists: () => [...transactionKeys.all, "list"] as const,
   list: (filters: TransactionListRequest) => [...transactionKeys.lists(), filters] as const,
-  recents: (count: number) => [...transactionKeys.all, "recents", count] as const,
+  recents: (count: number, accountId?: number) =>
+    [...transactionKeys.all, "recents", count, accountId] as const,
   details: () => [...transactionKeys.all, "detail"] as const,
   detail: (id: number) => [...transactionKeys.details(), id] as const,
 };
@@ -48,10 +49,11 @@ export function useTransaction(id: number, options?: { enabled?: boolean }) {
  * @param count Cantidad de transacciones a obtener (default: 5)
  * @returns Query con lista de transacciones recientes
  */
-export function useRecentTransactions(count: number = 5) {
+export function useRecentTransactions(count: number = 5, accountId?: number) {
   return useQuery({
-    queryKey: transactionKeys.recents(count),
-    queryFn: () => transactionService.getRecents(count),
+    queryKey: transactionKeys.recents(count, accountId),
+    queryFn: () => transactionService.getRecents(count, accountId),
+    enabled: !!accountId,
   });
 }
 
@@ -86,8 +88,7 @@ export function useCreateTransaction() {
       // También invalidar accountKeys para actualizar balances
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
       // Invalidar dashboard queries para actualizar métricas
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }
@@ -112,8 +113,7 @@ export function useUpdateTransaction() {
       // También invalidar accountKeys para actualizar balances
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
       // Invalidar dashboard queries para actualizar métricas
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }
@@ -140,8 +140,7 @@ export function useDeleteTransaction() {
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
 
       // Invalidar dashboard queries para actualizar métricas
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }

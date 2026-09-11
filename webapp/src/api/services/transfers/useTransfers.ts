@@ -73,8 +73,7 @@ export function useCreateTransfer() {
       // Invalidar accountKeys para actualizar balances
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
       // Invalidar dashboard queries para actualizar métricas
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }
@@ -99,8 +98,7 @@ export function useUpdateTransfer() {
       // Invalidar accountKeys para actualizar balances
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
       // Invalidar dashboard queries para actualizar métricas
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }
@@ -125,8 +123,7 @@ export function useDeleteTransfer() {
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
 
       // Invalidar dashboard queries para actualizar métricas
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.balances() });
-      queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 }

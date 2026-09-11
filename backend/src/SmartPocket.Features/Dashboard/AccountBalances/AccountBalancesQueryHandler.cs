@@ -15,10 +15,10 @@ namespace SmartPocket.Features.Dashboard.AccountBalances
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<AccountBalancesResponse> Get(CancellationToken cancellation)
+        public async Task<AccountBalancesResponse> Get(int accountId, CancellationToken cancellation)
         {
             var accounts = await _smartPocketContext.Query<Account>()
-                .Where(x => x.IncludeInBalanceGlobal)
+                .Where(x => x.Id == accountId)
                 .Select(x => new AccountBalanceDTO
                 {
                     Id = x.Id,
@@ -37,7 +37,7 @@ namespace SmartPocket.Features.Dashboard.AccountBalances
             var previousMonthYear = DateTime.UtcNow.AddMonths(-1).Year;
 
             var previousMonthTotalBalance = await _smartPocketContext.Query<Transaction>()
-                .Where(x => x.Account.IncludeInBalanceGlobal)
+                .Where(x => x.AccountId == accountId)
                 .Where(x => x.EffectiveDate.Month == previousMonth && x.EffectiveDate.Year == previousMonthYear)
                 .SumAsync(x => x.SignedAmount, cancellation);
 

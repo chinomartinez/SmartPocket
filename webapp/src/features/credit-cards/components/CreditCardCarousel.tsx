@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Check, CreditCard } from "lucide-react";
 import type { CreditCardListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
@@ -14,6 +15,18 @@ export function CreditCardCarousel({
   selectedCardId,
   onSelect,
 }: CreditCardCarouselProps) {
+  const cardRefs = useRef<Record<number, HTMLElement | null>>({});
+
+  useEffect(() => {
+    if (window.innerWidth >= 1024) return;
+
+    cardRefs.current[selectedCardId]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [selectedCardId]);
+
   return (
     <section aria-labelledby="cards-title" className="space-y-4">
       <div className="flex items-center justify-between">
@@ -33,7 +46,13 @@ export function CreditCardCarousel({
           const isSelected = card.id === selectedCardId;
 
           return (
-            <article key={card.id} className="w-[285px] shrink-0 snap-start lg:w-auto">
+            <article
+              key={card.id}
+              ref={(element) => {
+                cardRefs.current[card.id] = element;
+              }}
+              className="w-[285px] shrink-0 snap-center lg:w-auto"
+            >
               <div
                 className={`relative overflow-hidden rounded-2xl border transition-all duration-200 ${isSelected ? "border-sp-blue-400/70 shadow-[0_0_0_2px_rgba(96,165,250,0.18),0_20px_45px_rgba(30,64,175,0.18)]" : "border-border-subtle hover:border-sp-blue-400/40"}`}
               >
@@ -80,6 +99,22 @@ export function CreditCardCarousel({
                 </div>
               </div>
             </article>
+          );
+        })}
+      </div>
+      <div className="flex justify-center gap-1.5 lg:hidden" aria-label="Seleccionar tarjeta">
+        {cards.map((card) => {
+          const isSelected = card.id === selectedCardId;
+
+          return (
+            <button
+              key={card.id}
+              type="button"
+              aria-label={`Seleccionar ${card.name}`}
+              aria-pressed={isSelected}
+              onClick={() => onSelect(card.id)}
+              className={`rounded-full transition-all ${isSelected ? "h-1.5 w-5 bg-sp-blue-400" : "size-1.5 bg-text-quaternary/50"}`}
+            />
           );
         })}
       </div>

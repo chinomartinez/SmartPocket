@@ -30,7 +30,7 @@ export function CreditCardCarousel({
         </span>
       </div>
 
-      <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 md:mx-0 md:px-0 lg:grid lg:grid-cols-4 lg:overflow-visible">
+      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-4 lg:overflow-visible">
         {cards.map((card) => {
           const isSelected = card.id === selectedCardId;
 

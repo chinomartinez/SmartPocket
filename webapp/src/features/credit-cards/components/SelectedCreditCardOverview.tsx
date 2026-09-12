@@ -40,8 +40,8 @@ export function SelectedCreditCardOverview({
           <div className="flex size-12 items-center justify-center rounded-xl bg-sp-blue-500/15 text-sp-blue-400">
             <CreditCard className="size-6" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="relative min-w-0 flex-1 pr-20 lg:pr-0">
+            <div className="flex flex-wrap items-center gap-2">
               <h2 id="selected-card-title" className="text-xl font-semibold text-foreground">
                 {card.name}
               </h2>
@@ -51,43 +51,54 @@ export function SelectedCreditCardOverview({
               >
                 Activa
               </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                className="absolute right-0 top-0 h-8 px-2.5 text-xs lg:static"
+                onClick={onEdit}
+              >
+                <Pencil className="size-3.5" /> Editar
+              </Button>
             </div>
-            <p className="mt-1 text-sm text-text-quaternary">
-              Registro manual · moneda base {card.currencyCode}
-            </p>
+            <p className="mt-1 text-sm text-text-quaternary">Moneda base {card.currencyCode}</p>
           </div>
         </div>
         {error ? <ErrorAlert error={error as ApiError} className="lg:max-w-sm" /> : null}
-        <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3">
-          <div>
+        <div className="grid grid-cols-3 gap-x-3 gap-y-3 sm:gap-x-8">
+          <div className="min-w-0">
             <p
-              className="flex items-center gap-1 text-xs text-text-quaternary"
+              className="min-h-8 flex items-start gap-1 text-xs leading-tight text-text-quaternary"
               title="Estimación basada en los registros pendientes de SmartPocket. No representa el disponible real informado por el banco."
             >
-              Pendiente registrado <Info className="size-3.5" />
+              <span>Pendiente registrado</span>{" "}
+              <Info className="mt-0.5 hidden size-3.5 shrink-0 sm:block" />
             </p>
             {isLoading ? (
-              <Skeleton className="mt-2 h-6 w-28" />
+              <Skeleton className="mt-2 h-6 w-full max-w-28" />
             ) : (
-              <p className="mt-1 font-semibold text-foreground">
-                  {formatCurrency(overview?.pendingAmount ?? 0, card.currencyCode)}
+              <p className="mt-1 text-sm font-semibold text-foreground sm:text-base">
+                {formatCurrency(overview?.pendingAmount ?? 0, card.currencyCode)}
               </p>
             )}
           </div>
-          <div>
-            <p className="text-xs text-text-quaternary">Disponible estimado</p>
+          <div className="min-w-0">
+            <p className="min-h-8 text-xs leading-tight text-text-quaternary">
+              Disponible estimado
+            </p>
             {isLoading ? (
-              <Skeleton className="mt-2 h-6 w-28" />
+              <Skeleton className="mt-2 h-6 w-full max-w-28" />
             ) : (
-              <p className="mt-1 font-semibold text-emerald-400">
-                  {formatCurrency(overview?.estimatedAvailableAmount ?? 0, card.currencyCode)}
+              <p className="mt-1 text-sm font-semibold text-emerald-400 sm:text-base">
+                {formatCurrency(overview?.estimatedAvailableAmount ?? 0, card.currencyCode)}
               </p>
             )}
           </div>
-          <div className="col-span-2 sm:col-span-1">
-            <p className="text-xs text-text-quaternary">Uso estimado del límite</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="h-1.5 w-20 overflow-hidden rounded-full bg-secondary">
+          <div className="min-w-0">
+            <p className="min-h-8 text-xs leading-tight text-text-quaternary">
+              Uso estimado del límite
+            </p>
+            <div className="mt-2 flex min-w-0 items-center gap-1.5 sm:gap-2">
+              <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-secondary">
                 <div
                   className="h-full rounded-full bg-sp-blue-400"
                   style={{ width: `${Math.min(usage, 100)}%` }}
@@ -96,11 +107,6 @@ export function SelectedCreditCardOverview({
               <span className="text-xs font-medium text-foreground">{usage}%</span>
             </div>
           </div>
-        </div>
-        <div className="mt-5 flex justify-end border-t border-border-subtle pt-4">
-          <Button variant="outline" size="sm" onClick={onEdit}>
-            <Pencil className="size-4" /> Editar tarjeta
-          </Button>
         </div>
       </div>
     </section>

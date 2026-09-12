@@ -74,7 +74,6 @@ export function CreditCardsPage() {
         cards={creditCards}
         selectedCardId={selectedCard.id}
         onSelect={setSelectedCardId}
-        onAdd={openCreateCardDialog}
       />
       <SelectedCreditCardOverview
         card={selectedCard}

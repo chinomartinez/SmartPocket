@@ -1,4 +1,4 @@
-import { Check, CreditCard, Plus } from "lucide-react";
+import { Check, CreditCard } from "lucide-react";
 import type { CreditCardListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
 import { themeClasses, themeForCard } from "./creditCardHelpers";
@@ -7,14 +7,12 @@ interface CreditCardCarouselProps {
   cards: CreditCardListItemDTO[];
   selectedCardId: number;
   onSelect: (id: number) => void;
-  onAdd: () => void;
 }
 
 export function CreditCardCarousel({
   cards,
   selectedCardId,
   onSelect,
-  onAdd,
 }: CreditCardCarouselProps) {
   return (
     <section aria-labelledby="cards-title" className="space-y-4">
@@ -84,21 +82,6 @@ export function CreditCardCarousel({
             </article>
           );
         })}
-        <button
-          type="button"
-          onClick={onAdd}
-          className="flex min-h-[187px] w-[285px] shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-sp-blue-400/35 bg-sp-blue-500/5 text-center transition-colors hover:border-sp-blue-400 hover:bg-sp-blue-500/10 lg:w-auto"
-        >
-          <span className="flex size-11 items-center justify-center rounded-full bg-sp-blue-500/15 text-sp-blue-400">
-            <Plus className="size-5" />
-          </span>
-          <span>
-            <strong className="block text-sm font-semibold text-foreground">Agregar tarjeta</strong>
-            <small className="mt-1 block text-xs text-text-quaternary">
-              Visa, Mastercard, Amex...
-            </small>
-          </span>
-        </button>
       </div>
     </section>
   );

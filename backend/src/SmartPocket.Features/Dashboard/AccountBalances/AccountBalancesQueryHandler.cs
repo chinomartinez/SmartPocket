@@ -17,21 +17,10 @@ namespace SmartPocket.Features.Dashboard.AccountBalances
 
         public async Task<AccountBalancesResponse> Get(int accountId, CancellationToken cancellation)
         {
-            var accounts = await _smartPocketContext.Query<Account>()
+            var totalBalance = await _smartPocketContext.Query<Account>()
                 .Where(x => x.Id == accountId)
-                .Select(x => new AccountBalanceDTO
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    CurrencyCode = x.CurrencyCode,
-                    Icon = new()
-                    {
-                        Code = x.Icon.Code,
-                        ColorHex = x.Icon.ColorHex
-                    },
-                    Balance = x.Transactions.Sum(t => t.SignedAmount)                        
-                })
-                .ToListAsync(cancellation);
+                .Select(x => x.Transactions.Sum(t => t.SignedAmount))
+                .SingleOrDefaultAsync(cancellation);
 
             var previousMonth = DateTime.UtcNow.AddMonths(-1).Month;
             var previousMonthYear = DateTime.UtcNow.AddMonths(-1).Year;
@@ -41,12 +30,10 @@ namespace SmartPocket.Features.Dashboard.AccountBalances
                 .Where(x => x.EffectiveDate.Month == previousMonth && x.EffectiveDate.Year == previousMonthYear)
                 .SumAsync(x => x.SignedAmount, cancellation);
 
-            var totalBalance = accounts.Sum(x => x.Balance);
             var variationPercent = CalculateMonthlyVariation(totalBalance, previousMonthTotalBalance);
 
             return new AccountBalancesResponse
             {
-                Accounts = accounts,
                 TotalBalance = totalBalance,
                 PreviousMonthTotalBalance = previousMonthTotalBalance,
                 MonthlyVariation = variationPercent

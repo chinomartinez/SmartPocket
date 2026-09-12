@@ -1,12 +1,11 @@
 /**
  * HeroBalanceCard Component
- * Componente principal del Home mostrando balance consolidado como elemento visual dominante
+ * Componente principal del Home mostrando el balance de la cuenta seleccionada
  * Diseño basado en Direction A del documento ux-design-directions.html
  */
 
 import { formatCurrency } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";
-import { IconBox } from "@/components/iconBoxes/IconBox";
 import type { AccountBalancesResponse } from "@/api/services/dashboard/dashboardTypes";
 
 export interface HeroBalanceCardProps {
@@ -15,7 +14,7 @@ export interface HeroBalanceCardProps {
 }
 
 export function HeroBalanceCard({ data, currencyCode }: HeroBalanceCardProps) {
-  const { totalBalance, monthlyVariation, accounts } = data;
+  const { totalBalance, monthlyVariation } = data;
 
   // Determinar color de variación (verde si positivo, rojo si negativo)
   const variationColor = monthlyVariation >= 0 ? "text-emerald-400" : "text-red-400";
@@ -55,22 +54,6 @@ export function HeroBalanceCard({ data, currencyCode }: HeroBalanceCardProps) {
         </Badge>
       </div>
 
-      {/* Accounts list - simple display */}
-      <div className="flex flex-wrap gap-4 md:gap-6">
-        {accounts.map((account) => (
-          <div key={account.id} className="flex items-center gap-2">
-            <IconBox icon={account.icon} size="xs" showBackground={false} />
-            <div>
-              <p className="text-[10px] md:text-xs text-text-tertiary font-medium">
-                {account.name}
-              </p>
-              <p className="text-sm md:text-base text-muted-foreground font-semibold">
-                {formatCurrency(account.balance, account.currencyCode)}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

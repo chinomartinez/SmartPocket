@@ -1,5 +1,3 @@
-import type { IconDTO } from "@/api/services/shared/sharedTypes";
-
 // ============================================================================
 // Dashboard DTOs - AccountBalances
 // ============================================================================
@@ -7,15 +5,6 @@ import type { IconDTO } from "@/api/services/shared/sharedTypes";
 export interface AccountBalancesResponse {
   totalBalance: number;
   monthlyVariation: number;
-  accounts: AccountBalanceDTO[];
-}
-
-export interface AccountBalanceDTO {
-  id: number;
-  balance: number;
-  currencyCode: string;
-  icon: IconDTO;
-  name: string;
 }
 
 // ============================================================================

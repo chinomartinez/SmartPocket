@@ -70,7 +70,7 @@ export default function UpcomingPayments() {
             to={ROUTES.DASHBOARD}
             className="flex items-center gap-1.5 text-sm text-sp-blue-400 hover:text-sp-blue-300 transition-colors"
           >
-            <span>View All</span>
+            <span>Ver todo</span>
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>

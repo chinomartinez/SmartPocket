@@ -4,6 +4,8 @@ using SmartPocket.Features.CreditCards.Delete;
 using SmartPocket.Features.CreditCards.List;
 using SmartPocket.Features.CreditCards.Overview;
 using SmartPocket.Features.CreditCards.Update;
+using SmartPocket.Features.CreditCardActivities.List;
+using SmartPocket.Persistence.PagedQuery;
 using SmartPocket.WebApi.Extensions;
 
 namespace SmartPocket.WebApi.Controllers
@@ -39,6 +41,16 @@ namespace SmartPocket.WebApi.Controllers
         {
             var result = await handler.Get(id, cancellation);
             return result is null ? NotFound() : Ok(result);
+        }
+
+        [HttpGet("{id}/activities")]
+        public async Task<PagedListResponse<CreditCardActivityListItemDTO>> Activities(
+            [FromServices] CreditCardActivityListQueryHandler handler,
+            [FromRoute] int id,
+            [FromQuery] CreditCardActivityListFilters filters,
+            CancellationToken cancellation)
+        {
+            return await handler.Get(id, filters, cancellation);
         }
 
         [HttpPut("{id}")]

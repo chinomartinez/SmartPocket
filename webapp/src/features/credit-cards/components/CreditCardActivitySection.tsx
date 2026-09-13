@@ -1,81 +1,83 @@
 import { useState } from "react";
-import { ChevronRight, Ellipsis, Filter, MoreHorizontal, Plus, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Ellipsis, Filter, MoreHorizontal, Plus, Search } from "lucide-react";
+import { ErrorAlert } from "@/components/ErrorAlert";
+import { IconBox } from "@/components/iconBoxes/IconBox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useCreditCardActivities } from "@/api/services/credit-cards/useCreditCards";
+import type {
+  CreditCardActivityListItemDTO,
+  CreditCardActivityType,
+} from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
 
-type PurchaseType = "Compra" | "Suscripción";
-type PurchaseStatus = "En proceso" | "Activa" | "Pagada";
+type ActivityFilter = "Todos" | CreditCardActivityType;
 
-interface PurchaseMock {
-  id: number;
-  description: string;
-  category: string;
-  date: string;
-  amount: number;
-  installments: string;
-  type: PurchaseType;
-  status: PurchaseStatus;
-  icon: string;
+const PAGE_SIZE = 10;
+
+const statusLabels = {
+  InProgress: "En proceso",
+  Paid: "Pagada",
+  Finished: "Finalizada",
+  Active: "Activa",
+  Cancelled: "Cancelada",
+} as const;
+
+function getStatusClass(activity: CreditCardActivityListItemDTO) {
+  if (activity.status === "Paid") return "border-emerald-500/30 text-emerald-400";
+  if (activity.status === "Finished") return "border-slate-400/30 text-slate-300";
+  if (activity.status === "Cancelled") return "border-red-400/30 text-red-300";
+  if (activity.type === "Subscription") return "border-violet-400/30 text-violet-300";
+  return "border-amber-400/30 text-amber-300";
 }
 
-const purchases: PurchaseMock[] = [
-  {
-    id: 1,
-    description: "Notebook Lenovo IdeaPad",
-    category: "Tecnología",
-    date: "18 jun 2026",
-    amount: 489000,
-    installments: "3 de 12 cuotas",
-    type: "Compra",
-    status: "En proceso",
-    icon: "⌁",
-  },
-  {
-    id: 2,
-    description: "Spotify Premium",
-    category: "Entretenimiento",
-    date: "02 jul 2026",
-    amount: 4899,
-    installments: "Mensual",
-    type: "Suscripción",
-    status: "Activa",
-    icon: "♫",
-  },
-  {
-    id: 3,
-    description: "Supermercado La Anónima",
-    category: "Alimentos",
-    date: "05 jul 2026",
-    amount: 86450,
-    installments: "1 pago",
-    type: "Compra",
-    status: "Pagada",
-    icon: "⌂",
-  },
-  {
-    id: 4,
-    description: "Netflix",
-    category: "Entretenimiento",
-    date: "07 jul 2026",
-    amount: 15999,
-    installments: "Mensual",
-    type: "Suscripción",
-    status: "Activa",
-    icon: "N",
-  },
-];
+function getActivityDetails(activity: CreditCardActivityListItemDTO) {
+  if (activity.type === "Subscription") {
+    return activity.chargeCount === null ? "Suscripción" : `${activity.chargeCount} cargos`;
+  }
+
+  return activity.installmentsCount === null
+    ? "Compra"
+    : `${activity.installmentsCount} cuotas`;
+}
 
 interface CreditCardActivitySectionProps {
+  cardId: number;
   cardName: string;
   currencyCode: string;
 }
 
-export function CreditCardActivitySection({ cardName, currencyCode }: CreditCardActivitySectionProps) {
-  const [filter, setFilter] = useState<"Todos" | PurchaseType>("Todos");
-  const visiblePurchases = purchases.filter(
-    (purchase) => filter === "Todos" || purchase.type === filter,
+export function CreditCardActivitySection({
+  cardId,
+  cardName,
+  currencyCode,
+}: CreditCardActivitySectionProps) {
+  const [filter, setFilter] = useState<ActivityFilter>("Todos");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const activityQuery = useCreditCardActivities(cardId, {
+    page,
+    pageSize: PAGE_SIZE,
+    type: filter === "Todos" ? undefined : filter,
+    search: search.trim() || undefined,
+  });
+
+  const activities = activityQuery.data?.data ?? [];
+  const totalPages = Math.max(
+    1,
+    Math.ceil((activityQuery.data?.totalCount ?? 0) / PAGE_SIZE),
   );
+
+  const updateFilter = (nextFilter: ActivityFilter) => {
+    setFilter(nextFilter);
+    setPage(1);
+  };
+
+  const updateSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   return (
     <section className="min-w-0 space-y-4" aria-labelledby="activity-title">
@@ -99,24 +101,22 @@ export function CreditCardActivitySection({ cardName, currencyCode }: CreditCard
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-quaternary" />
           <input
+            value={search}
+            onChange={(event) => updateSearch(event.target.value)}
             className="h-9 w-full rounded-lg border border-border-subtle bg-background/50 pl-9 pr-3 text-sm text-foreground outline-none placeholder:text-text-quaternary focus:border-sp-blue-400/60"
             placeholder="Buscar consumo..."
           />
         </div>
         <div className="flex gap-2 overflow-x-auto">
           <Filter className="mt-2 size-4 shrink-0 text-text-quaternary" />
-          {(["Todos", "Compra", "Suscripción"] as const).map((item) => (
+          {(["Todos", "Purchase", "Subscription"] as const).map((item) => (
             <button
               key={item}
               type="button"
-              onClick={() =>
-                setFilter(
-                  item === "Compra" ? "Compra" : item === "Suscripción" ? "Suscripción" : "Todos",
-                )
-              }
+              onClick={() => updateFilter(item)}
               className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${filter === item ? "bg-sp-blue-500/15 text-sp-blue-400" : "text-text-quaternary hover:bg-hover-muted hover:text-foreground"}`}
             >
-              {item === "Compra" ? "Compras" : item === "Suscripción" ? "Suscripciones" : item}
+              {item === "Purchase" ? "Compras" : item === "Subscription" ? "Suscripciones" : item}
             </button>
           ))}
         </div>
@@ -129,58 +129,83 @@ export function CreditCardActivitySection({ cardName, currencyCode }: CreditCard
           <span className="text-center">Estado</span>
           <span />
         </div>
-        {visiblePurchases.map((purchase) => (
-          <div
-            key={purchase.id}
-            className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-3 border-b border-border-subtle px-4 py-4 last:border-0 md:grid-cols-[minmax(0,1.7fr)_110px_130px_110px_32px] md:items-center md:gap-4 md:px-5"
-          >
-            <div className="col-span-2 row-start-1 flex min-w-0 items-center gap-3 md:col-auto md:row-auto">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-sm font-semibold text-sp-blue-300">
-                {purchase.icon}
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-foreground">
-                  {purchase.description}
-                </p>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-quaternary">
-                  <span>{purchase.category}</span>
-                  <span className="size-1 rounded-full bg-text-quaternary/50" />
-                  <span>{purchase.installments}</span>
+        {activityQuery.isLoading ? (
+          <div className="px-5 py-10 text-center text-sm text-text-quaternary">Cargando actividad...</div>
+        ) : activityQuery.error ? (
+          <ErrorAlert error={activityQuery.error} className="m-4" />
+        ) : activities.length === 0 ? (
+          <div className="px-5 py-10 text-center text-sm text-text-quaternary">
+            No hay actividades para los filtros seleccionados.
+          </div>
+        ) : (
+          activities.map((activity) => (
+            <div
+              key={`${activity.type}-${activity.id}`}
+              className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-3 border-b border-border-subtle px-4 py-4 last:border-0 md:grid-cols-[minmax(0,1.7fr)_110px_130px_110px_32px] md:items-center md:gap-4 md:px-5"
+            >
+              <div className="col-span-2 row-start-1 flex min-w-0 items-center gap-3 md:col-auto md:row-auto">
+                <IconBox
+                  icon={activity.category.icon}
+                  size="sm"
+                  shape="rounded"
+                  className="shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">{activity.description}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-quaternary">
+                    <span>{activity.category.name}</span>
+                    <span className="size-1 rounded-full bg-text-quaternary/50" />
+                    <span>{getActivityDetails(activity)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="col-start-1 row-start-2 text-xs text-text-quaternary md:col-auto md:row-auto md:justify-self-center">
-              {purchase.date}
-            </div>
-            <div className="col-start-1 row-start-3 flex items-center justify-start md:col-auto md:row-auto md:justify-self-center">
-              <span className="whitespace-nowrap text-sm font-semibold text-foreground">
-                {formatCurrency(purchase.amount, currencyCode)}
-              </span>
-            </div>
-            <div className="col-start-2 row-start-2 justify-self-end md:col-auto md:row-auto md:justify-self-center">
-              <Badge
-                variant="outline"
-                className={`whitespace-nowrap ${purchase.status === "Pagada" ? "border-emerald-500/30 text-emerald-400" : purchase.type === "Suscripción" ? "border-violet-400/30 text-violet-300" : "border-amber-400/30 text-amber-300"}`}
+              <div className="col-start-1 row-start-2 text-xs text-text-quaternary md:col-auto md:row-auto md:justify-self-center">
+                {activity.effectiveDate}
+              </div>
+              <div className="col-start-1 row-start-3 flex items-center justify-start md:col-auto md:row-auto md:justify-self-center">
+                <span className="whitespace-nowrap text-sm font-semibold text-foreground">
+                  {formatCurrency(activity.amount, activity.currencyCode || currencyCode)}
+                </span>
+              </div>
+              <div className="col-start-2 row-start-2 justify-self-end md:col-auto md:row-auto md:justify-self-center">
+                <Badge variant="outline" className={`whitespace-nowrap ${getStatusClass(activity)}`}>
+                  {statusLabels[activity.status]}
+                </Badge>
+              </div>
+              <button
+                type="button"
+                aria-label={`Editar ${activity.description}`}
+                className="hidden text-text-quaternary hover:text-foreground md:col-auto md:row-auto md:block"
               >
-                {purchase.status}
-              </Badge>
+                <Ellipsis className="size-5" />
+              </button>
             </div>
+          ))
+        )}
+        <div className="flex items-center justify-between border-t border-border-subtle/60 px-4 py-3 text-xs text-text-quaternary sm:px-5">
+          <span>
+            Página {page} de {totalPages}
+          </span>
+          <div className="flex gap-1">
             <button
               type="button"
-              aria-label={`Editar ${purchase.description}`}
-              className="hidden text-text-quaternary hover:text-foreground md:col-auto md:row-auto md:block"
+              aria-label="Página anterior"
+              disabled={page <= 1 || activityQuery.isFetching}
+              onClick={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
+              className="rounded-md p-1.5 hover:bg-hover-muted disabled:pointer-events-none disabled:opacity-40"
             >
-              <Ellipsis className="size-5" />
+              <ChevronLeft className="size-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Página siguiente"
+              disabled={page >= totalPages || activityQuery.isFetching}
+              onClick={() => setPage((currentPage) => Math.min(totalPages, currentPage + 1))}
+              className="rounded-md p-1.5 hover:bg-hover-muted disabled:pointer-events-none disabled:opacity-40"
+            >
+              <ChevronRight className="size-4" />
             </button>
           </div>
-        ))}
-        <div className="border-t border-border-subtle/60 px-5 py-3 text-center">
-          <button
-            type="button"
-            className="text-xs font-medium text-sp-blue-400 hover:text-sp-blue-300"
-          >
-            Ver toda la actividad <ChevronRight className="ml-1 inline size-3.5" />
-          </button>
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import type { IconDTO } from "../shared/sharedTypes";
+import type { PagedListResponse } from "../shared/sharedTypes";
 
 export interface DayRangeDTO {
   startDay: number;
@@ -34,3 +35,39 @@ export interface CreditCardOverviewDTO {
   unpaidStatementsCount: number;
   isEstimate: boolean;
 }
+
+export type CreditCardActivityType = "Purchase" | "Subscription";
+
+export type CreditCardActivityStatus =
+  | "InProgress"
+  | "Paid"
+  | "Finished"
+  | "Active"
+  | "Cancelled";
+
+export interface CreditCardActivityListItemDTO {
+  id: number;
+  type: CreditCardActivityType;
+  description: string;
+  category: {
+    id: number;
+    name: string;
+    icon: IconDTO;
+  };
+  amount: number;
+  currencyCode: string;
+  effectiveDate: string;
+  status: CreditCardActivityStatus;
+  installmentsCount: number | null;
+  installmentsPaidCount: number | null;
+  chargeCount: number | null;
+}
+
+export interface CreditCardActivityFilters {
+  page: number;
+  pageSize: number;
+  type?: CreditCardActivityType;
+  search?: string;
+}
+
+export type CreditCardActivityPage = PagedListResponse<CreditCardActivityListItemDTO>;

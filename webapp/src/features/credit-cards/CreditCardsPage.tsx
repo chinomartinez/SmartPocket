@@ -85,6 +85,7 @@ export function CreditCardsPage() {
       />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(330px,0.8fr)]">
         <CreditCardActivitySection
+          cardId={selectedCard.id}
           cardName={selectedCard.name}
           currencyCode={selectedCard.currencyCode}
         />

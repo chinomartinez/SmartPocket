@@ -1,6 +1,8 @@
 import { spApiClient } from "@/api/spApiClient";
 import type {
   CreditCardCreateCommand,
+  CreditCardActivityFilters,
+  CreditCardActivityPage,
   CreditCardListItemDTO,
   CreditCardOverviewDTO,
 } from "./creditCardTypes";
@@ -15,6 +17,14 @@ export const creditCardService = {
 
   getOverview: async (id: number) => {
     const response = await spApiClient.get<CreditCardOverviewDTO>(`${BASE_PATH}/${id}/overview`);
+    return response.data;
+  },
+
+  getActivities: async (id: number, filters: CreditCardActivityFilters) => {
+    const response = await spApiClient.get<CreditCardActivityPage>(
+      `${BASE_PATH}/${id}/activities`,
+      { params: { ...filters } },
+    );
     return response.data;
   },
 

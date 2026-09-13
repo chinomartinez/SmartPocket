@@ -122,18 +122,19 @@ export function CreditCardActivitySection({ cardName, currencyCode }: CreditCard
         </div>
       </div>
       <div className="overflow-hidden rounded-xl border border-border-subtle bg-surface-container-low/40">
-        <div className="hidden grid-cols-[minmax(0,1.7fr)_110px_130px_32px] gap-4 border-b border-border-subtle px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-text-quaternary md:grid">
+        <div className="hidden grid-cols-[minmax(0,1.7fr)_110px_130px_110px_32px] gap-4 border-b border-border-subtle px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-text-quaternary md:grid">
           <span>Consumo</span>
-          <span>Fecha</span>
-          <span>Importe</span>
+          <span className="text-center">Fecha</span>
+          <span className="text-center">Importe</span>
+          <span className="text-center">Estado</span>
           <span />
         </div>
         {visiblePurchases.map((purchase) => (
           <div
             key={purchase.id}
-            className="grid gap-3 border-b border-border-subtle px-4 py-4 last:border-0 md:grid-cols-[minmax(0,1.7fr)_110px_130px_32px] md:items-center md:gap-4 md:px-5"
+            className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-3 border-b border-border-subtle px-4 py-4 last:border-0 md:grid-cols-[minmax(0,1.7fr)_110px_130px_110px_32px] md:items-center md:gap-4 md:px-5"
           >
-            <div className="flex min-w-0 items-center gap-3">
+            <div className="col-span-2 row-start-1 flex min-w-0 items-center gap-3 md:col-auto md:row-auto">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-sm font-semibold text-sp-blue-300">
                 {purchase.icon}
               </span>
@@ -148,22 +149,18 @@ export function CreditCardActivitySection({ cardName, currencyCode }: CreditCard
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between text-xs text-text-quaternary md:block">
+            <div className="col-start-1 row-start-2 text-xs text-text-quaternary md:col-auto md:row-auto md:justify-self-center">
               {purchase.date}
-              <Badge
-                variant="outline"
-                className={`ml-2 md:hidden ${purchase.type === "Suscripción" ? "border-violet-400/30 text-violet-300" : "border-sp-blue-400/30 text-sp-blue-300"}`}
-              >
-                {purchase.type}
-              </Badge>
             </div>
-            <div className="flex items-center justify-between md:block">
-              <span className="text-sm font-semibold text-foreground">
+            <div className="col-start-1 row-start-3 flex items-center justify-start md:col-auto md:row-auto md:justify-self-center">
+              <span className="whitespace-nowrap text-sm font-semibold text-foreground">
                 {formatCurrency(purchase.amount, currencyCode)}
               </span>
+            </div>
+            <div className="col-start-2 row-start-2 justify-self-end md:col-auto md:row-auto md:justify-self-center">
               <Badge
                 variant="outline"
-                className={`ml-2 hidden md:inline-flex ${purchase.status === "Pagada" ? "border-emerald-500/30 text-emerald-400" : purchase.type === "Suscripción" ? "border-violet-400/30 text-violet-300" : "border-amber-400/30 text-amber-300"}`}
+                className={`whitespace-nowrap ${purchase.status === "Pagada" ? "border-emerald-500/30 text-emerald-400" : purchase.type === "Suscripción" ? "border-violet-400/30 text-violet-300" : "border-amber-400/30 text-amber-300"}`}
               >
                 {purchase.status}
               </Badge>
@@ -171,7 +168,7 @@ export function CreditCardActivitySection({ cardName, currencyCode }: CreditCard
             <button
               type="button"
               aria-label={`Editar ${purchase.description}`}
-              className="hidden text-text-quaternary hover:text-foreground md:block"
+              className="hidden text-text-quaternary hover:text-foreground md:col-auto md:row-auto md:block"
             >
               <Ellipsis className="size-5" />
             </button>

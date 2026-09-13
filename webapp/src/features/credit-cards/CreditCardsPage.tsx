@@ -16,6 +16,7 @@ export function CreditCardsPage() {
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [cardDialogOpen, setCardDialogOpen] = useState(false);
   const [editingCardId, setEditingCardId] = useState<number | null>(null);
+
   const selectedCard = creditCards?.find((card) => card.id === selectedCardId) ?? creditCards?.[0];
   const overviewQuery = useCreditCardOverview(selectedCard?.id ?? 0);
   const editingCard = creditCards?.find((card) => card.id === editingCardId);
@@ -83,7 +84,10 @@ export function CreditCardsPage() {
         onEdit={openEditCardDialog}
       />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(330px,0.8fr)]">
-        <CreditCardActivitySection cardName={selectedCard.name} currencyCode={selectedCard.currencyCode} />
+        <CreditCardActivitySection
+          cardName={selectedCard.name}
+          currencyCode={selectedCard.currencyCode}
+        />
         <CreditCardStatementList currencyCode={selectedCard.currencyCode} />
       </div>
       <CreditCardFormDialog

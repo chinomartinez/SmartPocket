@@ -5,6 +5,8 @@ import type {
   CreditCardActivityPage,
   CreditCardListItemDTO,
   CreditCardOverviewDTO,
+  CreditCardPurchaseCommand,
+  CreditCardSubscriptionCommand,
 } from "./creditCardTypes";
 
 const BASE_PATH = "/creditcards";
@@ -26,6 +28,36 @@ export const creditCardService = {
       { params: { ...filters } },
     );
     return response.data;
+  },
+
+  createPurchase: async (data: CreditCardPurchaseCommand) => {
+    const response = await spApiClient.post<{ id: number }>("/creditcardpurchases", data);
+    return response.data;
+  },
+
+  updatePurchase: async (id: number, data: CreditCardPurchaseCommand) => {
+    await spApiClient.put(`/creditcardpurchases/${id}`, data);
+  },
+
+  deletePurchase: async (id: number) => {
+    await spApiClient.delete(`/creditcardpurchases/${id}`);
+  },
+
+  createSubscription: async (data: CreditCardSubscriptionCommand) => {
+    const response = await spApiClient.post<{ id: number }>("/creditcardsubscriptions", data);
+    return response.data;
+  },
+
+  updateSubscription: async (id: number, data: CreditCardSubscriptionCommand) => {
+    await spApiClient.put(`/creditcardsubscriptions/${id}`, data);
+  },
+
+  deleteSubscription: async (id: number) => {
+    await spApiClient.delete(`/creditcardsubscriptions/${id}`);
+  },
+
+  cancelSubscription: async (id: number) => {
+    await spApiClient.patch(`/creditcardsubscriptions/${id}/cancel`);
   },
 
   create: async (data: CreditCardCreateCommand) => {

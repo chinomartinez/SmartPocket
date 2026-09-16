@@ -1,5 +1,6 @@
 import type { IconDTO } from "../shared/sharedTypes";
 import type { PagedListResponse } from "../shared/sharedTypes";
+import type { MoneyDTO } from "../transactions/transactionTypes";
 
 export interface DayRangeDTO {
   startDay: number;
@@ -71,3 +72,20 @@ export interface CreditCardActivityFilters {
 }
 
 export type CreditCardActivityPage = PagedListResponse<CreditCardActivityListItemDTO>;
+
+export interface CreditCardPurchaseCommand {
+  creditCardId: number;
+  categoryId: number;
+  description: string;
+  effectiveDate: string;
+  purchaseAmount: MoneyDTO;
+  installments: number;
+}
+
+export interface CreditCardSubscriptionCommand {
+  creditCardId: number;
+  categoryId: number;
+  description: string;
+  effectiveDate: string;
+  subscriptionAmount: MoneyDTO;
+}

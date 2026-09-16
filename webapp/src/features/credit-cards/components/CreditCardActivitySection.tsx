@@ -1,19 +1,44 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Ellipsis, Filter, MoreHorizontal, Plus, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Ellipsis, Filter, Plus, Search } from "lucide-react";
 import { ErrorAlert } from "@/components/ErrorAlert";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useCreditCardActivities } from "@/api/services/credit-cards/useCreditCards";
+import {
+  useCancelCreditCardSubscription,
+  useCreditCardActivities,
+  useDeleteCreditCardPurchase,
+  useDeleteCreditCardSubscription,
+} from "@/api/services/credit-cards/useCreditCards";
 import type {
   CreditCardActivityListItemDTO,
   CreditCardActivityType,
 } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
+import { CreditCardPurchaseFormDialog } from "../CreditCardPurchaseFormDialog";
+import { CreditCardSubscriptionFormDialog } from "../CreditCardSubscriptionFormDialog";
+import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
 
 type ActivityFilter = "Todos" | CreditCardActivityType;
 
 const PAGE_SIZE = 10;
+
+const ACTIVITY_FILTER_OPTIONS = [
+  "Todos",
+  CREDIT_CARD_ACTIVITY_TYPES.PURCHASE,
+  CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION,
+] as const;
+
+const ACTIVITY_TYPE_LABELS: Record<CreditCardActivityType, string> = {
+  [CREDIT_CARD_ACTIVITY_TYPES.PURCHASE]: "Compras",
+  [CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION]: "Suscripciones",
+};
+
+type ActivityDialogState =
+  | { mode: "create"; type: CreditCardActivityType }
+  | { mode: "edit"; activity: CreditCardActivityListItemDTO }
+  | null;
 
 const statusLabels = {
   InProgress: "En proceso",
@@ -27,18 +52,17 @@ function getStatusClass(activity: CreditCardActivityListItemDTO) {
   if (activity.status === "Paid") return "border-emerald-500/30 text-emerald-400";
   if (activity.status === "Finished") return "border-slate-400/30 text-slate-300";
   if (activity.status === "Cancelled") return "border-red-400/30 text-red-300";
-  if (activity.type === "Subscription") return "border-violet-400/30 text-violet-300";
+  if (activity.type === CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION)
+    return "border-violet-400/30 text-violet-300";
   return "border-amber-400/30 text-amber-300";
 }
 
 function getActivityDetails(activity: CreditCardActivityListItemDTO) {
-  if (activity.type === "Subscription") {
+  if (activity.type === CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION) {
     return activity.chargeCount === null ? "Suscripción" : `${activity.chargeCount} cargos`;
   }
 
-  return activity.installmentsCount === null
-    ? "Compra"
-    : `${activity.installmentsCount} cuotas`;
+  return activity.installmentsCount === null ? "Compra" : `${activity.installmentsCount} cuotas`;
 }
 
 interface CreditCardActivitySectionProps {
@@ -56,6 +80,14 @@ export function CreditCardActivitySection({
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
+  const [dialogState, setDialogState] = useState<ActivityDialogState>(null);
+  const [deleteActivity, setDeleteActivity] = useState<CreditCardActivityListItemDTO>();
+  const [openActionActivity, setOpenActionActivity] =
+    useState<CreditCardActivityListItemDTO>();
+  const deletePurchaseMutation = useDeleteCreditCardPurchase();
+  const deleteSubscriptionMutation = useDeleteCreditCardSubscription();
+  const cancelSubscriptionMutation = useCancelCreditCardSubscription();
+
   const activityQuery = useCreditCardActivities(cardId, {
     page,
     pageSize: PAGE_SIZE,
@@ -64,10 +96,7 @@ export function CreditCardActivitySection({
   });
 
   const activities = activityQuery.data?.data ?? [];
-  const totalPages = Math.max(
-    1,
-    Math.ceil((activityQuery.data?.totalCount ?? 0) / PAGE_SIZE),
-  );
+  const totalPages = Math.max(1, Math.ceil((activityQuery.data?.totalCount ?? 0) / PAGE_SIZE));
 
   const updateFilter = (nextFilter: ActivityFilter) => {
     setFilter(nextFilter);
@@ -89,11 +118,25 @@ export function CreditCardActivitySection({
           <p className="mt-1 text-sm text-text-quaternary">Actividad de {cardName}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Plus className="size-4" /> <span className="hidden sm:inline">Agregar</span>
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label="Agregar compra"
+            onClick={() =>
+              setDialogState({ mode: "create", type: CREDIT_CARD_ACTIVITY_TYPES.PURCHASE })
+            }
+          >
+            <Plus className="size-4" /> <span>Compra</span>
           </Button>
-          <Button variant="outline" size="icon-sm" aria-label="Más opciones">
-            <MoreHorizontal className="size-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label="Agregar suscripción"
+            onClick={() =>
+              setDialogState({ mode: "create", type: CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION })
+            }
+          >
+            <Plus className="size-4" /> <span>Suscripción</span>
           </Button>
         </div>
       </div>
@@ -109,14 +152,14 @@ export function CreditCardActivitySection({
         </div>
         <div className="flex gap-2 overflow-x-auto">
           <Filter className="mt-2 size-4 shrink-0 text-text-quaternary" />
-          {(["Todos", "Purchase", "Subscription"] as const).map((item) => (
+          {ACTIVITY_FILTER_OPTIONS.map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => updateFilter(item)}
               className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${filter === item ? "bg-sp-blue-500/15 text-sp-blue-400" : "text-text-quaternary hover:bg-hover-muted hover:text-foreground"}`}
             >
-              {item === "Purchase" ? "Compras" : item === "Subscription" ? "Suscripciones" : item}
+              {item === "Todos" ? item : ACTIVITY_TYPE_LABELS[item]}
             </button>
           ))}
         </div>
@@ -130,7 +173,9 @@ export function CreditCardActivitySection({
           <span />
         </div>
         {activityQuery.isLoading ? (
-          <div className="px-5 py-10 text-center text-sm text-text-quaternary">Cargando actividad...</div>
+          <div className="px-5 py-10 text-center text-sm text-text-quaternary">
+            Cargando actividad...
+          </div>
         ) : activityQuery.error ? (
           <ErrorAlert error={activityQuery.error} className="m-4" />
         ) : activities.length === 0 ? (
@@ -151,7 +196,9 @@ export function CreditCardActivitySection({
                   className="shrink-0"
                 />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">{activity.description}</p>
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {activity.description}
+                  </p>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-quaternary">
                     <span>{activity.category.name}</span>
                     <span className="size-1 rounded-full bg-text-quaternary/50" />
@@ -168,17 +215,70 @@ export function CreditCardActivitySection({
                 </span>
               </div>
               <div className="col-start-2 row-start-2 justify-self-end md:col-auto md:row-auto md:justify-self-center">
-                <Badge variant="outline" className={`whitespace-nowrap ${getStatusClass(activity)}`}>
+                <Badge
+                  variant="outline"
+                  className={`whitespace-nowrap ${getStatusClass(activity)}`}
+                >
                   {statusLabels[activity.status]}
                 </Badge>
               </div>
-              <button
-                type="button"
-                aria-label={`Editar ${activity.description}`}
-                className="hidden text-text-quaternary hover:text-foreground md:col-auto md:row-auto md:block"
-              >
-                <Ellipsis className="size-5" />
-              </button>
+              <div className="relative col-start-2 row-start-3 justify-self-end md:col-auto md:row-auto md:block">
+                <button
+                  type="button"
+                  aria-label={`Acciones para ${activity.description}`}
+                  onClick={() =>
+                    setOpenActionActivity((current) =>
+                      current?.id === activity.id && current.type === activity.type
+                        ? undefined
+                        : activity,
+                    )
+                  }
+                  className="text-text-quaternary hover:text-foreground"
+                >
+                  <Ellipsis className="size-5" />
+                </button>
+                {openActionActivity?.id === activity.id &&
+                  openActionActivity.type === activity.type && (
+                  <div className="absolute right-0 top-8 z-10 min-w-36 rounded-lg border border-border-subtle bg-surface-container-high p-1 shadow-lg">
+                    <button
+                      type="button"
+                      className="block w-full rounded-md px-3 py-2 text-left text-xs text-foreground hover:bg-hover-muted"
+                      onClick={() => {
+                        setDialogState({ mode: "edit", activity });
+                        setOpenActionActivity(undefined);
+                      }}
+                    >
+                      Editar
+                    </button>
+                    {activity.type === CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION &&
+                      activity.status === "Active" && (
+                        <button
+                          type="button"
+                          className="block w-full rounded-md px-3 py-2 text-left text-xs text-amber-300 hover:bg-hover-muted"
+                          onClick={() => {
+                            cancelSubscriptionMutation.mutate({
+                              id: activity.id,
+                              creditCardId: cardId,
+                            });
+                            setOpenActionActivity(undefined);
+                          }}
+                        >
+                          Cancelar suscripción
+                        </button>
+                      )}
+                    <button
+                      type="button"
+                      className="block w-full rounded-md px-3 py-2 text-left text-xs text-red-300 hover:bg-hover-muted"
+                      onClick={() => {
+                        setDeleteActivity(activity);
+                        setOpenActionActivity(undefined);
+                      }}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))
         )}
@@ -208,6 +308,69 @@ export function CreditCardActivitySection({
           </div>
         </div>
       </div>
+      <CreditCardPurchaseFormDialog
+        cardId={cardId}
+        currencyCode={currencyCode}
+        activity={
+          dialogState?.mode === "edit" &&
+          dialogState.activity.type === CREDIT_CARD_ACTIVITY_TYPES.PURCHASE
+            ? dialogState.activity
+            : undefined
+        }
+        open={
+          dialogState?.mode === "create"
+            ? dialogState.type === CREDIT_CARD_ACTIVITY_TYPES.PURCHASE
+            : dialogState?.mode === "edit" &&
+              dialogState.activity.type === CREDIT_CARD_ACTIVITY_TYPES.PURCHASE
+        }
+        onOpenChange={(open) => {
+          if (!open) setDialogState(null);
+        }}
+      />
+      <CreditCardSubscriptionFormDialog
+        cardId={cardId}
+        currencyCode={currencyCode}
+        activity={
+          dialogState?.mode === "edit" &&
+          dialogState.activity.type === CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION
+            ? dialogState.activity
+            : undefined
+        }
+        open={
+          dialogState?.mode === "create"
+            ? dialogState.type === CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION
+            : dialogState?.mode === "edit" &&
+              dialogState.activity.type === CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION
+        }
+        onOpenChange={(open) => {
+          if (!open) setDialogState(null);
+        }}
+      />
+      <DeleteConfirmationDialog
+        open={Boolean(deleteActivity)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteActivity(undefined);
+        }}
+        onConfirm={() => {
+          if (!deleteActivity) return;
+          const mutation =
+            deleteActivity.type === CREDIT_CARD_ACTIVITY_TYPES.PURCHASE
+              ? deletePurchaseMutation
+              : deleteSubscriptionMutation;
+          mutation.mutate(
+            { id: deleteActivity.id, creditCardId: cardId },
+            { onSuccess: () => setDeleteActivity(undefined) },
+          );
+        }}
+        itemName={deleteActivity?.description ?? ""}
+        itemType={
+          deleteActivity?.type === CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION
+            ? "suscripción"
+            : "compra"
+        }
+        isDeleting={deletePurchaseMutation.isPending || deleteSubscriptionMutation.isPending}
+        description="Esta acción elimina el registro de SmartPocket y puede afectar la trazabilidad de sus cuotas o cargos asociados."
+      />
     </section>
   );
 }

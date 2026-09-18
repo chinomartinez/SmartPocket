@@ -26,7 +26,7 @@ import {
   useCreateCreditCard,
   useUpdateCreditCard,
 } from "@/api/services/credit-cards/useCreditCards";
-import { creditCardSchema, type CreditCardFormValues } from "./creditCardSchema";
+import { creditCardSchema, type CreditCardFormValues } from "../creditCardSchema";
 
 interface CreditCardFormDialogProps {
   card?: CreditCardFormValues;

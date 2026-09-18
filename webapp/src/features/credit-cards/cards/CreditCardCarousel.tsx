@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Check, CreditCard } from "lucide-react";
+import { Check } from "lucide-react";
+import { IconBox } from "@/components/iconBoxes/IconBox";
 import type { CreditCardListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
 import { themeClasses, themeForCard } from "./creditCardHelpers";
@@ -10,11 +11,7 @@ interface CreditCardCarouselProps {
   onSelect: (id: number) => void;
 }
 
-export function CreditCardCarousel({
-  cards,
-  selectedCardId,
-  onSelect,
-}: CreditCardCarouselProps) {
+export function CreditCardCarousel({ cards, selectedCardId, onSelect }: CreditCardCarouselProps) {
   const cardRefs = useRef<Record<number, HTMLElement | null>>({});
 
   useEffect(() => {
@@ -71,7 +68,13 @@ export function CreditCardCarousel({
                       </p>
                       <h3 className="mt-1 text-lg font-semibold">{card.name}</h3>
                     </div>
-                    <CreditCard className="size-7 text-white/80" />
+                    <IconBox
+                      icon={card.icon}
+                      size="md"
+                      shape="rounded"
+                      backgroundOpacity={20}
+                      className="shrink-0"
+                    />
                   </div>
                   <div className="relative mt-5 flex items-end justify-between text-xs">
                     <div>

@@ -30,19 +30,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  useCreateCreditCardSubscription,
-  useUpdateCreditCardSubscription,
+  useCreateCreditCardPurchase,
+  useUpdateCreditCardPurchase,
 } from "@/api/services/credit-cards/useCreditCards";
 import type { CreditCardActivityListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import type { ApiError } from "@/api/types";
 import {
-  creditCardSubscriptionActivitySchema,
-  type CreditCardSubscriptionActivityFormValues,
-} from "./creditCardActivitySchema";
-import { CREDIT_CARD_ACTIVITY_TYPES } from "./creditCardActivityConstants";
+  creditCardPurchaseActivitySchema,
+  type CreditCardPurchaseActivityFormValues,
+} from "../creditCardActivitySchema";
+import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
 
-interface CreditCardSubscriptionFormDialogProps {
+interface CreditCardPurchaseFormDialogProps {
   cardId: number;
   currencyCode: string;
   activity?: CreditCardActivityListItemDTO;
@@ -50,31 +50,31 @@ interface CreditCardSubscriptionFormDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const DEFAULT_VALUES: CreditCardSubscriptionActivityFormValues = {
+const DEFAULT_VALUES: CreditCardPurchaseActivityFormValues = {
   categoryId: 0,
   description: "",
   effectiveDate: new Date().toISOString().slice(0, 10),
   currencyCode: "ARS",
   amount: 0,
+  installments: 1,
 };
 
-export function CreditCardSubscriptionFormDialog({
+export function CreditCardPurchaseFormDialog({
   cardId,
   currencyCode,
   activity,
   open,
   onOpenChange,
-}: CreditCardSubscriptionFormDialogProps) {
+}: CreditCardPurchaseFormDialogProps) {
   const categoriesQuery = useCategories(false);
   const currenciesQuery = useCurrencies();
-  const createMutation = useCreateCreditCardSubscription();
-  const updateMutation = useUpdateCreditCardSubscription();
-
-  const isEdit = activity?.type === CREDIT_CARD_ACTIVITY_TYPES.SUBSCRIPTION;
+  const createMutation = useCreateCreditCardPurchase();
+  const updateMutation = useUpdateCreditCardPurchase();
+  const isEdit = activity?.type === CREDIT_CARD_ACTIVITY_TYPES.PURCHASE;
   const activeMutation = isEdit ? updateMutation : createMutation;
 
-  const form = useForm<CreditCardSubscriptionActivityFormValues>({
-    resolver: zodResolver(creditCardSubscriptionActivitySchema),
+  const form = useForm<CreditCardPurchaseActivityFormValues>({
+    resolver: zodResolver(creditCardPurchaseActivitySchema),
     values: activity
       ? {
           categoryId: activity.category.id,
@@ -82,11 +82,13 @@ export function CreditCardSubscriptionFormDialog({
           effectiveDate: activity.effectiveDate,
           currencyCode: activity.currencyCode,
           amount: activity.amount,
+          installments: activity.installmentsCount ?? 1,
         }
       : DEFAULT_VALUES,
   });
 
   const handleFormError = useFormErrorHandler(form);
+
   const apiError = activeMutation.error as ApiError | null;
   const formCurrencyCode = form.watch("currencyCode");
   const currencies = (currenciesQuery.data ?? []).filter(
@@ -101,13 +103,14 @@ export function CreditCardSubscriptionFormDialog({
     onOpenChange(nextOpen);
   };
 
-  const onSubmit = (values: CreditCardSubscriptionActivityFormValues) => {
+  const onSubmit = (values: CreditCardPurchaseActivityFormValues) => {
     const data = {
       creditCardId: cardId,
       categoryId: values.categoryId,
       description: values.description,
       effectiveDate: values.effectiveDate,
-      subscriptionAmount: { amount: values.amount, currencyCode: values.currencyCode },
+      purchaseAmount: { amount: values.amount, currencyCode: values.currencyCode },
+      installments: values.installments,
     };
 
     if (isEdit && activity) {
@@ -128,9 +131,9 @@ export function CreditCardSubscriptionFormDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar suscripción" : "Agregar suscripción"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Editar compra" : "Agregar compra"}</DialogTitle>
           <DialogDescription>
-            Registrá un cargo recurrente asociado a esta tarjeta.
+            Registrá una compra única o en cuotas de esta tarjeta.
           </DialogDescription>
         </DialogHeader>
         {apiError && <ErrorAlert error={apiError} />}
@@ -143,7 +146,7 @@ export function CreditCardSubscriptionFormDialog({
                 <FormItem>
                   <FormLabel>Descripción</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: Spotify Premium" {...field} />
+                    <Input placeholder="Ej: Notebook Lenovo" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -228,25 +231,46 @@ export function CreditCardSubscriptionFormDialog({
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Importe inicial ({formCurrencyCode || currencyCode})</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      {...field}
-                      onChange={(event) => field.onChange(Number(event.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Importe ({formCurrencyCode || currencyCode})</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        {...field}
+                        onChange={(event) => field.onChange(Number(event.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="installments"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cuotas</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="1"
+                        step="1"
+                        {...field}
+                        onChange={(event) => field.onChange(Number(event.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                 Cancelar

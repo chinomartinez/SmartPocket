@@ -72,7 +72,7 @@ export function CreditCardStatementList({ currencyCode }: CreditCardStatementLis
               <div>
                 <p className="text-xs text-text-quaternary">Total del resumen</p>
                 <p className="mt-1 text-lg font-semibold text-foreground">
-                    {formatCurrency(statement.total, currencyCode)}
+                  {formatCurrency(statement.total, currencyCode)}
                 </p>
               </div>
               <span className="text-xs text-text-quaternary">

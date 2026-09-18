@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { useCreditCardOverview, useCreditCards } from "@/api/services/credit-cards/useCreditCards";
-import { CreditCardFormDialog } from "./CreditCardFormDialog";
+import { CreditCardFormDialog } from "./cards/CreditCardFormDialog";
 import type { CreditCardFormValues } from "./creditCardSchema";
-import { CreditCardActivitySection } from "./components/CreditCardActivitySection";
-import { CreditCardCarousel } from "./components/CreditCardCarousel";
-import { CreditCardHeader } from "./components/CreditCardHeader";
-import { CreditCardsEmptyState } from "./components/CreditCardsEmptyState";
-import { CreditCardsLoadingState } from "./components/CreditCardsLoadingState";
-import { CreditCardStatementList } from "./components/CreditCardStatementList";
-import { SelectedCreditCardOverview } from "./components/SelectedCreditCardOverview";
+import { CreditCardActivitySection } from "./activities/CreditCardActivitySection";
+import { CreditCardCarousel } from "./cards/CreditCardCarousel";
+import { CreditCardHeader } from "./cards/CreditCardHeader";
+import { CreditCardsEmptyState } from "./cards/CreditCardsEmptyState";
+import { CreditCardsLoadingState } from "./cards/CreditCardsLoadingState";
+import { CreditCardStatementList } from "./statements/CreditCardStatementList";
+import { SelectedCreditCardOverview } from "./cards/SelectedCreditCardOverview";
 
 export function CreditCardsPage() {
   const { data: creditCards, isLoading, error } = useCreditCards();

@@ -1,4 +1,4 @@
-import { CreditCard, Info, Pencil } from "lucide-react";
+import { Info, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
@@ -9,6 +9,7 @@ import type {
   CreditCardOverviewDTO,
 } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
+import { IconBox } from "@/components/iconBoxes/IconBox";
 
 interface SelectedCreditCardOverviewProps {
   card: CreditCardListItemDTO;
@@ -38,7 +39,7 @@ export function SelectedCreditCardOverview({
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-4">
           <div className="flex size-12 items-center justify-center rounded-xl bg-sp-blue-500/15 text-sp-blue-400">
-            <CreditCard className="size-6" />
+            <IconBox icon={card.icon} size="sm" shape="rounded" />
           </div>
           <div className="relative min-w-0 flex-1 pr-20 lg:pr-0">
             <div className="flex flex-wrap items-center gap-2">

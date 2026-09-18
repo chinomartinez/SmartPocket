@@ -26,11 +26,11 @@ import {
   useCreateCreditCard,
   useUpdateCreditCard,
 } from "@/api/services/credit-cards/useCreditCards";
-import { creditCardSchema, type CreditCardFormValues } from "../creditCardSchema";
+import type { CreditCardListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
+import { creditCardSchema, type CreditCardFormValues } from "./creditCardSchema";
 
 interface CreditCardFormDialogProps {
-  card?: CreditCardFormValues;
-  cardId?: number;
+  card?: CreditCardListItemDTO;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -44,20 +44,26 @@ const DEFAULT_FORM_VALUES: CreditCardFormValues = {
   paymentDueRange: { startDay: 4, endDay: 13 },
 };
 
-export function CreditCardFormDialog({
-  card,
-  cardId,
-  open,
-  onOpenChange,
-}: CreditCardFormDialogProps) {
+export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFormDialogProps) {
   const mode = card ? "edit" : "create";
   const createMutation = useCreateCreditCard();
   const updateMutation = useUpdateCreditCard();
   const activeMutation = mode === "create" ? createMutation : updateMutation;
+
   const form = useForm<CreditCardFormValues>({
     resolver: zodResolver(creditCardSchema),
-    values: card ?? DEFAULT_FORM_VALUES,
+    values: card
+      ? {
+          name: card.name,
+          icon: card.icon,
+          currencyCode: card.currencyCode,
+          creditLimit: card.creditLimit,
+          statementClosingRange: card.statementClosingRange,
+          paymentDueRange: card.paymentDueRange,
+        }
+      : DEFAULT_FORM_VALUES,
   });
+
   const handleFormError = useFormErrorHandler(form);
   const apiError = activeMutation.error as ApiError | null;
 
@@ -78,9 +84,9 @@ export function CreditCardFormDialog({
       return;
     }
 
-    if (cardId) {
+    if (card) {
       updateMutation.mutate(
-        { id: cardId, data },
+        { id: card.id, data },
         {
           onSuccess: () => handleOpenChange(false),
           onError: handleFormError,

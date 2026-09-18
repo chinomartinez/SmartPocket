@@ -39,7 +39,7 @@ import type { ApiError } from "@/api/types";
 import {
   creditCardPurchaseActivitySchema,
   type CreditCardPurchaseActivityFormValues,
-} from "../creditCardActivitySchema";
+} from "./creditCardActivitySchema";
 import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
 
 interface CreditCardPurchaseFormDialogProps {
@@ -152,7 +152,7 @@ export function CreditCardPurchaseFormDialog({
                 </FormItem>
               )}
             />
-            <div className="grid min-w-0 gap-4 sm:grid-cols-3">
+            <div className="grid min-w-0 items-start gap-4 sm:grid-cols-3">
               <FormField
                 control={form.control}
                 name="categoryId"
@@ -231,7 +231,7 @@ export function CreditCardPurchaseFormDialog({
                 )}
               />
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid items-start gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="amount"

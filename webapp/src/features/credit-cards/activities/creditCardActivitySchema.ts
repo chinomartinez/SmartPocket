@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const commonActivityFields = {
-  categoryId: z.number().int().positive("Seleccioná una categoría"),
+  categoryId: z.number().int().positive("Elegí una categoría"),
   description: z.string().min(1, "La descripción es obligatoria").max(200),
   effectiveDate: z.string().min(1, "La fecha es obligatoria"),
   currencyCode: z
@@ -12,13 +12,13 @@ const commonActivityFields = {
 
 export const creditCardPurchaseActivitySchema = z.object({
   ...commonActivityFields,
-  amount: z.number().positive("El importe debe ser mayor que cero"),
-  installments: z.number().int().positive("Las cuotas deben ser mayores que cero"),
+  amount: z.number().positive("Debe ser mayor a 0"),
+  installments: z.number().int().positive("Debe ser mayor a 0"),
 });
 
 export const creditCardSubscriptionActivitySchema = z.object({
   ...commonActivityFields,
-  amount: z.number().positive("El importe debe ser mayor que cero"),
+  amount: z.number().positive("Debe ser mayor a 0"),
 });
 
 export type CreditCardPurchaseActivityFormValues = z.infer<typeof creditCardPurchaseActivitySchema>;

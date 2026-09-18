@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { useCreditCardOverview, useCreditCards } from "@/api/services/credit-cards/useCreditCards";
 import { CreditCardFormDialog } from "./cards/CreditCardFormDialog";
-import type { CreditCardFormValues } from "./creditCardSchema";
 import { CreditCardActivitySection } from "./activities/CreditCardActivitySection";
 import { CreditCardCarousel } from "./cards/CreditCardCarousel";
 import { CreditCardHeader } from "./cards/CreditCardHeader";
@@ -37,17 +36,6 @@ export function CreditCardsPage() {
     setEditingCardId(selectedCard.id);
     setCardDialogOpen(true);
   };
-
-  const editingCardFormValues: CreditCardFormValues | undefined = editingCard
-    ? {
-        name: editingCard.name,
-        icon: editingCard.icon,
-        currencyCode: editingCard.currencyCode,
-        creditLimit: editingCard.creditLimit,
-        statementClosingRange: editingCard.statementClosingRange,
-        paymentDueRange: editingCard.paymentDueRange,
-      }
-    : undefined;
 
   if (isLoading) return <CreditCardsLoadingState />;
   if (error) return <ErrorAlert error={error} className="m-4" />;
@@ -92,8 +80,7 @@ export function CreditCardsPage() {
         <CreditCardStatementList currencyCode={selectedCard.currencyCode} />
       </div>
       <CreditCardFormDialog
-        card={editingCardFormValues}
-        cardId={editingCardId ?? undefined}
+        card={editingCard}
         open={cardDialogOpen}
         onOpenChange={setCardDialogOpen}
       />

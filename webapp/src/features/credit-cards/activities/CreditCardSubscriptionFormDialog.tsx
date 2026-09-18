@@ -39,7 +39,7 @@ import type { ApiError } from "@/api/types";
 import {
   creditCardSubscriptionActivitySchema,
   type CreditCardSubscriptionActivityFormValues,
-} from "../creditCardActivitySchema";
+} from "./creditCardActivitySchema";
 import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
 
 interface CreditCardSubscriptionFormDialogProps {
@@ -149,7 +149,7 @@ export function CreditCardSubscriptionFormDialog({
                 </FormItem>
               )}
             />
-            <div className="grid min-w-0 gap-4 sm:grid-cols-3">
+            <div className="grid min-w-0 items-start gap-4 sm:grid-cols-3">
               <FormField
                 control={form.control}
                 name="categoryId"

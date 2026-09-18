@@ -110,7 +110,7 @@ export function CreditCardActivityItem({
           <Ellipsis className="size-5" />
         </button>
         {isMenuOpen && (
-          <div className="absolute right-0 top-8 z-10 min-w-36 rounded-lg border border-border-subtle bg-surface-container-high p-1 shadow-lg">
+          <div className="absolute right-0 top-8 z-10 min-w-36 rounded-lg border border-border-subtle bg-card p-1 shadow-lg">
             <button
               type="button"
               className="block w-full rounded-md px-3 py-2 text-left text-xs text-foreground hover:bg-hover-muted"

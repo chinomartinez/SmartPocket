@@ -153,13 +153,17 @@ export function CategoryFormModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md modal-form">
+      <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
         <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
           <DialogTitle>{mode === "create" ? "Nueva Categoría" : "Editar Categoría"}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex min-h-0 flex-1 flex-col"
+          >
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pb-4">
             {/* Error Alert - Solo errores generales (sin propertyName) */}
             {apiError && <ErrorAlert error={apiError} />}
 
@@ -190,7 +194,7 @@ export function CategoryFormModal({
                       <div className="flex gap-3">
                         <Button
                           type="button"
-                          variant={field.value === false ? "default" : "outline"}
+                          variant={field.value === false ? "destructive" : "outline"}
                           onClick={() => field.onChange(false)}
                           className="flex-1"
                         >
@@ -198,7 +202,7 @@ export function CategoryFormModal({
                         </Button>
                         <Button
                           type="button"
-                          variant={field.value === true ? "default" : "outline"}
+                          variant={field.value === true ? "success" : "outline"}
                           onClick={() => field.onChange(true)}
                           className="flex-1"
                         >
@@ -282,8 +286,10 @@ export function CategoryFormModal({
               )}
             />
 
+            </div>
+
             {/* Botones de acción */}
-            <div className="flex justify-between items-center pt-4">
+            <div className="flex shrink-0 flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
               {/* Botón Eliminar - Solo en modo edit y si NO es default */}
               {showDeleteButton ? (
                 <Button
@@ -301,16 +307,17 @@ export function CategoryFormModal({
               )}
 
               {/* Botones principales */}
-              <div className="flex gap-3">
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => handleOpenChange(false)}
                   disabled={isSubmitting}
+                  className="w-full sm:w-auto"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
                   {isSubmitting ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
                 </Button>
               </div>

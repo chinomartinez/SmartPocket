@@ -43,12 +43,15 @@ export function SelectedCreditCardOverview({
           </div>
           <div className="relative min-w-0 flex-1 pr-20 lg:pr-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 id="selected-card-title" className="text-xl font-semibold text-foreground">
+              <h2
+                id="selected-card-title"
+                className="min-w-0 flex-1 truncate text-xl font-semibold text-foreground"
+              >
                 {card.name}
               </h2>
               <Badge
                 variant="outline"
-                className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                className="shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
               >
                 Activa
               </Badge>

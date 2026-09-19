@@ -97,7 +97,7 @@ export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFor
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Agregar tarjeta" : "Editar tarjeta"}</DialogTitle>
           <DialogDescription>
@@ -108,7 +108,8 @@ export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFor
         {apiError && <ErrorAlert error={apiError} />}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pb-4">
             <FormField
               control={form.control}
               name="name"
@@ -233,11 +234,13 @@ export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFor
               />
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+            </div>
+
+            <DialogFooter className="shrink-0 border-t border-border-subtle pt-4 sm:flex-row">
+              <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => handleOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={activeMutation.isPending}>
+              <Button type="submit" disabled={activeMutation.isPending} className="w-full sm:w-auto">
                 {activeMutation.isPending
                   ? "Guardando..."
                   : mode === "create"

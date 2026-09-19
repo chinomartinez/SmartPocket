@@ -123,7 +123,7 @@ export function TransactionFormModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isIncome]);
 
-  var handleFormError = useFormErrorHandler(form);
+  const handleFormError = useFormErrorHandler(form);
 
   const handleUseCalculatorResult = (value: number) => {
     form.setValue("amount", value);
@@ -202,7 +202,7 @@ export function TransactionFormModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto modal-form">
+      <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
         <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
           <DialogTitle>
             {mode === "create" ? "Nueva Transacción" : "Editar Transacción"}
@@ -210,7 +210,10 @@ export function TransactionFormModal({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="min-h-0 flex-1 space-y-4 overflow-y-auto"
+          >
             {apiError && <ErrorAlert error={apiError} />}
 
             {/* Cuenta */}
@@ -469,7 +472,7 @@ export function TransactionFormModal({
             )}
 
             {/* Botones de acción */}
-            <div className="flex justify-between items-center pt-4">
+            <div className="flex shrink-0 flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
               {/* Botón Eliminar - Solo en modo edit */}
               {showDeleteButton ? (
                 <Button
@@ -487,16 +490,17 @@ export function TransactionFormModal({
               )}
 
               {/* Botones principales */}
-              <div className="flex gap-3">
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => handleOpenChange(false)}
                   disabled={isSubmitting}
+                  className="w-full sm:w-auto"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
                   {isSubmitting
                     ? "Guardando..."
                     : mode === "create"

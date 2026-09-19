@@ -56,7 +56,7 @@ export function CategoryChip({ category, onEdit, isReordering = false }: Categor
       />
 
       {/* Nombre de la categoría */}
-      <div className="w-25 text-center">
+      <div className="w-full min-w-0 text-center">
         <p className="text-sm text-foreground font-medium leading-tight line-clamp-2">
           {category.name}
         </p>

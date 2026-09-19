@@ -98,7 +98,7 @@ export default function RecentTransactions({ accountId }: RecentTransactionsProp
                   className="group/item flex items-center justify-between py-3 sm:border-b sm:border-border-subtle sm:last:border-b-0 hover:bg-hover-muted hover:px-3 hover:rounded-xl transition-all cursor-pointer"
                 >
                   {/* Left: Icon + Description */}
-                  <div className="flex items-center space-x-3">
+                  <div className="flex min-w-0 flex-1 items-center space-x-3">
                     <IconBox
                       icon={transaction.category.icon}
                       size="sm"
@@ -106,11 +106,11 @@ export default function RecentTransactions({ accountId }: RecentTransactionsProp
                       backgroundOpacity={20}
                       animated
                     />
-                    <div>
-                      <p className="text-foreground font-medium text-sm">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">
                         {transaction.category.name} · {transaction.description || ""}
                       </p>
-                      <p className="text-text-quaternary text-xs">
+                      <p className="truncate text-xs text-text-quaternary">
                         {formatRelativeTime(new Date(transaction.effectiveDate))} ·{" "}
                         {transaction.account.name}
                       </p>
@@ -118,7 +118,7 @@ export default function RecentTransactions({ accountId }: RecentTransactionsProp
                   </div>
 
                   {/* Right: Amount */}
-                  <div className="text-right">
+                  <div className="shrink-0 text-right">
                     <p
                       className={`text-sm font-semibold ${
                         transaction.isIncome ? "text-emerald-400" : "text-red-400"

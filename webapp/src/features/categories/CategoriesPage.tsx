@@ -177,7 +177,8 @@ export function CategoriesPage() {
               </Button>
               <Button
                 onClick={handleCreate}
-                className="bg-sp-blue-600 hover:bg-sp-blue-700 transition-colors flex-1 sm:flex-initial"
+                variant="success"
+                className="transition-colors flex-1 sm:flex-initial"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 <span className="hidden sm:inline">Nueva Categoría</span>
@@ -191,14 +192,14 @@ export function CategoriesPage() {
       {/* Filtros por tipo */}
       <div className="flex gap-2">
         <Button
-          variant={typeFilter === false ? "destructive" : "default"}
+          variant={typeFilter === false ? "destructive" : "outline"}
           onClick={() => setTypeFilter(false)}
           className="flex-1 sm:flex-initial"
         >
           💸 Gastos
         </Button>
         <Button
-          variant={typeFilter === true ? "success" : "default"}
+          variant={typeFilter === true ? "success" : "outline"}
           onClick={() => setTypeFilter(true)}
           className="flex-1 sm:flex-initial"
         >
@@ -218,7 +219,7 @@ export function CategoriesPage() {
 
       {/* Loading State */}
       {isLoading && !isReordering && (
-        <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 md:gap-6">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-4 md:grid-cols-6 md:gap-6 lg:grid-cols-8">
           {Array.from({ length: 12 }).map((_, idx) => (
             <CategoryChipSkeleton key={idx} />
           ))}
@@ -266,7 +267,7 @@ export function CategoriesPage() {
         displayCategories.length > 0 &&
         (isReordering ? (
           <SortableContainer items={sortableIds} onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 md:gap-6">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-4 md:grid-cols-6 md:gap-6 lg:grid-cols-8">
               {displayCategories.map((category) => (
                 <SortableItem key={category.id} id={category.id}>
                   <CategoryChip
@@ -281,7 +282,7 @@ export function CategoriesPage() {
         ) : (
           !isLoading &&
           !isError && (
-            <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 md:gap-6">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-4 md:grid-cols-6 md:gap-6 lg:grid-cols-8">
               {displayCategories.map((category) => (
                 <CategoryChip key={category.id} category={category} onEdit={handleEdit} />
               ))}

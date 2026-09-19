@@ -20,7 +20,7 @@ export function CreditCardHeader({ onAdd }: CreditCardHeaderProps) {
           Un solo lugar para seguir tus consumos, cuotas y próximos resúmenes.
         </p>
       </div>
-      <Button className="w-full sm:w-auto" onClick={onAdd}>
+      <Button className="w-full sm:w-auto" onClick={onAdd} variant="success">
         <Plus className="size-4" />
         Agregar tarjeta
       </Button>

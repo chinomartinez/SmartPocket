@@ -203,7 +203,7 @@ export function TransactionFormModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
-        <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
+        <DialogHeader className="mb-1 pb-1 border-b border-slate-700/50">
           <DialogTitle>
             {mode === "create" ? "Nueva Transacción" : "Editar Transacción"}
           </DialogTitle>
@@ -308,47 +308,6 @@ export function TransactionFormModal({
               )}
             />
 
-            {/* Monto con Mini Calculadora */}
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
-                    Monto
-                  </FormLabel>
-                  <FormControl>
-                    <div className="flex gap-2">
-                      <div className="flex-1 relative">
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setShowCalculator(!showCalculator)}
-                        className={cn(
-                          "shrink-0 text-lg",
-                          showCalculator && "bg-sp-blue-500/20 border border-sp-blue-500/40",
-                        )}
-                        title="Mini Calculadora"
-                      >
-                        🔢
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Mini Calculadora (se muestra condicionalmente) */}
             {showCalculator && (
               <MiniCalculator
@@ -360,6 +319,49 @@ export function TransactionFormModal({
             {/* Campos ocultos cuando calculadora está activa */}
             {!showCalculator && (
               <>
+                {/* Monto */}
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                        Monto
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <div className="flex-1 relative">
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              {...field}
+                              onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setShowCalculator(!showCalculator)}
+                            className={cn(
+                              "shrink-0 text-lg",
+                              showCalculator && "bg-sp-blue-500/20 border border-sp-blue-500/40",
+                            )}
+                            title="Mini Calculadora"
+                            aria-label="Abrir calculadora"
+                            aria-expanded={showCalculator}
+                          >
+                            🔢
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Categoría */}
                 <FormField
                   control={form.control}

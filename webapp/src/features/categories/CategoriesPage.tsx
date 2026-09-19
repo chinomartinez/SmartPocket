@@ -136,13 +136,13 @@ export function CategoriesPage() {
   return (
     <div className="space-y-6">
       {/* Header con título y botones */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Categorías</h1>
           <p className="text-text-quaternary">Gestiona las categorías de tus transacciones</p>
         </div>
 
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2">
           {isReordering ? (
             <>
               <Button
@@ -169,19 +169,19 @@ export function CategoriesPage() {
                 onClick={handleStartReorder}
                 disabled={isLoading || isError}
                 variant="outline"
-                className="flex-1 sm:flex-initial"
+                className="flex items-center gap-2 sm:flex-initial"
+                aria-label="Reordenar categorías"
               >
-                <ArrowsUpDownIcon className="h-5 w-5 mr-2" />
+                <ArrowsUpDownIcon className="h-5 w-5" />
                 <span className="hidden sm:inline">Reordenar Categorías</span>
-                <span className="sm:hidden">Reordenar</span>
               </Button>
               <Button
                 onClick={handleCreate}
-                className="transition-colors flex-1 sm:flex-initial"
+                className="flex items-center gap-2 transition-colors sm:flex-initial"
+                aria-label="Nueva categoría"
               >
-                <PlusIcon className="h-5 w-5 mr-2" />
+                <PlusIcon className="h-5 w-5" />
                 <span className="hidden sm:inline">Nueva Categoría</span>
-                <span className="sm:hidden">Nueva</span>
               </Button>
             </>
           )}
@@ -253,7 +253,7 @@ export function CategoriesPage() {
                 Crea tu primera categoría de {typeFilter ? "ingresos" : "gastos"} para empezar a
                 organizar tus transacciones.
               </p>
-               <Button onClick={handleCreate}>
+              <Button onClick={handleCreate}>
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Crear Categoría
               </Button>

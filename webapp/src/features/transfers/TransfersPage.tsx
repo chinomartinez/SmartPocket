@@ -10,7 +10,7 @@ import { TransferList } from "./TransferList";
 import { useAccounts } from "@/api/services/accounts/useAccounts";
 import { useTransferFilters } from "./useTransferFilters";
 import { useTransferList } from "@/api/services/transfers/useTransfers";
-import { Plus } from "lucide-react";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 
 // ============================================================================
@@ -61,10 +61,30 @@ export function TransfersPage() {
   // Render
   // ========================================================================
 
+  const pageHeader = (
+    <div className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground md:text-3xl">Transferencias</h1>
+        <p className="mt-1 text-sm text-text-quaternary">
+          Gestiona las transferencias entre tus cuentas
+        </p>
+      </div>
+      <Button
+        onClick={handleCreateTransfer}
+        className="flex items-center gap-2"
+        aria-label="Agregar transferencia"
+      >
+        <PlusIcon className="h-5 w-5" />
+        <span className="hidden sm:inline">Agregar transferencia</span>
+      </Button>
+    </div>
+  );
+
   // Loading state para cuentas
   if (isLoadingAccounts) {
     return (
       <div className="max-w-5xl mx-auto">
+        {pageHeader}
         <div className="glass-card rounded-2xl border border-white/10 p-8 animate-pulse">
           <div className="h-8 bg-muted rounded w-1/3 mb-4" />
           <div className="h-40 bg-muted rounded" />
@@ -77,6 +97,7 @@ export function TransfersPage() {
   if (accounts.length < 2) {
     return (
       <div className="max-w-5xl mx-auto">
+        {pageHeader}
         <div className="glass-card rounded-2xl p-12 text-center">
           <div className="text-6xl mb-6">🏦</div>
           <h3 className="text-2xl font-semibold text-foreground mb-4">
@@ -93,8 +114,8 @@ export function TransfersPage() {
 
   return (
     <>
-      {/* Contenedor principal con padding-bottom para no tapar con FAB */}
-      <div className="max-w-5xl mx-auto pb-20 md:pb-0">
+      <div className="max-w-5xl mx-auto">
+        {pageHeader}
         {/* Filtros de Transferencias */}
         <TransferFilters filters={filters} handlers={handlers} />
 
@@ -106,16 +127,6 @@ export function TransfersPage() {
           onTransferClick={handleEditTransfer}
         />
       </div>
-
-      {/* Floating Action Button - Nueva Transferencia */}
-      <Button
-        onClick={handleCreateTransfer}
-        size="icon"
-        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-12 h-12 md:w-14 md:h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 z-50"
-        title="Nueva Transferencia"
-      >
-        <Plus className="h-5 w-5 md:h-6 md:w-6" />
-      </Button>
 
       {/* Modal de crear/editar transferencia */}
       {isModalOpen && (

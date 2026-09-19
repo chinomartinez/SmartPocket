@@ -56,10 +56,20 @@ export function TransactionsPage() {
   // Render
   // ========================================================================
 
+  const pageHeader = (
+    <div className="mb-6 sm:mb-8">
+      <h1 className="text-2xl font-bold text-foreground md:text-3xl">Transacciones</h1>
+      <p className="mt-1 text-sm text-text-quaternary">
+        Consulta y administra los movimientos de tus cuentas
+      </p>
+    </div>
+  );
+
   // Loading state para cuentas (necesarias para inicializar filtros)
   if (isLoadingAccounts) {
     return (
       <div className="max-w-5xl mx-auto">
+        {pageHeader}
         <div className="glass-card rounded-2xl border border-white/10 p-8 animate-pulse">
           <div className="h-8 bg-muted rounded w-1/3 mb-4" />
           <div className="h-40 bg-muted rounded" />
@@ -72,6 +82,7 @@ export function TransactionsPage() {
   if (!accounts.length) {
     return (
       <div className="max-w-5xl mx-auto">
+        {pageHeader}
         <div className="glass-card rounded-2xl p-12 text-center">
           <div className="text-6xl mb-6">🏦</div>
           <h3 className="text-2xl font-semibold text-foreground mb-4">No hay cuentas</h3>
@@ -83,6 +94,7 @@ export function TransactionsPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
+      {pageHeader}
       {/* Filtros de Transacciones */}
       <TransactionFilters filters={filters} handlers={handlers} accounts={accounts} />
 

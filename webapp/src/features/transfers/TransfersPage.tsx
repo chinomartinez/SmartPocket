@@ -110,7 +110,6 @@ export function TransfersPage() {
       {/* Floating Action Button - Nueva Transferencia */}
       <Button
         onClick={handleCreateTransfer}
-        variant="success"
         size="icon"
         className="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-12 h-12 md:w-14 md:h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 z-50"
         title="Nueva Transferencia"

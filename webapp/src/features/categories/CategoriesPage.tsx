@@ -168,7 +168,7 @@ export function CategoriesPage() {
               <Button
                 onClick={handleStartReorder}
                 disabled={isLoading || isError}
-                variant="default"
+                variant="outline"
                 className="flex-1 sm:flex-initial"
               >
                 <ArrowsUpDownIcon className="h-5 w-5 mr-2" />
@@ -177,7 +177,6 @@ export function CategoriesPage() {
               </Button>
               <Button
                 onClick={handleCreate}
-                variant="success"
                 className="transition-colors flex-1 sm:flex-initial"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
@@ -254,7 +253,7 @@ export function CategoriesPage() {
                 Crea tu primera categoría de {typeFilter ? "ingresos" : "gastos"} para empezar a
                 organizar tus transacciones.
               </p>
-              <Button onClick={handleCreate} className="bg-sp-blue-600 hover:bg-sp-blue-700">
+               <Button onClick={handleCreate}>
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Crear Categoría
               </Button>

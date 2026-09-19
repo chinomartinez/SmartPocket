@@ -50,7 +50,7 @@ export function AccountsPage() {
             Gestiona tus cuentas y fondos disponibles
           </p>
         </div>
-        <Button onClick={handleCreateClick} className="flex items-center gap-2" variant="success">
+        <Button onClick={handleCreateClick} className="flex items-center gap-2">
           <PlusIcon className="h-5 w-5" />
           <span className="hidden sm:inline">Nueva Cuenta</span>
         </Button>

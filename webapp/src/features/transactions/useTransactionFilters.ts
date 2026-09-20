@@ -4,7 +4,11 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
-import { getPeriodRange, type DateRange } from "@/utils/dateHelpers";
+import {
+  getCurrentMonthToDateRange,
+  getPeriodRange,
+  type DateRange,
+} from "@/utils/dateHelpers";
 import type { TransactionListRequest } from "@/api/services/transactions/transactionTypes";
 
 // ============================================================================
@@ -86,7 +90,7 @@ export function useTransactionFilters(defaultAccountId: number = 0) {
       accountId: defaultAccountId,
       isIncome: false, // Gastos por defecto
       period: "month",
-      customRange: undefined,
+      customRange: getCurrentMonthToDateRange(),
     };
   });
 
@@ -125,7 +129,13 @@ export function useTransactionFilters(defaultAccountId: number = 0) {
     },
 
     setPeriod: (period: PeriodType) => {
-      setPersistedFilters((prev) => ({ ...prev, period }));
+      setPersistedFilters((prev) => ({
+        ...prev,
+        period,
+        // El rango debe existir antes de que el request derivado use "custom".
+        customRange:
+          period === "custom" ? (prev.customRange ?? getCurrentMonthToDateRange()) : prev.customRange,
+      }));
     },
 
     setCustomRange: (range: DateRange) => {
@@ -145,7 +155,7 @@ export function useTransactionFilters(defaultAccountId: number = 0) {
         accountId: defaultAccountId,
         isIncome: false,
         period: "month",
-        customRange: undefined,
+        customRange: getCurrentMonthToDateRange(),
       });
       setTemporaryFilters({
         search: "",

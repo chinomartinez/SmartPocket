@@ -64,7 +64,7 @@ export default function UpcomingPayments() {
       <CardHeader className="p-0 mb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold text-text-secondary">
-            Upcoming Payments
+            Proximos pagos
           </CardTitle>
           <Link
             to={ROUTES.DASHBOARD}

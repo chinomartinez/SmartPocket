@@ -39,7 +39,7 @@ export default function RecentTransactions({ accountId }: RecentTransactionsProp
         <CardHeader className="p-0 mb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base font-semibold text-text-secondary">
-              Recent Transactions
+              Transacciones recientes
             </CardTitle>
             <Link
               to={ROUTES.TRANSACTIONS}

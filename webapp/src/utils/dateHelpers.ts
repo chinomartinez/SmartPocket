@@ -116,6 +116,19 @@ export function getMonthRange(): DateRange {
 }
 
 /**
+ * Obtiene el rango desde el primer día del mes actual hasta hoy.
+ * @returns DateRange con from (primer día del mes) y to (hoy)
+ */
+export function getCurrentMonthToDateRange(): DateRange {
+  const today = new Date();
+
+  return {
+    from: formatDateToISO(new Date(today.getFullYear(), today.getMonth(), 1)),
+    to: formatDateToISO(today),
+  };
+}
+
+/**
  * Obtiene el rango de fechas para el año actual
  * @returns DateRange con from (1 de enero) y to (31 de diciembre)
  */

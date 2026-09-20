@@ -99,7 +99,7 @@ El flujo de crear y editar tarjeta utiliza un dialog reutilizable y contiene ún
 
 Los rangos se editan como día inicial y día final. Debe permitirse un rango que cruce el fin de mes, como `26 al 2`. El formulario debe explicar que son referencias habituales y no fechas confirmadas por un banco.
 
-El formulario ya está maquetado con datos locales, pero todavía no está conectado al CRUD del backend.
+El formulario está conectado al CRUD del backend para crear y editar tarjetas.
 
 ## 4. Sección Compras y Suscripciones
 
@@ -120,7 +120,7 @@ Filtros previstos:
 - Categoría.
 - Búsqueda por descripción.
 
-Los filtros deben ser combinables y mostrar un estado claro cuando no existen resultados. La primera versión puede comenzar con tipo, estado y búsqueda, y agregar el resto cuando el backend lo soporte.
+Los filtros deben ser combinables y mostrar un estado claro cuando no existen resultados. La implementación actual comienza con tipo y búsqueda; el backend también soporta estado, pero el control visual todavía debe incorporarse junto con periodo y categoría.
 
 ### 4.3 Listado
 
@@ -229,28 +229,36 @@ Agregar una entrada de Sidebar con una ruta propia, inicialmente sugerida como:
 
 La primera versión puede ser una única ruta. No se propone todavía crear rutas separadas para compras, resúmenes o pagos; esos recursos viven dentro del contexto de la tarjeta seleccionada.
 
-## 8. Arquitectura frontend sugerida
+## 8. Arquitectura frontend actual
 
-Feature propuesta: `webapp/src/features/credit-cards/`.
+Feature implementada en `webapp/src/features/credit-cards/`.
 
-Estructura inicial orientativa:
+Estructura actual:
 
 ```text
 features/credit-cards/
   CreditCardsPage.tsx
-  components/
+  creditCardActivityConstants.ts
+  cards/
     CreditCardCarousel.tsx
-    CreditCardCard.tsx
     CreditCardFormDialog.tsx
-    CreditCardPurchaseList.tsx
+    CreditCardHeader.tsx
+    CreditCardsEmptyState.tsx
+    CreditCardsLoadingState.tsx
+    SelectedCreditCardOverview.tsx
+    creditCardHelpers.ts
+    creditCardSchema.ts
+  activities/
+    CreditCardActivitySection.tsx
+    CreditCardActivityItem.tsx
     CreditCardPurchaseFormDialog.tsx
+    CreditCardSubscriptionFormDialog.tsx
+    creditCardActivitySchema.ts
+  statements/
     CreditCardStatementList.tsx
-  hooks/
-  schemas/
-  types/
 ```
 
-La estructura puede ajustarse a las convenciones actuales del proyecto. Los servicios y hooks deben agregarse sólo para endpoints disponibles, usando `spApiClient` y TanStack Query.
+Los servicios y hooks de API viven en `webapp/src/api/services/credit-cards/` y utilizan `spApiClient` y TanStack Query. La feature mantiene separados los componentes de tarjetas, actividades y resúmenes sin separar todavía estas áreas en rutas propias.
 
 ## 9. Orden de implementación de la UI
 
@@ -262,7 +270,7 @@ La estructura puede ajustarse a las convenciones actuales del proyecto. Los serv
 - Listado/carrusel de tarjetas.
 - Selección de tarjeta.
 - Empty, loading y error states.
-- CRUD de tarjetas si los endpoints están listos.
+- CRUD de tarjetas disponible para crear y editar; la eliminación y el menú de acciones de cada tarjeta todavía deben completarse en la UI.
 
 ### Iteración 2: Compras y suscripciones
 
@@ -271,6 +279,13 @@ La estructura puede ajustarse a las convenciones actuales del proyecto. Los serv
 - Crear, editar y eliminar compra.
 - Crear, editar, cancelar y eliminar suscripción.
 - Badges y restricciones de estado.
+- Endpoint combinado y paginado de actividades: `GET /CreditCards/{id}/activities`.
+- Búsqueda y filtro inicial por tipo.
+- Formularios separados para compras y suscripciones.
+- Selector de categorías con íconos y selector de monedas permitidas.
+- Acciones contextuales de editar, eliminar y cancelar suscripciones activas.
+
+**Estado:** implementada en frontend y backend. Quedan mejoras menores de UX, como debounce de búsqueda, filtro visual por estado y confirmación específica para cancelar una suscripción.
 
 ### Iteración 3: Resúmenes
 
@@ -279,12 +294,16 @@ La estructura puede ajustarse a las convenciones actuales del proyecto. Los serv
 - Selección de cuotas/pagos.
 - Confirmación, edición y eliminación según estado.
 
+**Estado:** pendiente. El bloque visual existe con datos mock; todavía no consume el CRUD real de resúmenes ni existe el preview de candidatos.
+
 ### Iteración 4: Pagos
 
 - Asociación de transacciones a un resumen.
 - Pagos en múltiples monedas.
 - Totales incluido/pagado/diferencia.
 - Edición y eliminación con confirmaciones.
+
+**Estado:** pendiente. Depende del contrato definitivo de resúmenes y pagos.
 
 ## 10. Fechas de tarjetas y resúmenes
 
@@ -341,40 +360,46 @@ La UI debe mostrar una ayuda contextual similar a:
 Estimación basada en los registros pendientes de SmartPocket. No representa el disponible real informado por el banco.
 ```
 
-El backend dispone de la consulta:
+El backend dispone de la consulta y la UI ya la consume:
 
 ```text
 GET /CreditCards/{id}/overview
 ```
 
-La UI todavía no consume este endpoint; las métricas actuales son mock data para validar el diseño.
+Las métricas actuales se calculan desde el overview de SmartPocket y se presentan explícitamente como estimaciones basadas en registros manuales.
 
 ### 10.5 Estado actual de implementación
 
-- El selector/carrusel de tarjetas está maquetado.
-- El formulario de crear/editar tarjeta está maquetado.
-- Las métricas estimadas están representadas con datos mock.
-- El listado de compras, suscripciones y resúmenes continúa siendo visual y no está conectado a API.
-- El CRUD de tarjetas y el endpoint `overview` todavía requieren integración frontend.
+- La ruta `/credit-cards`, el encabezado y el selector/carrusel de tarjetas están implementados.
+- El formulario de crear/editar tarjeta está conectado al backend.
+- El endpoint `GET /CreditCards/{id}/overview` está integrado en el bloque de métricas.
+- El listado de actividades consume el endpoint combinado y paginado `GET /CreditCards/{id}/activities`.
+- Compras y suscripciones tienen formularios separados conectados a create/update/delete.
+- Las suscripciones activas pueden cancelarse desde el menú contextual.
+- La actividad utiliza un read model unificado sin unificar las entidades de dominio.
+- El bloque de resúmenes continúa utilizando datos mock y todavía no está conectado a API.
+- El preview de resúmenes, la selección de cuotas/cargos y los pagos todavía no están implementados.
 - Los resúmenes utilizan conceptualmente los estados `Closed` y `Paid`.
 
 ## 11. Decisiones abiertas
 
-- Qué métricas mostrar en cada card de tarjeta: límite usado, disponible, total pendiente u otra combinación.
+- Qué métricas adicionales mostrar en cada card de tarjeta, más allá del overview actual.
 - Si el detalle de la tarjeta usa tabs, secciones apiladas o un layout con dos columnas.
 - Qué información mínima debe mostrar cada resumen en el listado.
 - Si el detalle de resumen se abre en dialog, drawer o una ruta propia.
 - Cómo se visualizan importes en tarjetas con compras en ARS y USD.
 - Si el usuario puede crear un resumen desde el encabezado de la sección o desde una card de resumen vacía.
 - Qué endpoints de resumen y pagos estarán disponibles antes de comenzar la Iteración 3.
-- Colores y badges definitivos para estados de compras y suscripciones.
+- Contrato del preview y reglas para sugerir cuotas y cargos.
+- Cómo se determina la inclusión de una suscripción en un resumen nuevo.
+- Confirmar colores y badges definitivos para estados de compras y suscripciones.
 
 ## 12. Criterios para pasar a implementación
 
 - Confirmar la información mínima de la card de tarjeta.
-- Confirmar si compras y suscripciones comparten listado o tienen tabs/filtros.
+- Mantener el listado combinado de compras y suscripciones con filtros por tipo.
 - Confirmar la información mínima del resumen compacto.
-- Identificar endpoints disponibles y endpoints faltantes por iteración.
+- Identificar endpoints disponibles y endpoints faltantes para resúmenes, preview y pagos.
 - Validar el flujo mobile del carrusel y de los formularios.
 - Mantener los cambios de FRs del roadmap sincronizados si las decisiones de producto modifican el alcance.
 

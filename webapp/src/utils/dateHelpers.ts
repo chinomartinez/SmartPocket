@@ -40,6 +40,24 @@ export function formatDateLocal(isoString: string, options?: Intl.DateTimeFormat
 }
 
 /**
+ * Formatea una fecha sin hora (YYYY-MM-DD) sin convertirla entre zonas horarias.
+ */
+export function formatDateOnly(dateString: string, options?: Intl.DateTimeFormatOptions): string {
+  if (!dateString) return "";
+
+  const [year, month, day] = dateString.slice(0, 10).split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toLocaleDateString("es-AR", options || {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+/**
  * Formatea una fecha a formato ISO 8601 (YYYY-MM-DD)
  * @param date Fecha a formatear
  * @returns String en formato ISO 8601 (YYYY-MM-DD)

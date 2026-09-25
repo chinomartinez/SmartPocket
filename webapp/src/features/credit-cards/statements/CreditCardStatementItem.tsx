@@ -2,7 +2,7 @@ import { CalendarDays, ChevronRight, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { CreditCardStatementListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
-import { formatDateLocal } from "@/utils/dateHelpers";
+import { formatDateOnly } from "@/utils/dateHelpers";
 
 interface CreditCardStatementItemProps {
   statement: CreditCardStatementListItemDTO;
@@ -21,6 +21,16 @@ export function CreditCardStatementItem({
   const handleDelete = () => onDelete(statement);
   const totalItems = statement.installmentsCount + statement.chargesCount;
 
+  const formatClosingDate = formatDateOnly(statement.closingDate, {
+    day: "2-digit",
+    month: "short",
+  });
+
+  const formatDueDate = formatDateOnly(statement.dueDate, {
+    day: "2-digit",
+    month: "short",
+  });
+
   return (
     <article className="group relative rounded-lg transition-colors hover:bg-hover-muted">
       <button
@@ -33,7 +43,7 @@ export function CreditCardStatementItem({
             <p className="truncate font-medium text-foreground">{statement.description}</p>
             <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-text-quaternary">
               <CalendarDays className="size-3.5" />
-              Cierre {formatDateLocal(statement.closingDate, { day: "2-digit", month: "short" })} · vence {formatDateLocal(statement.dueDate, { day: "2-digit", month: "short" })}
+              Cierre {formatClosingDate} · vence {formatDueDate}
             </p>
           </div>
           <Badge

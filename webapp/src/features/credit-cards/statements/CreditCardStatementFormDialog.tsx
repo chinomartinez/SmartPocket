@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { formatCurrency } from "@/utils/formatters";
-import { formatDateLocal } from "@/utils/dateHelpers";
+import { formatDateOnly } from "@/utils/dateHelpers";
 import type { ApiError } from "@/api/types";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import {
@@ -376,7 +376,7 @@ function InstallmentRow({
         <span className="block truncate text-sm text-foreground">{item.purchase.description}</span>
         <span className="text-xs text-text-quaternary">
           Cuota {item.installmentNumber} · {item.purchase.category.name} ·{" "}
-          {formatDateLocal(item.purchase.effectiveDate)}
+          {formatDateOnly(item.purchase.effectiveDate)}
         </span>
       </span>
       <span className="text-sm font-medium text-foreground">
@@ -460,7 +460,7 @@ function ChargeRow({
         <p className="truncate text-sm text-foreground">{item.subscription.description}</p>
         <p className="text-xs text-text-quaternary">
           Cargo {item.chargeNumber} · {item.subscription.category.name} ·{" "}
-          {formatDateLocal(item.subscription.effectiveDate)}
+          {formatDateOnly(item.subscription.effectiveDate)}
         </p>
       </div>
       <Input

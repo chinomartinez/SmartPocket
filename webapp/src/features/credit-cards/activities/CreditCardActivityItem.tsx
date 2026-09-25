@@ -4,6 +4,7 @@ import { IconBox } from "@/components/iconBoxes/IconBox";
 import { Badge } from "@/components/ui/badge";
 import type { CreditCardActivityListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
+import { formatDateOnly } from "@/utils/dateHelpers";
 import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
 
 const STATUS_LABELS = {
@@ -84,7 +85,7 @@ export function CreditCardActivityItem({
         </div>
       </div>
       <div className="col-start-1 row-start-2 text-xs text-text-quaternary md:col-auto md:row-auto md:justify-self-center">
-        {activity.effectiveDate}
+        {formatDateOnly(activity.effectiveDate)}
       </div>
       <div className="col-start-1 row-start-3 flex items-center justify-start md:col-auto md:row-auto md:justify-self-center">
         <span className="whitespace-nowrap text-sm font-semibold text-foreground">

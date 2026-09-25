@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using SmartPocket.Features.Abstractions.Handlers;
+using SmartPocket.Features.CreditCardStatements.Suggestions;
 using System.Reflection;
 
 namespace SmartPocket.WebApi.Setup
@@ -12,6 +13,8 @@ namespace SmartPocket.WebApi.Setup
         {
             services.AddFluentValidations();
             services.AddFeatureHandlers();
+
+            services.AddScoped<ICreditCardStatementSuggestionsQueryHandler, CreditCardStatementSuggestionsQueryHandler>();
         }
 
         public static void AddFluentValidations(this IServiceCollection services)

@@ -21,8 +21,10 @@ export const creditCardKeys = {
     ["credit-cards", "statements", request.creditCardId, request] as const,
   statementsRoot: (id: number) => ["credit-cards", "statements", id] as const,
   statement: (id: number) => ["credit-cards", "statement", id] as const,
+  statementsDetailsRoot: ["credit-cards", "statement"] as const,
   statementSuggestions: (id: number, closingDate: string) =>
     ["credit-cards", "statement-suggestions", id, closingDate] as const,
+  statementSuggestionsRoot: (id: number) => ["credit-cards", "statement-suggestions", id] as const,
 };
 
 export function useCreditCards() {
@@ -72,10 +74,19 @@ export function useCreditCardStatementSuggestions(id: number, closingDate: strin
   });
 }
 
-function invalidateCreditCardStatementQueries(queryClient: ReturnType<typeof useQueryClient>, creditCardId: number) {
+function invalidateCreditCardStatementQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  creditCardId: number,
+  statementId?: number,
+) {
   queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsRoot(creditCardId) });
+  queryClient.invalidateQueries({ queryKey: creditCardKeys.statementSuggestionsRoot(creditCardId) });
   queryClient.invalidateQueries({ queryKey: creditCardKeys.overview(creditCardId) });
   queryClient.invalidateQueries({ queryKey: creditCardKeys.activitiesRoot(creditCardId) });
+
+  if (statementId) {
+    queryClient.invalidateQueries({ queryKey: creditCardKeys.statement(statementId) });
+  }
 }
 
 export function useCreateCreditCardStatement() {
@@ -93,7 +104,8 @@ export function useUpdateCreditCardStatement() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: CreditCardStatementUpdateCommand }) =>
       creditCardStatementService.update(id, data),
-    onSuccess: (_, variables) => invalidateCreditCardStatementQueries(queryClient, variables.data.creditCardId),
+    onSuccess: (_, variables) =>
+      invalidateCreditCardStatementQueries(queryClient, variables.data.creditCardId, variables.id),
   });
 }
 
@@ -102,7 +114,8 @@ export function useDeleteCreditCardStatement() {
 
   return useMutation({
     mutationFn: ({ id }: { id: number; creditCardId: number }) => creditCardStatementService.delete(id),
-    onSuccess: (_, variables) => invalidateCreditCardStatementQueries(queryClient, variables.creditCardId),
+    onSuccess: (_, variables) =>
+      invalidateCreditCardStatementQueries(queryClient, variables.creditCardId, variables.id),
   });
 }
 
@@ -116,6 +129,9 @@ function useCreditCardActivityMutation<T>(mutationFn: (data: T) => Promise<unkno
       if (data.creditCardId) {
         queryClient.invalidateQueries({ queryKey: creditCardKeys.activitiesRoot(data.creditCardId) });
         queryClient.invalidateQueries({ queryKey: creditCardKeys.overview(data.creditCardId) });
+        queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsRoot(data.creditCardId) });
+        queryClient.invalidateQueries({ queryKey: creditCardKeys.statementSuggestionsRoot(data.creditCardId) });
+        queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsDetailsRoot });
       }
     },
   });
@@ -134,6 +150,9 @@ export function useUpdateCreditCardPurchase() {
     onSuccess: (_, { data }) => {
       queryClient.invalidateQueries({ queryKey: creditCardKeys.activitiesRoot(data.creditCardId) });
       queryClient.invalidateQueries({ queryKey: creditCardKeys.overview(data.creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsRoot(data.creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementSuggestionsRoot(data.creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsDetailsRoot });
     },
   });
 }
@@ -147,6 +166,9 @@ export function useDeleteCreditCardPurchase() {
     onSuccess: (_, { creditCardId }) => {
       queryClient.invalidateQueries({ queryKey: creditCardKeys.activitiesRoot(creditCardId) });
       queryClient.invalidateQueries({ queryKey: creditCardKeys.overview(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsRoot(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementSuggestionsRoot(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsDetailsRoot });
     },
   });
 }
@@ -164,6 +186,9 @@ export function useUpdateCreditCardSubscription() {
     onSuccess: (_, { data }) => {
       queryClient.invalidateQueries({ queryKey: creditCardKeys.activitiesRoot(data.creditCardId) });
       queryClient.invalidateQueries({ queryKey: creditCardKeys.overview(data.creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsRoot(data.creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementSuggestionsRoot(data.creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsDetailsRoot });
     },
   });
 }
@@ -177,6 +202,9 @@ export function useDeleteCreditCardSubscription() {
     onSuccess: (_, { creditCardId }) => {
       queryClient.invalidateQueries({ queryKey: creditCardKeys.activitiesRoot(creditCardId) });
       queryClient.invalidateQueries({ queryKey: creditCardKeys.overview(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsRoot(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementSuggestionsRoot(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsDetailsRoot });
     },
   });
 }
@@ -190,6 +218,9 @@ export function useCancelCreditCardSubscription() {
     onSuccess: (_, { creditCardId }) => {
       queryClient.invalidateQueries({ queryKey: creditCardKeys.activitiesRoot(creditCardId) });
       queryClient.invalidateQueries({ queryKey: creditCardKeys.overview(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsRoot(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementSuggestionsRoot(creditCardId) });
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsDetailsRoot });
     },
   });
 }

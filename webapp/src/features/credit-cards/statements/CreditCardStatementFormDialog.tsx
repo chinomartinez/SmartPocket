@@ -210,7 +210,7 @@ export function CreditCardStatementFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-2xl">
+      <DialogContent className="!flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Editar resumen" : "Armar nuevo resumen"}</DialogTitle>
           <DialogDescription>
@@ -220,7 +220,7 @@ export function CreditCardStatementFormDialog({
         {apiError && <ErrorAlert error={apiError} />}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex min-h-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pb-4">
+            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain pb-4 [-webkit-overflow-scrolling:touch]">
               <FormField
                 control={form.control}
                 name="description"

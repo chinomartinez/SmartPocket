@@ -1,10 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { creditCardService } from "./creditCardService";
+import { creditCardStatementService } from "./creditCardStatementService";
 import type {
   CreditCardActivityFilters,
   CreditCardCreateCommand,
   CreditCardPurchaseCommand,
   CreditCardSubscriptionCommand,
+  CreditCardStatementCreateCommand,
+  CreditCardStatementListRequest,
+  CreditCardStatementUpdateCommand,
 } from "./creditCardTypes";
 
 export const creditCardKeys = {
@@ -13,6 +17,12 @@ export const creditCardKeys = {
   activities: (id: number, filters: CreditCardActivityFilters) =>
     ["credit-cards", "activities", id, filters] as const,
   activitiesRoot: (id: number) => ["credit-cards", "activities", id] as const,
+  statements: (request: CreditCardStatementListRequest) =>
+    ["credit-cards", "statements", request.creditCardId, request] as const,
+  statementsRoot: (id: number) => ["credit-cards", "statements", id] as const,
+  statement: (id: number) => ["credit-cards", "statement", id] as const,
+  statementSuggestions: (id: number, closingDate: string) =>
+    ["credit-cards", "statement-suggestions", id, closingDate] as const,
 };
 
 export function useCreditCards() {
@@ -35,6 +45,64 @@ export function useCreditCardActivities(id: number, filters: CreditCardActivityF
     queryKey: creditCardKeys.activities(id, filters),
     queryFn: () => creditCardService.getActivities(id, filters),
     enabled: id > 0,
+  });
+}
+
+export function useCreditCardStatements(request: CreditCardStatementListRequest) {
+  return useQuery({
+    queryKey: creditCardKeys.statements(request),
+    queryFn: () => creditCardStatementService.getAll(request),
+    enabled: request.creditCardId > 0,
+  });
+}
+
+export function useCreditCardStatementById(id: number, enabled = true) {
+  return useQuery({
+    queryKey: creditCardKeys.statement(id),
+    queryFn: () => creditCardStatementService.getById(id),
+    enabled: enabled && id > 0,
+  });
+}
+
+export function useCreditCardStatementSuggestions(id: number, closingDate: string, enabled = true) {
+  return useQuery({
+    queryKey: creditCardKeys.statementSuggestions(id, closingDate),
+    queryFn: () => creditCardStatementService.getSuggestions(id, closingDate),
+    enabled: enabled && id > 0 && Boolean(closingDate),
+  });
+}
+
+function invalidateCreditCardStatementQueries(queryClient: ReturnType<typeof useQueryClient>, creditCardId: number) {
+  queryClient.invalidateQueries({ queryKey: creditCardKeys.statementsRoot(creditCardId) });
+  queryClient.invalidateQueries({ queryKey: creditCardKeys.overview(creditCardId) });
+  queryClient.invalidateQueries({ queryKey: creditCardKeys.activitiesRoot(creditCardId) });
+}
+
+export function useCreateCreditCardStatement() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreditCardStatementCreateCommand) => creditCardStatementService.create(data),
+    onSuccess: (_, variables) => invalidateCreditCardStatementQueries(queryClient, variables.creditCardId),
+  });
+}
+
+export function useUpdateCreditCardStatement() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: CreditCardStatementUpdateCommand }) =>
+      creditCardStatementService.update(id, data),
+    onSuccess: (_, variables) => invalidateCreditCardStatementQueries(queryClient, variables.data.creditCardId),
+  });
+}
+
+export function useDeleteCreditCardStatement() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id }: { id: number; creditCardId: number }) => creditCardStatementService.delete(id),
+    onSuccess: (_, variables) => invalidateCreditCardStatementQueries(queryClient, variables.creditCardId),
   });
 }
 

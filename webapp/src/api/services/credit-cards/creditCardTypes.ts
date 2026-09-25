@@ -73,6 +73,114 @@ export interface CreditCardActivityFilters {
 
 export type CreditCardActivityPage = PagedListResponse<CreditCardActivityListItemDTO>;
 
+export type CreditCardStatementStatus = "Closed" | "Paid";
+
+export interface CreditCardStatementListItemDTO {
+  id: number;
+  creditCardId: number;
+  description: string;
+  closingDate: string;
+  dueDate: string;
+  status: CreditCardStatementStatus;
+  totalItemsInCardCurrency: number;
+  totalItemsInUsd: number | null;
+  installmentsCount: number;
+  chargesCount: number;
+}
+
+export interface CreditCardStatementCategoryDTO {
+  id: number;
+  name: string;
+  icon: IconDTO;
+}
+
+export interface CreditCardStatementPurchaseDTO {
+  id: number;
+  description: string;
+  effectiveDate: string;
+  category: CreditCardStatementCategoryDTO;
+}
+
+export interface CreditCardStatementSubscriptionDTO {
+  id: number;
+  description: string;
+  effectiveDate: string;
+  category: CreditCardStatementCategoryDTO;
+}
+
+export interface CreditCardStatementInstallmentItemDTO {
+  id: number;
+  amount: number;
+  currencyCode: string;
+  installmentNumber: number;
+  purchase: CreditCardStatementPurchaseDTO;
+}
+
+export interface CreditCardStatementChargeItemDTO {
+  id: number | null;
+  amount: number;
+  currencyCode: string;
+  chargeNumber: number;
+  subscription: CreditCardStatementSubscriptionDTO;
+}
+
+export interface CreditCardStatementSuggestionsDTO {
+  suggestedInstallmentItems: CreditCardStatementInstallmentItemDTO[];
+  suggestedChargeItems: CreditCardStatementChargeItemDTO[];
+}
+
+export interface CreditCardStatementTotalsDTO {
+  totalItemsInCardCurrency: number;
+  totalItemsInUsd: number | null;
+  totalPaidInCardCurrency: number | null;
+  totalPaidInUsd: number | null;
+}
+
+export interface CreditCardStatementDetailDTO extends CreditCardStatementListItemDTO {
+  includedInstallmentItems: CreditCardStatementInstallmentItemDTO[];
+  includedChargeItems: CreditCardStatementChargeItemDTO[];
+  totals: CreditCardStatementTotalsDTO;
+}
+
+export interface CreditCardStatementListRequest {
+  creditCardId: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CreditCardStatementCreateCommand {
+  creditCardId: number;
+  description: string;
+  closingDate: string;
+  dueDate: string;
+  installmentIds: number[];
+  subscriptionCharges: CreditCardStatementChargeCreateCommand[];
+}
+
+export interface CreditCardStatementChargeCreateCommand {
+  subscriptionId: number;
+  chargeNumber: number;
+  amount: number;
+}
+
+export interface CreditCardStatementUpdateCommand {
+  creditCardId: number;
+  description: string;
+  closingDate: string;
+  dueDate: string;
+  installmentIds: number[];
+  subsChargesForUpdate: CreditCardStatementChargeUpdateCommand[];
+  subsChargesForCreate: CreditCardStatementChargeCreateCommand[];
+}
+
+export interface CreditCardStatementChargeUpdateCommand {
+  id: number;
+  chargeNumber: number;
+  amount: number;
+}
+
+export type CreditCardStatementPage = PagedListResponse<CreditCardStatementListItemDTO>;
+
 export interface CreditCardPurchaseCommand {
   creditCardId: number;
   categoryId: number;

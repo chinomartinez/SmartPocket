@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.Configurations;
 using SmartPocket.Domain.CreditCards;
 using SmartPocket.Features.Abstractions.Handlers;
-using SmartPocket.Features.CreditCardStatements.Suggestions;
 using SmartPocket.Persistence;
 
 namespace SmartPocket.Features.CreditCardStatements.GetById
@@ -10,14 +9,10 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
     public class CreditCardStatementGetByIdQueryHandler : IHandler
     {
         private readonly ISmartPocketContext _smartPocketContext;
-        private readonly ICreditCardStatementSuggestionsQueryHandler _suggestionsQueryHandler;
 
-        public CreditCardStatementGetByIdQueryHandler(
-            ISmartPocketContext smartPocketContext,
-            ICreditCardStatementSuggestionsQueryHandler suggestionsQueryHandler)
+        public CreditCardStatementGetByIdQueryHandler(ISmartPocketContext smartPocketContext)
         {
             _smartPocketContext = smartPocketContext;
-            _suggestionsQueryHandler = suggestionsQueryHandler;
         }
 
         public async Task<CreditCardStatementGetByIdDTO?> GetById(int id, CancellationToken cancellation)
@@ -95,8 +90,6 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
                 })
                 .ToListAsync(cancellation);
 
-            var suggestions = await _suggestionsQueryHandler.Get(statement.CreditCardId, statement.ClosingDate, cancellation);
-
             var includedAmounts = includedInstallments
                 .Select(x => new { x.Amount, x.CurrencyCode })
                 .Concat(includedCharges.Select(x => new { x.Amount, x.CurrencyCode }))
@@ -114,8 +107,6 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
                 ChargesCount = includedCharges.Count,
                 IncludedInstallmentItems = includedInstallments,
                 IncludedChargeItems = includedCharges,
-                SuggestedInstallmentItems = suggestions.SuggestedInstallmentItems,
-                SuggestedChargeItems = suggestions.SuggestedChargeItems,
                 Totals = new CreditCardStatementTotalsDTO
                 {
                     TotalItemsInCardCurrency = includedAmounts

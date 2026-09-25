@@ -30,6 +30,7 @@ export const creditCardService = {
     return response.data;
   },
 
+
   createPurchase: async (data: CreditCardPurchaseCommand) => {
     const response = await spApiClient.post<{ id: number }>("/creditcardpurchases", data);
     return response.data;

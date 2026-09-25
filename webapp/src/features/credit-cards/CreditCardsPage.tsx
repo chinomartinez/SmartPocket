@@ -77,7 +77,10 @@ export function CreditCardsPage() {
           cardName={selectedCard.name}
           currencyCode={selectedCard.currencyCode}
         />
-        <CreditCardStatementList currencyCode={selectedCard.currencyCode} />
+        <CreditCardStatementList
+          cardId={selectedCard.id}
+          currencyCode={selectedCard.currencyCode}
+        />
       </div>
       <CreditCardFormDialog
         card={editingCard}

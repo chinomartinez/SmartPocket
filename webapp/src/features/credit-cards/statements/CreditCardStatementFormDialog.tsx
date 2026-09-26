@@ -81,7 +81,15 @@ export function CreditCardStatementFormDialog({
   });
 
   const closingDate = form.watch("closingDate");
-  const suggestionsQuery = useCreditCardStatementSuggestions(cardId, closingDate, open);
+  const persistedClosingDate = detailQuery.data?.closingDate.slice(0, 10);
+  const hasEditedClosingDate = Boolean(form.formState.dirtyFields.closingDate);
+  const suggestionClosingDate =
+    isEdit && !hasEditedClosingDate ? persistedClosingDate ?? closingDate : closingDate;
+  const suggestionsQuery = useCreditCardStatementSuggestions(
+    cardId,
+    suggestionClosingDate,
+    open && (!isEdit || detailQuery.isSuccess),
+  );
   const itemsSource = isEdit ? detailQuery.data : suggestionsQuery.data;
 
   const includedInstallments = useMemo(
@@ -123,14 +131,14 @@ export function CreditCardStatementFormDialog({
     if (!open || !itemsSource) return;
     setSelectedInstallmentIds(
       new Set(
-        isEdit
-          ? includedInstallments.map((item) => item.id)
-          : suggestedInstallments.map((item) => item.id),
+        isEdit ? includedInstallments.map((item) => item.id) : [],
       ),
     );
-    setSelectedChargeKeys(new Set(charges.map(getChargeKey)));
+    setSelectedChargeKeys(
+      new Set(isEdit ? includedCharges.map(getChargeKey) : []),
+    );
     setChargeAmounts(Object.fromEntries(charges.map((item) => [getChargeKey(item), item.amount])));
-  }, [charges, includedInstallments, isEdit, itemsSource, open, suggestedInstallments]);
+  }, [charges, includedCharges, includedInstallments, isEdit, itemsSource, open, suggestedInstallments]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {

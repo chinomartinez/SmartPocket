@@ -84,7 +84,7 @@ export function CreditCardStatementFormDialog({
   const persistedClosingDate = detailQuery.data?.closingDate.slice(0, 10);
   const hasEditedClosingDate = Boolean(form.formState.dirtyFields.closingDate);
   const suggestionClosingDate =
-    isEdit && !hasEditedClosingDate ? persistedClosingDate ?? closingDate : closingDate;
+    isEdit && !hasEditedClosingDate ? (persistedClosingDate ?? closingDate) : closingDate;
   const suggestionsQuery = useCreditCardStatementSuggestions(
     cardId,
     suggestionClosingDate,
@@ -129,16 +129,18 @@ export function CreditCardStatementFormDialog({
 
   useEffect(() => {
     if (!open || !itemsSource) return;
-    setSelectedInstallmentIds(
-      new Set(
-        isEdit ? includedInstallments.map((item) => item.id) : [],
-      ),
-    );
-    setSelectedChargeKeys(
-      new Set(isEdit ? includedCharges.map(getChargeKey) : []),
-    );
+    setSelectedInstallmentIds(new Set(isEdit ? includedInstallments.map((item) => item.id) : []));
+    setSelectedChargeKeys(new Set(isEdit ? includedCharges.map(getChargeKey) : []));
     setChargeAmounts(Object.fromEntries(charges.map((item) => [getChargeKey(item), item.amount])));
-  }, [charges, includedCharges, includedInstallments, isEdit, itemsSource, open, suggestedInstallments]);
+  }, [
+    charges,
+    includedCharges,
+    includedInstallments,
+    isEdit,
+    itemsSource,
+    open,
+    suggestedInstallments,
+  ]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -246,28 +248,42 @@ export function CreditCardStatementFormDialog({
                 <DateField control={form.control} name="closingDate" label="Fecha de cierre" />
                 <DateField control={form.control} name="dueDate" label="Fecha de vencimiento" />
               </div>
-              <div className="rounded-xl border border-border-subtle bg-surface-container-low/40 p-3">
+              <div>
                 {isLoadingItems ? (
                   <div className="flex items-center justify-center gap-2 py-8 text-sm text-text-quaternary">
                     <Loader2 className="size-4 animate-spin" /> Buscando sugerencias...
                   </div>
                 ) : (
-                  <>
-                    <InstallmentGroup
-                      installments={installments}
-                      selectedIds={selectedInstallmentIds}
-                      currencyCode={currencyCode}
-                      onToggle={handleToggleInstallment}
-                    />
-                    <ChargeGroup
-                      charges={charges}
-                      selectedKeys={selectedChargeKeys}
-                      amounts={chargeAmounts}
-                      currencyCode={currencyCode}
-                      onToggle={handleToggleCharge}
-                      onAmountChange={handleChargeAmountChange}
-                    />
-                  </>
+                  <div className="space-y-5">
+                    {isEdit && (
+                      <StatementItemsSection title="Detalle del resumen">
+                        <StatementItemList
+                          installments={includedInstallments}
+                          charges={includedCharges}
+                          selectedInstallmentIds={selectedInstallmentIds}
+                          selectedKeys={selectedChargeKeys}
+                          amounts={chargeAmounts}
+                          currencyCode={currencyCode}
+                          onToggleInstallment={handleToggleInstallment}
+                          onToggleCharge={handleToggleCharge}
+                          onAmountChange={handleChargeAmountChange}
+                        />
+                      </StatementItemsSection>
+                    )}
+                    <StatementItemsSection title="Sugerencias">
+                      <StatementItemList
+                        installments={suggestedInstallments}
+                        charges={suggestedCharges}
+                        selectedInstallmentIds={selectedInstallmentIds}
+                        selectedKeys={selectedChargeKeys}
+                        amounts={chargeAmounts}
+                        currencyCode={currencyCode}
+                        onToggleInstallment={handleToggleInstallment}
+                        onToggleCharge={handleToggleCharge}
+                        onAmountChange={handleChargeAmountChange}
+                      />
+                    </StatementItemsSection>
+                  </div>
                 )}
               </div>
             </div>
@@ -325,38 +341,79 @@ function DateField({
   );
 }
 
-function InstallmentGroup({
+function StatementItemsSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-lg border border-border-subtle bg-background/20 p-3">
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <div className="mt-2">{children}</div>
+    </section>
+  );
+}
+
+function StatementItemList({
   installments,
-  selectedIds,
+  charges,
+  selectedInstallmentIds,
+  selectedKeys,
+  amounts,
   currencyCode,
-  onToggle,
+  onToggleInstallment,
+  onToggleCharge,
+  onAmountChange,
 }: {
   installments: CreditCardStatementInstallmentItemDTO[];
-  selectedIds: Set<number>;
+  charges: CreditCardStatementChargeItemDTO[];
+  selectedInstallmentIds: Set<number>;
+  selectedKeys: Set<string>;
+  amounts: Record<string, number>;
   currencyCode: string;
-  onToggle: (id: number) => void;
+  onToggleInstallment: (id: number) => void;
+  onToggleCharge: (key: string) => void;
+  onAmountChange: (key: string, amount: number) => void;
 }) {
+  const items = [
+    ...installments.map((item) => ({ type: "installment" as const, item })),
+    ...charges.map((item) => ({ type: "charge" as const, item })),
+  ].sort((left, right) => {
+    const leftDate =
+      left.type === "installment"
+        ? left.item.purchase.effectiveDate
+        : left.item.subscription.effectiveDate;
+    const rightDate =
+      right.type === "installment"
+        ? right.item.purchase.effectiveDate
+        : right.item.subscription.effectiveDate;
+    return leftDate.localeCompare(rightDate);
+  });
+
+  if (items.length === 0) {
+    return <p className="py-5 text-sm text-text-quaternary">No hay items para mostrar.</p>;
+  }
+
   return (
-    <section>
-      <h3 className="text-sm font-semibold text-foreground">Cuotas</h3>
-      {installments.length === 0 ? (
-        <p className="py-5 text-sm text-text-quaternary">
-          No hay cuotas sugeridas para este cierre.
-        </p>
-      ) : (
-        <div className="mt-2 divide-y divide-border-subtle">
-          {installments.map((item) => (
-            <InstallmentRow
-              key={item.id}
-              item={item}
-              selected={selectedIds.has(item.id)}
-              currencyCode={currencyCode}
-              onToggle={onToggle}
-            />
-          ))}
-        </div>
+    <div className="divide-y divide-border-subtle">
+      {items.map((entry) =>
+        entry.type === "installment" ? (
+          <InstallmentRow
+            key={`installment-${entry.item.id}`}
+            item={entry.item}
+            selected={selectedInstallmentIds.has(entry.item.id)}
+            currencyCode={currencyCode}
+            onToggle={onToggleInstallment}
+          />
+        ) : (
+          <ChargeRow
+            key={`charge-${getChargeKey(entry.item)}`}
+            item={entry.item}
+            selected={selectedKeys.has(getChargeKey(entry.item))}
+            amount={amounts[getChargeKey(entry.item)] ?? entry.item.amount}
+            currencyCode={currencyCode}
+            onToggle={onToggleCharge}
+            onAmountChange={onAmountChange}
+          />
+        ),
       )}
-    </section>
+    </div>
   );
 }
 
@@ -391,47 +448,6 @@ function InstallmentRow({
         {formatCurrency(item.amount, item.currencyCode || currencyCode)}
       </span>
     </button>
-  );
-}
-
-function ChargeGroup({
-  charges,
-  selectedKeys,
-  amounts,
-  currencyCode,
-  onToggle,
-  onAmountChange,
-}: {
-  charges: CreditCardStatementChargeItemDTO[];
-  selectedKeys: Set<string>;
-  amounts: Record<string, number>;
-  currencyCode: string;
-  onToggle: (key: string) => void;
-  onAmountChange: (key: string, amount: number) => void;
-}) {
-  return (
-    <section className="mt-5 border-t border-border-subtle pt-4">
-      <h3 className="text-sm font-semibold text-foreground">Cargos de suscripciones</h3>
-      {charges.length === 0 ? (
-        <p className="py-5 text-sm text-text-quaternary">
-          No hay cargos sugeridos para este cierre.
-        </p>
-      ) : (
-        <div className="mt-2 divide-y divide-border-subtle">
-          {charges.map((item) => (
-            <ChargeRow
-              key={getChargeKey(item)}
-              item={item}
-              selected={selectedKeys.has(getChargeKey(item))}
-              amount={amounts[getChargeKey(item)] ?? item.amount}
-              currencyCode={currencyCode}
-              onToggle={onToggle}
-              onAmountChange={onAmountChange}
-            />
-          ))}
-        </div>
-      )}
-    </section>
   );
 }
 
@@ -518,6 +534,6 @@ function toggleSetValue<T>(current: Set<T>, value: T) {
 
 function getDefaultDueDate() {
   const date = new Date();
-  date.setDate(date.getDate() + 30);
+  date.setDate(date.getDate() + 15);
   return date.toISOString().slice(0, 10);
 }

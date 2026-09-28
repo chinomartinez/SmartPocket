@@ -40,6 +40,7 @@ import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { AddCurrentTimeToDate } from "@/utils/dateHelpers";
+import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface TransferFormModalProps {
   transferId?: number;
@@ -300,9 +301,10 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder="0.00"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                       placeholder="0.00"
+                       {...field}
+                       value={getNumericInputValue(field.value, true)}
+                       onChange={(e) => field.onChange(getNumericInputChangeValue(e))}
                     />
                   </FormControl>
                   <FormMessage />

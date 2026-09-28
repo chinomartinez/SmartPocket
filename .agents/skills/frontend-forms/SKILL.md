@@ -213,9 +213,9 @@ return (
 
 ## SmartPocket Pattern: Number Fields
 
-### ⚠️ IMPORTANTE: NO usar z.coerce.number() en este proyecto
+### ⚠️ IMPORTANTE: Mantener valores numéricos en el schema
 
-**SmartPocket usa conversión MANUAL, NO z.coerce:**
+Los schemas deben usar `z.number()` directamente. El input HTML se adapta en el borde usando `valueAsNumber`; no se deben transformar los schemas a strings.
 
 ```typescript
 // ✅ Pattern correcto de SmartPocket
@@ -225,28 +225,25 @@ const schema = z.object({
   accountId: z.number("Must select an account").int().positive(),
 });
 
-// 2. Component: conversión manual en onChange
+// 2. Component: adaptar el input controlado
 <FormField
   control={form.control}
   name="amount"
   render={({ field }) => (
     <FormControl>
       <Input
-        type="number"
-        step="0.01"
-        {...field}
-        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+       type="number"
+       step="0.01"
+       {...field}
+        value={getNumericInputValue(field.value, true)}
+        onChange={(e) => field.onChange(getNumericInputChangeValue(e))}
       />
     </FormControl>
   )}
 />
 ```
 
-**¿Por qué NO z.coerce.number()?**
-
-1. **API incompatible:** `z.coerce.number()` NO acepta `required_error` ni `invalid_type_error` props
-2. **Consistencia:** Todo el proyecto usa este pattern
-3. **Control explícito:** Conversión visible en component, más fácil debuggear
+`getNumericInputChangeValue` devuelve `undefined` cuando el input está vacío y `event.target.valueAsNumber` en los demás casos. `getNumericInputValue` permite renderizar un campo vacío sin cambiar el tipo numérico del formulario.
 
 **Para integers (IDs):**
 
@@ -520,16 +517,19 @@ const selectedType = form.watch("isIncome");
 <Button onClick={() => field.onChange(true)} />
 ```
 
-### ❌ Usar z.coerce.number() en SmartPocket
+### ❌ Convertir el campo a string en el schema o usar `Number("")`
 
 ```typescript
-// ❌ MAL - incompatible con project pattern
-amount: z.coerce.number().min(0);
-
-// ✅ BIEN - z.number() + conversión manual
-amount: z.number("Must be a number").min(0);
+// ❌ MAL - el vacío se convierte en cero o NaN
+amount: z.string().transform(Number);
 <Input type="number" {...field}
-  onChange={(e) => field.onChange(parseFloat(e.target.value))} />
+  onChange={(e) => field.onChange(Number(e.target.value))} />
+
+// ✅ BIEN - el schema sigue siendo numérico
+amount: z.number().min(0);
+<Input type="number" {...field}
+  value={getNumericInputValue(field.value, true)}
+  onChange={(e) => field.onChange(getNumericInputChangeValue(e))} />
 ```
 
 ### ❌ Validación solo client-side
@@ -593,7 +593,7 @@ const form = useForm<FormValues>({ defaultValues: { name: "", amount: 0 } });
 | "A component is changing an uncontrolled input" | Falta `defaultValues`                        | Definir `defaultValues` en `useForm()`                                 |
 | Validación no ejecuta                           | Falta `resolver`                             | Agregar `resolver: zodResolver(schema)`                                |
 | Edit form no pre-popula                         | Usar `defaultValues` en vez de `values`      | Cambiar a `values` para reactive updates                               |
-| Números se guardan como strings                 | Falta conversión en `onChange`               | Agregar `onChange={(e) => field.onChange(parseFloat(e.target.value))}` |
+| Números se guardan como strings                 | El input no usa `valueAsNumber`              | Usar `getNumericInputChangeValue` |
 | Form no limpia después de submit                | Falta `form.reset()`                         | Llamar `reset()` en `onSuccess`                                        |
 | Errores de API no aparecen                      | No usar `useFormErrorHandler`                | Agregar `onError: handleFormError`                                     |
 | useEffect ejecuta infinitamente en edit         | Dependencias incorrectas con `defaultValues` | Cambiar a `values` (elimina useEffect)                                 |

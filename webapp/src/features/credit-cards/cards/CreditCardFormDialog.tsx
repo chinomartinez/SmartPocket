@@ -28,6 +28,7 @@ import {
 } from "@/api/services/credit-cards/useCreditCards";
 import type { CreditCardListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { creditCardSchema, type CreditCardFormValues } from "./creditCardSchema";
+import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface CreditCardFormDialogProps {
   card?: CreditCardListItemDTO;
@@ -206,7 +207,8 @@ export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFor
                         min="0"
                         step="0.01"
                         {...field}
-                        onChange={(event) => field.onChange(Number(event.target.value))}
+                        value={getNumericInputValue(field.value, mode === "create")}
+                        onChange={(event) => field.onChange(getNumericInputChangeValue(event))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -276,7 +278,8 @@ function DayRangeFields({ control, name, label }: DayRangeFieldsProps) {
                 min="1"
                 max="31"
                 {...field}
-                onChange={(event) => field.onChange(Number(event.target.value))}
+                value={getNumericInputValue(field.value)}
+                onChange={(event) => field.onChange(getNumericInputChangeValue(event))}
               />
             </FormControl>
             <FormMessage />
@@ -296,7 +299,8 @@ function DayRangeFields({ control, name, label }: DayRangeFieldsProps) {
                 min="1"
                 max="31"
                 {...field}
-                onChange={(event) => field.onChange(Number(event.target.value))}
+                value={getNumericInputValue(field.value)}
+                onChange={(event) => field.onChange(getNumericInputChangeValue(event))}
               />
             </FormControl>
             <FormMessage />

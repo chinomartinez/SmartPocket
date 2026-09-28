@@ -24,6 +24,7 @@ import { ErrorAlert } from "@/components/ErrorAlert";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { formatCurrency } from "@/utils/formatters";
 import { formatDateOnly } from "@/utils/dateHelpers";
+import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 import type { ApiError } from "@/api/types";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import {
@@ -122,7 +123,7 @@ export function CreditCardStatementFormDialog({
 
   const [selectedInstallmentIds, setSelectedInstallmentIds] = useState<Set<number>>(new Set());
   const [selectedChargeKeys, setSelectedChargeKeys] = useState<Set<string>>(new Set());
-  const [chargeAmounts, setChargeAmounts] = useState<Record<string, number>>({});
+  const [chargeAmounts, setChargeAmounts] = useState<Record<string, number | undefined>>({});
   const apiError = activeMutation.error as ApiError | null;
   const handleFormError = useFormErrorHandler(form);
   const isLoadingItems = detailQuery.isLoading || suggestionsQuery.isLoading;
@@ -161,7 +162,7 @@ export function CreditCardStatementFormDialog({
     setSelectedChargeKeys((current) => toggleSetValue(current, key));
   };
 
-  const handleChargeAmountChange = (key: string, amount: number) => {
+  const handleChargeAmountChange = (key: string, amount: number | undefined) => {
     setChargeAmounts((current) => ({ ...current, [key]: amount }));
   };
 
@@ -365,11 +366,11 @@ function StatementItemList({
   charges: CreditCardStatementChargeItemDTO[];
   selectedInstallmentIds: Set<number>;
   selectedKeys: Set<string>;
-  amounts: Record<string, number>;
+  amounts: Record<string, number | undefined>;
   currencyCode: string;
   onToggleInstallment: (id: number) => void;
   onToggleCharge: (key: string) => void;
-  onAmountChange: (key: string, amount: number) => void;
+  onAmountChange: (key: string, amount: number | undefined) => void;
 }) {
   const items = [
     ...installments.map((item) => ({ type: "installment" as const, item })),
@@ -461,15 +462,15 @@ function ChargeRow({
 }: {
   item: CreditCardStatementChargeItemDTO;
   selected: boolean;
-  amount: number;
+  amount: number | undefined;
   currencyCode: string;
   onToggle: (key: string) => void;
-  onAmountChange: (key: string, amount: number) => void;
+  onAmountChange: (key: string, amount: number | undefined) => void;
 }) {
   const key = getChargeKey(item);
   const handleToggle = () => onToggle(key);
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-    onAmountChange(key, Number(event.target.value));
+    onAmountChange(key, getNumericInputChangeValue(event));
   return (
     <div className="flex items-center gap-3 py-3">
       <button
@@ -491,7 +492,7 @@ function ChargeRow({
         type="number"
         min="0"
         step="0.01"
-        value={amount}
+        value={getNumericInputValue(amount)}
         onChange={handleAmountChange}
         className="w-28 text-right"
         aria-label={`Monto del cargo ${item.chargeNumber}`}
@@ -517,7 +518,10 @@ function getChargeKey(item: CreditCardStatementChargeItemDTO) {
   return `${item.subscription.id}-${item.chargeNumber}`;
 }
 
-function toCreateCharge(item: CreditCardStatementChargeItemDTO, amounts: Record<string, number>) {
+function toCreateCharge(
+  item: CreditCardStatementChargeItemDTO,
+  amounts: Record<string, number | undefined>,
+) {
   return {
     subscriptionId: item.subscription.id,
     chargeNumber: item.chargeNumber,

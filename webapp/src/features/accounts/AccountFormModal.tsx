@@ -32,6 +32,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { getAccountIcons } from "@/components/iconBoxes/iconMap";
+import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 // ============================================================================
 // Types
@@ -263,11 +264,12 @@ export function AccountFormModal({ account, open, onOpenChange }: AccountFormMod
                     <Input
                       type="number"
                       step="0.01"
-                      placeholder="0.00"
+                       placeholder="0.00"
                       readOnly={mode === "edit"}
                       disabled={mode === "edit"}
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                       {...field}
+                       value={getNumericInputValue(field.value, mode === "create")}
+                       onChange={(e) => field.onChange(getNumericInputChangeValue(e))}
                     />
                   </FormControl>
                   <FormMessage />

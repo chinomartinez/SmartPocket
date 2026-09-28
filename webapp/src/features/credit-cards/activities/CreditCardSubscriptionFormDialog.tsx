@@ -41,6 +41,7 @@ import {
   type CreditCardSubscriptionActivityFormValues,
 } from "./creditCardActivitySchema";
 import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
+import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface CreditCardSubscriptionFormDialogProps {
   cardId: number;
@@ -240,8 +241,9 @@ export function CreditCardSubscriptionFormDialog({
                       type="number"
                       min="0"
                       step="0.01"
-                      {...field}
-                      onChange={(event) => field.onChange(Number(event.target.value))}
+                       {...field}
+                       value={getNumericInputValue(field.value, true)}
+                       onChange={(event) => field.onChange(getNumericInputChangeValue(event))}
                     />
                   </FormControl>
                   <FormMessage />

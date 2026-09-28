@@ -43,6 +43,7 @@ import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog"
 import { MiniCalculator } from "./MiniCalculator";
 import { cn } from "@/utils/utils";
 import { AddCurrentTimeToDate } from "@/utils/dateHelpers";
+import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface TransactionFormModalProps {
   transactionId?: number;
@@ -335,9 +336,10 @@ export function TransactionFormModal({
                               type="number"
                               step="0.01"
                               min="0"
-                              placeholder="0.00"
-                              {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                               placeholder="0.00"
+                               {...field}
+                               value={getNumericInputValue(field.value, true)}
+                               onChange={(e) => field.onChange(getNumericInputChangeValue(e))}
                             />
                           </div>
                           <Button

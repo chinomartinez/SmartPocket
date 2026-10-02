@@ -5,8 +5,8 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Vitest Tests",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "test"],
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["test"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"]

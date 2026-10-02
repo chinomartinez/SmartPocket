@@ -12,7 +12,7 @@ author: Chino
 
 ## Executive Summary
 
-SmartPocket es una aplicación web full-stack de gestión financiera personal que reemplaza aplicaciones comerciales limitadas (anuncios, paywalls, falta de privacidad) con una solución propia bajo control total del usuario. Como proyecto de portfolio profesional, demuestra arquitectura moderna (.NET 9 + React 19 con Clean Architecture + CQRS) y desarrollo acelerado con IA.
+SmartPocket es una aplicación web full-stack de gestión financiera personal que reemplaza aplicaciones comerciales limitadas (anuncios, paywalls, falta de privacidad) con una solución propia bajo control total del usuario. Como proyecto de portfolio profesional, demuestra arquitectura moderna (.NET 10 + React 19 con Clean Architecture + CQRS) y desarrollo acelerado con IA.
 
 El MVP entrega paridad funcional completa con apps comerciales actuales: gestión de cuentas/categorías, registro de transacciones con búsqueda avanzada, transferencias, recordatorios de pagos, dashboard con métricas en tiempo real, y visualizaciones gráficas. Sin anuncios, acceso desktop + mobile, y fundación sólida para features innovadoras futuras (OCR, análisis predictivo con IA, conexión bancaria segura).
 
@@ -64,11 +64,11 @@ SmartPocket es una aplicación web full-stack de gestión financiera personal qu
 
 **Fundación Técnica (Portfolio):**
 
-- Stack moderno: React 19 + TypeScript strict + .NET 9
+- Stack moderno: React 19 + TypeScript strict + .NET 10
 - Clean Architecture + CQRS (sin MediatR)
 - Feature-first organization (vertical slices)
 - TanStack Query para gestión de estado server-side
-- Testing automatizado (Vitest + xUnit)
+- Testing automatizado (Vitest + xUnit v3)
 - Integración con IA para desarrollo acelerado (GitHub Copilot)
 
 **Visión Futura (Post-MVP):**
@@ -171,7 +171,7 @@ SmartPocket es una aplicación web full-stack de gestión financiera personal qu
 SmartPocket es un activo profesional que demuestra capacidades técnicas actuales para oportunidades laborales:
 
 1. **Arquitectura Moderna**: Clean Architecture + CQRS (sin MediatR), vertical slices, Result pattern
-2. **Full-Stack End-to-End**: .NET 9 + React 19, TypeScript strict, TanStack Query, testing >60%
+2. **Full-Stack End-to-End**: .NET 10 + React 19, TypeScript strict, TanStack Query, testing >60%
 3. **Uso Efectivo de IA**: Desarrollo acelerado con GitHub Copilot manteniendo estándares profesionales
 4. **Producto Desplegado**: App en producción con CI/CD, documentación técnica profesional
 

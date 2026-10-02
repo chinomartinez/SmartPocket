@@ -12,26 +12,27 @@
 Run frontend commands from `webapp/`:
 
 ```text
-npm install
-npm run dev
-npm run lint
-npm run build
-npm test
-npm test -- src/utils/formatters.test.ts
-npm run test:coverage
+pnpm install
+pnpm run dev
+pnpm run lint
+pnpm run build
+pnpm test
+pnpm test -- src/utils/formatters.test.ts
+pnpm run test:coverage
 ```
 
-- `npm run build` runs `tsc -b` before the Vite production build.
+- `pnpm run build` runs `tsc -b` before the Vite production build.
 - Vitest uses the `node` environment, so the configured tests are for pure functions rather than browser/DOM rendering.
 - Run backend commands from `backend/src/`:
 
 ```text
 dotnet build SmartPocket.sln
-dotnet test SmartPocket.sln
+dotnet test --solution SmartPocket.sln
 dotnet run --project SmartPocket.WebApi/SmartPocket.WebApi.csproj
 ```
 
-- The backend targets .NET 9. The solution includes `BuildingBlocks`, `Domain`, `Features`, `Persistence`, `WebApi`, and `SmartPocket.Tests`.
+- The backend targets .NET 10. The solution includes `BuildingBlocks`, `Domain`, `Features`, `Persistence`, `WebApi`, and `SmartPocket.Tests`.
+- Backend tests use xUnit v3 through Microsoft Testing Platform, configured in `backend/src/global.json`.
 - Backend integration tests use SQLite in-memory (`Data Source=:memory:;Foreign Keys=True`); inspect `IntegrationTestFixture` before changing test setup.
 - The API requires the `ConnectionStrings:SmartPocketContext` configuration value. The checked-in `appsettings*.json` values are empty; use local configuration/user secrets rather than committing connection strings.
 

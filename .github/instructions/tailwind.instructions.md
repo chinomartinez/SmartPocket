@@ -221,5 +221,5 @@ const colorMap = {
 
 ## Validation
 
-- Verificar sintaxis: `npm run dev` (Vite muestra errores de Tailwind)
-- Producción: `npm run build`
+- Verificar sintaxis: `pnpm run dev` (Vite muestra errores de Tailwind)
+- Producción: `pnpm run build`

@@ -6,7 +6,7 @@ Manual técnico para GitHub Copilot. React 19 + TypeScript + Tailwind v4.
 
 ## Descripción
 
-SmartPocket es una aplicación web full-stack de gestión financiera personal que reemplaza aplicaciones comerciales limitadas (anuncios, paywalls, falta de privacidad) con una solución propia bajo control total del usuario. Como proyecto de portfolio profesional, demuestra arquitectura moderna (.NET 9 + React 19 con Clean Architecture + CQRS) y desarrollo acelerado con IA.
+SmartPocket es una aplicación web full-stack de gestión financiera personal que reemplaza aplicaciones comerciales limitadas (anuncios, paywalls, falta de privacidad) con una solución propia bajo control total del usuario. Como proyecto de portfolio profesional, demuestra arquitectura moderna (.NET 10 + React 19 con Clean Architecture + CQRS) y desarrollo acelerado con IA.
 
 **MVP**:
 

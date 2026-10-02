@@ -50,7 +50,7 @@ Este documento registra las **decisiones arquitectónicas** que dan forma a Smar
 **Stack fijo (brownfield):**
 
 - Frontend: React 19 + TypeScript strict + Vite 7 + Tailwind CSS v4 + shadcn/ui + TanStack Query + React Hook Form + Zod
-- Backend: .NET 9 + EF Core + FluentValidation + Clean Architecture + CQRS (sin MediatR)
+- Backend: .NET 10 + EF Core 10 + FluentValidation + Clean Architecture + CQRS (sin MediatR)
 - Persistencia: SQLite (actual) → PostgreSQL (migración probable). EF Core abstrae DB provider.
 - Monorepo: webapp/ + backend/ sin workspace manager
 
@@ -102,7 +102,7 @@ SmartPocket es un proyecto existente (Fase 3, 12% completado) con módulo de Ges
 
 No se evalúan starters nuevos porque:
 
-1. El stack está elegido e implementado (React 19 + .NET 9)
+1. El stack está elegido e implementado (React 19 + .NET 10)
 2. La arquitectura está validada (Clean Architecture + CQRS funcionando)
 3. Los patrones están establecidos y documentados (feature-first, vertical slices, Result pattern)
 4. Las herramientas de build/test/lint están configuradas (Vite 7, Vitest, ESLint 9, xUnit)
@@ -116,7 +116,7 @@ No se evalúan starters nuevos porque:
 **Language & Runtime:**
 
 - Frontend: TypeScript 5.8.3 strict mode (ES2022 target, ESNext modules, verbatimModuleSyntax)
-- Backend: C# .NET 9.0 (nullable enabled, implicit usings)
+- Backend: C# .NET 10.0 (nullable enabled, implicit usings)
 - Posibles actualizaciones de paquetes (EF Core, etc.) a considerar — se documentarán si ocurren
 
 **Styling Solution:**
@@ -134,7 +134,7 @@ No se evalúan starters nuevos porque:
 **Testing Framework:**
 
 - Frontend: Vitest 4.0.15 (environment: node, funciones puras)
-- Backend: xUnit (unitarios + integración con SQLite in-memory via `IntegrationTestFixture`)
+- Backend: xUnit v3 con Microsoft Testing Platform (unitarios + integración con SQLite in-memory via `IntegrationTestFixture`)
   - SQLite connection `Data Source=:memory:;Foreign Keys=True` para tests de integración
   - Si se migra a PostgreSQL: Testcontainers como estrategia probable para tests de integración
 - Coverage target: >60% ambos lados
@@ -155,7 +155,7 @@ No se evalúan starters nuevos porque:
 
 **Persistencia:**
 
-- SQLite (actual) vía EF Core 9.0.11
+- SQLite (actual) vía EF Core 10.0.12
 - PostgreSQL como migración probable — EF Core abstrae el provider
 - Restricción: evitar features SQLite-específicas que no existan en PostgreSQL
 - Migrations en `SmartPocket.Persistence/Migrations/`
@@ -257,7 +257,7 @@ No se evalúan starters nuevos porque:
 **Hosting: Pendiente de decisión**
 
 - A definir próximamente
-- Requisito: soporte para .NET 9 + SQLite (o PostgreSQL si se migra)
+- Requisito: soporte para .NET 10 + SQLite (o PostgreSQL si se migra)
 - HTTPS obligatorio en producción
 
 **CI/CD: Pendiente de definición**
@@ -506,7 +506,7 @@ SmartPocket es un monorepo sin workspace manager con separación física clara:
 
 | Carpeta        | Rol                                          | Tecnología                   |
 | -------------- | -------------------------------------------- | ---------------------------- |
-| `backend/src/` | API REST + lógica de negocio                 | .NET 9, C#, EF Core          |
+| `backend/src/` | API REST + lógica de negocio                 | .NET 10, C#, EF Core 10      |
 | `webapp/src/`  | SPA cliente                                  | React 19, TypeScript, Vite 7 |
 | `_docs/`       | Artefactos de planificación e implementación | Markdown                     |
 | `docs/`        | Documentación de proyecto (knowledge base)   | Markdown                     |
@@ -694,7 +694,7 @@ User Action
 
 **Decision Compatibility:**
 
-- Stack frontend (React 19 + TS 5.8 + Vite 7 + TanStack Query 5 + Zod 4 + shadcn/ui) y backend (.NET 9 + EF Core 9 + FluentValidation + SQLite) — sin conflictos de versiones ni incompatibilidades.
+- Stack frontend (React 19 + TS 5.8 + Vite 7 + TanStack Query 5 + Zod 4 + shadcn/ui) y backend (.NET 10 + EF Core 10 + FluentValidation + SQLite) — sin conflictos de versiones ni incompatibilidades.
 - Result pattern → ProblemDetails → handleApiError → toast automático: pipeline end-to-end coherente.
 - Balance SUM on-the-fly viable para volumen esperado (1-2000 transacciones).
 
@@ -737,7 +737,7 @@ User Action
 | #   | Área                          | Estado                | Decisión                                                  |
 | --- | ----------------------------- | --------------------- | --------------------------------------------------------- |
 | 1   | E2E Testing Framework         | Diferido a Sub-fase 8 | Usuario decidirá framework al implementar pulido UX       |
-| 2   | Hosting & Deployment          | Diferido              | Requisito: soporte .NET 9 + SQLite/PostgreSQL + HTTPS     |
+| 2   | Hosting & Deployment          | Diferido              | Requisito: soporte .NET 10 + SQLite/PostgreSQL + HTTPS     |
 | 3   | CI/CD Pipeline                | Diferido              | GitHub Actions como candidato probable                    |
 | 4   | Librería de Gráficos          | Diferido a Sub-fase 7 | Se evalúa al implementar módulo de visualización          |
 | 5   | Migración SQLite → PostgreSQL | Diferido              | EF Core abstrae provider. Sin features SQLite-específicas |

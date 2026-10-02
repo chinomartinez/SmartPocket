@@ -53,7 +53,7 @@ src/features/accounts/AccountCard.test.tsx  ← Test aquí
 **Comando:**
 
 ```bash
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 ---
@@ -293,6 +293,6 @@ Ver [vitest.config.ts](../../../webapp/vitest.config.ts) para la configuración 
 - [Testing Library React](https://testing-library.com/docs/react-testing-library/intro/)
 - SmartPocket: Ver tests existentes en `webapp/src/features/`
 
-**Comandos:** `npm run test`, `npm run test:coverage`, `npm run test:watch`
+**Comandos:** `pnpm run test`, `pnpm run test:coverage`, `pnpm run test:watch`
 
 ---

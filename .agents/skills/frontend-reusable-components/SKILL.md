@@ -70,12 +70,12 @@ components/
 
 ```bash
 # Listar componentes disponibles
-npx shadcn@latest add
+pnpm dlx shadcn@latest add
 
 # Instalar componente específico
-npx shadcn@latest add textarea
-npx shadcn@latest add badge
-npx shadcn@latest add tabs
+pnpm dlx shadcn@latest add textarea
+pnpm dlx shadcn@latest add badge
+pnpm dlx shadcn@latest add tabs
 ```
 
 **Instalar de shadcn/ui cuando:**
@@ -106,7 +106,7 @@ export function CustomTextarea() {
 
 ```bash
 # ✅ Instalar desde shadcn/ui
-npx shadcn@latest add textarea
+pnpm dlx shadcn@latest add textarea
 ```
 
 ```typescript
@@ -545,15 +545,15 @@ shadcn/ui NO es una library tradicional. Son componentes copiables basados en Ra
 
 ```bash
 # Ver lista completa
-npx shadcn@latest add
+pnpm dlx shadcn@latest add
 
 # Instalar componente específico
-npx shadcn@latest add [component-name]
+pnpm dlx shadcn@latest add [component-name]
 
 # Ejemplos
-npx shadcn@latest add tabs
-npx shadcn@latest add accordion
-npx shadcn@latest add tooltip
+pnpm dlx shadcn@latest add tabs
+pnpm dlx shadcn@latest add accordion
+pnpm dlx shadcn@latest add tooltip
 ```
 
 ### Customización

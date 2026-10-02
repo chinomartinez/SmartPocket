@@ -895,12 +895,12 @@ Acciones irreversibles (archivar, eliminar) siempre requieren confirmación expl
 
 | Componente     | Comando                              | Usado en                                           |
 | -------------- | ------------------------------------ | -------------------------------------------------- |
-| `Tabs`         | `npx shadcn@latest add tabs`         | Gasto/Ingreso en formulario, períodos en Dashboard |
-| `Separator`    | `npx shadcn@latest add separator`    | Separador visual en sidebar                        |
-| `Popover`      | `npx shadcn@latest add popover`      | Date picker en formulario de transacción           |
-| `Calendar`     | `npx shadcn@latest add calendar`     | Combinado con Popover para selección de fecha      |
-| `Tooltip`      | `npx shadcn@latest add tooltip`      | Íconos sidebar en estado compacto (futuro)         |
-| `Alert Dialog` | `npx shadcn@latest add alert-dialog` | Confirmación para archivar/eliminar                |
+| `Tabs`         | `pnpm dlx shadcn@latest add tabs`         | Gasto/Ingreso en formulario, períodos en Dashboard |
+| `Separator`    | `pnpm dlx shadcn@latest add separator`    | Separador visual en sidebar                        |
+| `Popover`      | `pnpm dlx shadcn@latest add popover`      | Date picker en formulario de transacción           |
+| `Calendar`     | `pnpm dlx shadcn@latest add calendar`     | Combinado con Popover para selección de fecha      |
+| `Tooltip`      | `pnpm dlx shadcn@latest add tooltip`      | Íconos sidebar en estado compacto (futuro)         |
+| `Alert Dialog` | `pnpm dlx shadcn@latest add alert-dialog` | Confirmación para archivar/eliminar                |
 
 ---
 

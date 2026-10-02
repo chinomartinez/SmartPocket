@@ -165,6 +165,6 @@ type Status = (typeof STATUSES)[number]; // 'pending' | 'completed'
 
 ## Validation
 
-- Build: `npm run build` (compila con `tsc --noEmit`)
-- Lint: `npm run lint` (ESLint + TypeScript)
-- Type check: `npx tsc --noEmit`
+- Build: `pnpm run build` (compila con `tsc --noEmit`)
+- Lint: `pnpm run lint` (ESLint + TypeScript)
+- Type check: `pnpm exec tsc --noEmit`

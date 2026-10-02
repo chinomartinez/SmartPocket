@@ -24,6 +24,8 @@ namespace SmartPocket.Tests.Features.AccountCRUD
         [Fact]
         public async Task CanCreate()
         {
+            var cancelationToken = TestContext.Current.CancellationToken;
+
             //Arrage
             var command = new AccountCreateCommand
             {
@@ -38,7 +40,7 @@ namespace SmartPocket.Tests.Features.AccountCRUD
             };
 
             //Act
-            var result = await _accountCreateCommandHandler.Create(command, default);
+            var result = await _accountCreateCommandHandler.Create(command, cancelationToken);
 
             //Assert
             Assert.True(result.IsSuccess);
@@ -50,7 +52,7 @@ namespace SmartPocket.Tests.Features.AccountCRUD
 
             var list = await _smartPocketContext.Query<Account>()
                 .Where(x => x.Id == newId)
-                .ToListAsync();
+                .ToListAsync(cancelationToken);
 
             Assert.NotEmpty(list);
         }
@@ -58,6 +60,8 @@ namespace SmartPocket.Tests.Features.AccountCRUD
         [Fact]
         public async Task CanUpdate()
         {
+            var cancelationToken = TestContext.Current.CancellationToken;
+
             //Arrage
             await CanCreate();
 
@@ -67,7 +71,7 @@ namespace SmartPocket.Tests.Features.AccountCRUD
                 .Query<Account>()
                 .Select(x => x.Id)
                 .OrderByDescending(x => x)
-                .FirstAsync();
+                .FirstAsync(cancelationToken);
 
             var command = new AccountUpdateCommand
             {
@@ -82,7 +86,7 @@ namespace SmartPocket.Tests.Features.AccountCRUD
                 Name = "Account Update test"
             };
 
-            var errors = await _accountUpdateCommandHandler.Update(command, default);
+            var errors = await _accountUpdateCommandHandler.Update(command, cancelationToken);
 
             //Assert
             Assert.Empty(errors);            
@@ -91,7 +95,7 @@ namespace SmartPocket.Tests.Features.AccountCRUD
                 .Query<Account>()
                 .Where(x => x.Id == id)
                 .Select(x => x.Name)
-                .FirstAsync();
+                .FirstAsync(cancelationToken);
 
             Assert.Equal(currentName, command.Name);
         }

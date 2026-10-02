@@ -21,36 +21,52 @@ namespace SmartPocket.Features.Accounts.Create
             _validator = validator;
         }
 
-        public async Task<ResultWithErrors<AccountCreateResponse>> Create(AccountCreateCommand request,
-            CancellationToken cancellationToken)
+        public async Task<ResultWithErrors<AccountCreateResponse>> Create(AccountCreateCommand request, CancellationToken cancellationToken)
         {
             var validation = await _validator.ValidateCommand(request);
             if (validation.IsNotValid) return validation.Errors;
 
-            var isPrincipal = !await _smartPocketContext.Query<Account>().AnyAsync(cancellationToken);
+            var dbTransaction = await _smartPocketContext.BeginTransactionAsync(cancellationToken);
 
-            var account = new Account(
-                name: request.Name,
-                icon: request.Icon.ToDomainIcon(),
-                currencyCode: request.CurrencyCode,
-                initialBalance: request.Balance,
-                includeInBalanceGlobal: request.IncludeInBalanceGlobal,
-                isPrincipal: isPrincipal);
-
-            if (request.Balance != 0)
+            try
             {
-                var transaction = Transaction.CreateAsSystemAdjustment(accountId: account.Id,
-                    amount: request.Balance,
-                    description: "Initial balance");
+                var isPrincipal = !await _smartPocketContext.Query<Account>().AnyAsync(cancellationToken);
 
-                account.Transactions.Add(transaction);
+                var account = new Account(
+                    name: request.Name,
+                    icon: request.Icon.ToDomainIcon(),
+                    currencyCode: request.CurrencyCode,
+                    initialBalance: request.Balance,
+                    includeInBalanceGlobal: request.IncludeInBalanceGlobal,
+                    isPrincipal: isPrincipal);
+
+                _smartPocketContext.AddEntity(account);
+
+                await _smartPocketContext.SaveChangesAsync(cancellationToken);
+
+                if (request.Balance != 0)
+                {
+                    var transaction = Transaction.CreateAsSystemAdjustment(accountId: account.Id,
+                        amount: request.Balance,
+                        description: "Initial balance");
+
+                    _smartPocketContext.AddEntity(transaction);
+
+                    await _smartPocketContext.SaveChangesAsync(cancellationToken);
+                }
+
+                await dbTransaction.CommitAsync(cancellationToken);
+
+                return new AccountCreateResponse(account.Id);
+
             }
+            catch (Exception)
+            {
+                await dbTransaction.RollbackAsync(cancellationToken);
 
-            _smartPocketContext.AddEntity(account);
-
-            await _smartPocketContext.SaveChangesAsync(cancellationToken);
-
-            return new AccountCreateResponse(account.Id);
+                throw;
+            }
+            
         }
     }
 }

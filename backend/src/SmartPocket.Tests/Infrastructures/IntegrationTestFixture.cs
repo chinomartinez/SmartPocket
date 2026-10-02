@@ -30,7 +30,7 @@ namespace SmartPocket.Tests.Infrastructures
             return _serviceProvider;
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             _connection = new SqliteConnection("Data Source=:memory:;Foreign Keys=True");
             await _connection.OpenAsync();
@@ -59,7 +59,7 @@ namespace SmartPocket.Tests.Infrastructures
             await context.Database.EnsureCreatedAsync();
         }
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             _serviceProvider?.Dispose();
 

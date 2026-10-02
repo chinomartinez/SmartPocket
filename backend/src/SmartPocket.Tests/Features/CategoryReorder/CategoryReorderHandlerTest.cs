@@ -21,14 +21,16 @@ namespace SmartPocket.Tests.Features.CategoryReorder
         [Fact]
         public async Task Reorder_WithValidItems_PersistsNewOrder()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             // Arrange - create extra categories for gastos
             var cat1 = new Category("Comida", new Icon("food", "#FF0000"), false);
             var cat2 = new Category("Transporte", new Icon("transport", "#00FF00"), false);
             var cat3 = new Category("Entretenimiento", new Icon("entertainment", "#0000FF"), false);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(cat1);
-            await _smartPocketContext.AddAndSaveChangesAsync(cat2);
-            await _smartPocketContext.AddAndSaveChangesAsync(cat3);
+            await _smartPocketContext.AddAndSaveChangesAsync(cat1, cancellationToken);
+            await _smartPocketContext.AddAndSaveChangesAsync(cat2, cancellationToken);
+            await _smartPocketContext.AddAndSaveChangesAsync(cat3, cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -43,7 +45,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             };
 
             // Act
-            var result = await _handler.Reorder(command, default);
+            var result = await _handler.Reorder(command, cancellationToken);
 
             // Assert
             Assert.True(result.IsEmpty);
@@ -53,7 +55,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             var reordered = await _smartPocketContext.Query<Category>()
                 .Where(c => c.Id == cat1.Id || c.Id == cat2.Id || c.Id == cat3.Id)
                 .OrderBy(c => c.SortOrder)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             Assert.Equal(cat3.Id, reordered[0].Id);
             Assert.Equal(0, reordered[0].SortOrder);
@@ -66,16 +68,18 @@ namespace SmartPocket.Tests.Features.CategoryReorder
         [Fact]
         public async Task Reorder_WithBothTypes_PersistsCorrectly()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             // Arrange - create categories for both types
             var gasto1 = new Category("Alquiler", new Icon("rent", "#FF1111"), false);
             var gasto2 = new Category("Servicios", new Icon("services", "#FF2222"), false);
             var ingreso1 = new Category("Salario", new Icon("salary", "#00FF11"), true);
             var ingreso2 = new Category("Freelance", new Icon("freelance", "#00FF22"), true);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(gasto1);
-            await _smartPocketContext.AddAndSaveChangesAsync(gasto2);
-            await _smartPocketContext.AddAndSaveChangesAsync(ingreso1);
-            await _smartPocketContext.AddAndSaveChangesAsync(ingreso2);
+            await _smartPocketContext.AddAndSaveChangesAsync(gasto1, cancellationToken);
+            await _smartPocketContext.AddAndSaveChangesAsync(gasto2, cancellationToken);
+            await _smartPocketContext.AddAndSaveChangesAsync(ingreso1, cancellationToken);
+            await _smartPocketContext.AddAndSaveChangesAsync(ingreso2, cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -92,7 +96,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             };
 
             // Act
-            var result = await _handler.Reorder(command, default);
+            var result = await _handler.Reorder(command, cancellationToken);
 
             // Assert
             Assert.True(result.IsEmpty);
@@ -102,7 +106,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             var gastos = await _smartPocketContext.Query<Category>()
                 .Where(c => !c.IsIncome && (c.Id == gasto1.Id || c.Id == gasto2.Id))
                 .OrderBy(c => c.SortOrder)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             Assert.Equal(gasto2.Id, gastos[0].Id);
             Assert.Equal(gasto1.Id, gastos[1].Id);
@@ -110,7 +114,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             var ingresos = await _smartPocketContext.Query<Category>()
                 .Where(c => c.IsIncome && (c.Id == ingreso1.Id || c.Id == ingreso2.Id))
                 .OrderBy(c => c.SortOrder)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             Assert.Equal(ingreso2.Id, ingresos[0].Id);
             Assert.Equal(ingreso1.Id, ingresos[1].Id);
@@ -119,6 +123,8 @@ namespace SmartPocket.Tests.Features.CategoryReorder
         [Fact]
         public async Task Reorder_WithNonExistentId_ReturnsError()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             // Arrange
             var command = new CategoryReorderCommand
             {
@@ -129,7 +135,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             };
 
             // Act
-            var result = await _handler.Reorder(command, default);
+            var result = await _handler.Reorder(command, cancellationToken);
 
             // Assert
             Assert.False(result.IsEmpty);
@@ -139,12 +145,14 @@ namespace SmartPocket.Tests.Features.CategoryReorder
         [Fact]
         public async Task Reorder_WithDuplicateSortOrderSameType_ReturnsError()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             // Arrange
             var cat1 = new Category("Test A", new Icon("a", "#111111"), false);
             var cat2 = new Category("Test B", new Icon("b", "#222222"), false);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(cat1);
-            await _smartPocketContext.AddAndSaveChangesAsync(cat2);
+            await _smartPocketContext.AddAndSaveChangesAsync(cat1, cancellationToken);
+            await _smartPocketContext.AddAndSaveChangesAsync(cat2, cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -158,7 +166,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             };
 
             // Act
-            var result = await _handler.Reorder(command, default);
+            var result = await _handler.Reorder(command, cancellationToken);
 
             // Assert
             Assert.False(result.IsEmpty);
@@ -169,13 +177,15 @@ namespace SmartPocket.Tests.Features.CategoryReorder
         public async Task Reorder_WithEmptyItems_ReturnsValidationError()
         {
             // Arrange
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             var command = new CategoryReorderCommand
             {
                 Items = []
             };
 
             // Act
-            var result = await _handler.Reorder(command, default);
+            var result = await _handler.Reorder(command, cancellationToken);
 
             // Assert
             Assert.False(result.IsEmpty);
@@ -185,8 +195,9 @@ namespace SmartPocket.Tests.Features.CategoryReorder
         public async Task Reorder_WithDuplicateIds_ReturnsValidationError()
         {
             // Arrange
+            var cancellationToken = TestContext.Current.CancellationToken;
             var cat = new Category("Dup Test", new Icon("dup", "#333333"), false);
-            await _smartPocketContext.AddAndSaveChangesAsync(cat);
+            await _smartPocketContext.AddAndSaveChangesAsync(cat, cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -200,7 +211,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             };
 
             // Act
-            var result = await _handler.Reorder(command, default);
+            var result = await _handler.Reorder(command, cancellationToken);
 
             // Assert
             Assert.False(result.IsEmpty);
@@ -210,11 +221,12 @@ namespace SmartPocket.Tests.Features.CategoryReorder
         public async Task Reorder_PersistsAndReadBackInOrder()
         {
             // Arrange - create numbered categories for gastos
+            var cancellationToken = TestContext.Current.CancellationToken;
             var catA = new Category("A-Lectura", new Icon("read", "#AA0000"), false);
             var catB = new Category("B-Lectura", new Icon("read2", "#BB0000"), false);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(catA);
-            await _smartPocketContext.AddAndSaveChangesAsync(catB);
+            await _smartPocketContext.AddAndSaveChangesAsync(catA, cancellationToken);
+            await _smartPocketContext.AddAndSaveChangesAsync(catB, cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -228,7 +240,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
                 ]
             };
 
-            var result = await _handler.Reorder(command, default);
+            var result = await _handler.Reorder(command, cancellationToken);
             Assert.True(result.IsEmpty);
 
             _smartPocketContext.DiscardAllChanges();
@@ -238,7 +250,7 @@ namespace SmartPocket.Tests.Features.CategoryReorder
                 .Where(c => c.Id == catA.Id || c.Id == catB.Id)
                 .OrderBy(c => c.SortOrder)
                 .ThenBy(c => c.Id)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             // Assert - B should come first
             Assert.Equal(catB.Id, ordered[0].Id);

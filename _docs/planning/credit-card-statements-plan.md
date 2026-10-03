@@ -255,13 +255,13 @@ Respuesta conceptual:
   statement,
   includedInstallmentItems: [],
   includedChargeItems: [],
-  suggestedInstallmentItems: [],
-  suggestedChargeItems: [],
   totals
 }
 ```
 
-El detalle incluye items persistidos y vuelve a calcular sugerencias para la edición utilizando el `ClosingDate` del resumen.
+El detalle devuelve únicamente información persistida. Las sugerencias se consultan exclusivamente mediante el endpoint de sugerencias.
+
+Durante la edición, la UI carga primero el detalle y luego consulta sugerencias utilizando el `ClosingDate` persistido. Si el usuario modifica esa fecha, se vuelve a consultar únicamente el endpoint de sugerencias.
 
 ### 6.3. Item de cuota
 
@@ -363,13 +363,13 @@ Ruta prevista:
 DELETE /CreditCardStatements/{id}
 ```
 
-La operación debe ejecutarse en una transacción:
+La operación utiliza el tracking existente del contexto y se persiste con una única llamada a `SaveChangesAsync`:
 
 1. Cargar cuotas y cargos del resumen.
 2. Desvincular todas las cuotas.
 3. Eliminar físicamente todos los cargos.
 4. Eliminar el resumen mediante el mecanismo de soft delete existente.
-5. Confirmar la transacción.
+5. Guardar los cambios.
 
 La UI debe informar que las cuotas vuelven a estar disponibles para futuros resúmenes y que los cargos registrados dentro de SmartPocket serán eliminados.
 
@@ -466,8 +466,8 @@ El flujo se mantiene dentro del contexto de la tarjeta seleccionada.
 2. Ingresa o confirma `ClosingDate`.
 3. Ingresa o confirma `DueDate`.
 4. La UI consulta sugerencias usando sólo `ClosingDate`.
-5. Se muestran cuotas y cargos sugeridos separados.
-6. Los items sugeridos aparecen seleccionados por defecto.
+5. Se muestran cuotas y cargos en una lista plana ordenada por fecha efectiva.
+6. Las sugerencias no aparecen seleccionadas por defecto.
 7. El usuario incluye, excluye o modifica items.
 8. El usuario puede agregar cargos manuales.
 9. La UI muestra totales derivados de la selección.
@@ -476,14 +476,16 @@ El flujo se mantiene dentro del contexto de la tarjeta seleccionada.
 ### 11.2. Edición
 
 1. La UI obtiene el detalle por `CreditCardStatementId`.
-2. Muestra items incluidos.
-3. Muestra nuevas sugerencias disponibles.
+2. Muestra items incluidos en el bloque `Detalle del resumen`.
+3. Consulta sugerencias en un bloque separado.
 4. Conserva los items incluidos aunque ya no sean sugerencias.
-5. Permite modificar fechas, cuotas y cargos.
-6. Permite modificar un resumen `Closed` o `Paid`.
-7. Confirma mediante el comando de actualización.
+5. Mantiene seleccionados sólo los items incluidos.
+6. Permite modificar la fecha de cierre y recalcular sugerencias.
+7. Permite modificar fechas, cuotas y cargos.
+8. Permite modificar un resumen `Closed` o `Paid`.
+9. Confirma mediante el comando de actualización.
 
-No se deben mostrar cuotas como formularios independientes. Se muestran como items de la compra padre, con número, importe y origen.
+No se deben mostrar cuotas como formularios independientes. Los items incluidos y sugeridos se muestran en listas planas, ordenadas por fecha efectiva, y cada fila identifica su tipo mediante `Cuota N` o `Cargo N`.
 
 ## 12. Servicios y caché frontend
 
@@ -500,8 +502,11 @@ Las mutations deben invalidar, como mínimo:
 
 - Listado de resúmenes de la tarjeta.
 - Detalle del resumen afectado.
+- Sugerencias de la tarjeta.
 - Overview de la tarjeta.
 - Actividades de la tarjeta.
+
+Las mutations de compras y suscripciones también deben invalidar listado, detalle y sugerencias, porque modifican indirectamente cuotas y cargos disponibles.
 
 ## 13. Orden de implementación
 
@@ -525,7 +530,8 @@ Las mutations deben invalidar, como mínimo:
 - Reemplazar mocks de `CreditCardStatementList`.
 - Incorporar paginación.
 - Crear dialog o drawer de resumen.
-- Mostrar items agrupados por tipo.
+- Mostrar dos bloques visuales: detalle del resumen y sugerencias.
+- Ordenar cada bloque por fecha efectiva.
 - Implementar selección y edición de cargos.
 - Incorporar loading, error y empty states.
 
@@ -541,7 +547,6 @@ Las mutations deben invalidar, como mínimo:
 - Definir el comportamiento para fechas como `31` en meses que no tienen día 31.
 - Definir cómo se calcula un cargo mensual cuando la fecha efectiva cae en un día inexistente de un mes posterior.
 - Confirmar si la moneda distinta de la tarjeta siempre se presenta como USD o si se debe soportar una lista de monedas.
-- Confirmar si los items sugeridos se muestran seleccionados por defecto también durante edición.
 - Definir el texto exacto de confirmación al eliminar un resumen y sus cargos.
 - Actualizar el plan general de UI y el diseño funcional, que todavía describen restricciones antiguas para resúmenes pagados.
 

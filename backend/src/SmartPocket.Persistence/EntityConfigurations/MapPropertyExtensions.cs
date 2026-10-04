@@ -33,5 +33,20 @@ namespace SmartPocket.Persistence.EntityConfigurations
                     .HasMaxLength(7); // ej. "#FFFFFF"
             });
         }
+
+        /// <summary>
+        /// Centraliza la configuración de propiedades numéricas (decimal) para que tengan una precisión y escala consistente en toda la aplicación.
+        /// Esto es util para tener una centralización para todas las configuraciones de propiedades numéricas.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="precision"></param>
+        /// <param name="scale"></param>
+        /// <returns></returns>
+        internal static PropertyBuilder<decimal> IsNumeric(this PropertyBuilder<decimal> property, int precision = 18, int scale = 2)
+        {
+            // Es posible que esto cambie en el futuro. Hoy por hoy, utilizamos Sqlite.
+            // Si cambio a PostgreSQL o SQL Server, es posible que requiera usar HasColumnType u otras configuraciones específicas.
+            return property.HasPrecision(precision, scale);
+        }
     }
 }

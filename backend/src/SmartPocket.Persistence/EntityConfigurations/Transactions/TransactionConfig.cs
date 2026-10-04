@@ -9,6 +9,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transactions
         public void Configure(EntityTypeBuilder<Transaction> builder)
         {
             builder.Property(x => x.Description).HasMaxLength(300);
+            builder.Property(x => x.Amount).IsNumeric().IsRequired();
 
             builder
                 .HasOne(x => x.Account)

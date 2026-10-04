@@ -12,8 +12,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(x => x.InitialAmount)
-                .HasPrecision(18, 2);
+            builder.Property(x => x.InitialAmount).IsNumeric().IsRequired();
 
             builder.ConfigureCurrency(x => x.CurrencyCode);
 

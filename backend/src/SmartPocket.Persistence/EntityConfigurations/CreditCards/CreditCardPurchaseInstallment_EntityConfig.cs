@@ -22,7 +22,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
                 .IsUnique();
 
             // Configuraciones por defecto
-            builder.Property(x => x.Amount).HasPrecision(18, 2);
+            builder.Property(x => x.Amount).IsNumeric().IsRequired();
             builder.Property(x => x.Number);
 
             builder.HasQueryFilter(x => !x.CreditCardPurchase.IsDeleted);

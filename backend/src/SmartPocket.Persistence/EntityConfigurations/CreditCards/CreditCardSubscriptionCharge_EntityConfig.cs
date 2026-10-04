@@ -8,8 +8,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
     {
         public void Configure(EntityTypeBuilder<CreditCardSubscriptionCharge> builder)
         {
-            builder.Property(x => x.Amount)
-                .HasPrecision(18, 2);
+            builder.Property(x => x.Amount).IsNumeric().IsRequired();
 
             builder.Property(x => x.ChargeNumber);
 

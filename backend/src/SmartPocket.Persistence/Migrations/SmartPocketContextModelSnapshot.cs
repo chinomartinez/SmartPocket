@@ -16,7 +16,7 @@ namespace SmartPocket.Persistence.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.11");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
 
             modelBuilder.Entity("SmartPocket.Domain.Accounts.Account", b =>
                 {
@@ -38,6 +38,7 @@ namespace SmartPocket.Persistence.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("InitialBalance")
+                        .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
@@ -56,8 +57,10 @@ namespace SmartPocket.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Icon", "SmartPocket.Domain.Accounts.Account.Icon#Icon", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Icon", "SmartPocket.Domain.Accounts.Account.Icon#Icon", b1 =>
                         {
+                            b1.IsRequired();
+
                             b1.Property<string>("Code")
                                 .IsRequired()
                                 .HasMaxLength(100)
@@ -107,8 +110,10 @@ namespace SmartPocket.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Icon", "SmartPocket.Domain.CreditCards.CreditCard.Icon#Icon", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Icon", "SmartPocket.Domain.CreditCards.CreditCard.Icon#Icon", b1 =>
                         {
+                            b1.IsRequired();
+
                             b1.Property<string>("Code")
                                 .IsRequired()
                                 .HasMaxLength(100)
@@ -120,8 +125,10 @@ namespace SmartPocket.Persistence.Migrations
                                 .HasColumnType("TEXT");
                         });
 
-                    b.ComplexProperty<Dictionary<string, object>>("PaymentDueRange", "SmartPocket.Domain.CreditCards.CreditCard.PaymentDueRange#DayRange", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "PaymentDueRange", "SmartPocket.Domain.CreditCards.CreditCard.PaymentDueRange#DayRange", b1 =>
                         {
+                            b1.IsRequired();
+
                             b1.Property<int>("EndDay")
                                 .HasColumnType("INTEGER");
 
@@ -129,8 +136,10 @@ namespace SmartPocket.Persistence.Migrations
                                 .HasColumnType("INTEGER");
                         });
 
-                    b.ComplexProperty<Dictionary<string, object>>("StatementClosingRange", "SmartPocket.Domain.CreditCards.CreditCard.StatementClosingRange#DayRange", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "StatementClosingRange", "SmartPocket.Domain.CreditCards.CreditCard.StatementClosingRange#DayRange", b1 =>
                         {
+                            b1.IsRequired();
+
                             b1.Property<int>("EndDay")
                                 .HasColumnType("INTEGER");
 
@@ -455,8 +464,10 @@ namespace SmartPocket.Persistence.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(0);
 
-                    b.ComplexProperty<Dictionary<string, object>>("Icon", "SmartPocket.Domain.Transactions.Category.Icon#Icon", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Icon", "SmartPocket.Domain.Transactions.Category.Icon#Icon", b1 =>
                         {
+                            b1.IsRequired();
+
                             b1.Property<string>("Code")
                                 .IsRequired()
                                 .HasMaxLength(100)
@@ -483,6 +494,7 @@ namespace SmartPocket.Persistence.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("CategoryId")

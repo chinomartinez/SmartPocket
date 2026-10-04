@@ -16,7 +16,7 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
             builder.Property(x => x.EffectiveDate);
             builder.Property(x => x.PaidOffAt);
 
-            builder.Property(x => x.TotalAmount).HasPrecision(18, 2);
+            builder.Property(x => x.TotalAmount).IsNumeric().IsRequired();
             builder.ConfigureCurrency(x => x.CurrencyCode);
 
             builder.HasOne(e => e.CreditCard)

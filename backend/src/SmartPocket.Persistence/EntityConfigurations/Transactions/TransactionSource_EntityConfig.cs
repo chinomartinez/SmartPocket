@@ -4,7 +4,7 @@ using SmartPocket.Domain.Transactions;
 
 namespace SmartPocket.Persistence.EntityConfigurations.Transactions
 {
-    internal class TransactionSourceConfig : IEntityTypeConfiguration<TransactionSource>
+    internal class TransactionSource_EntityConfig : IEntityTypeConfiguration<TransactionSource>
     {
         public void Configure(EntityTypeBuilder<TransactionSource> builder)
         {

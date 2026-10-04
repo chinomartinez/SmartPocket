@@ -4,7 +4,7 @@ using SmartPocket.Domain.Accounts;
 
 namespace SmartPocket.Persistence.EntityConfigurations.Accounts
 {
-    internal class AccountConfig : IEntityTypeConfiguration<Account>
+    internal class Account_EntityConfig : IEntityTypeConfiguration<Account>
     {
         public void Configure(EntityTypeBuilder<Account> builder)
         {

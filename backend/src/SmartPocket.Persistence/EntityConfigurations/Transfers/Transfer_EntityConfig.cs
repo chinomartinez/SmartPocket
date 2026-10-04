@@ -4,7 +4,7 @@ using SmartPocket.Domain.Transfers;
 
 namespace SmartPocket.Persistence.EntityConfigurations.Transfers
 {
-    internal class TransferConfig : IEntityTypeConfiguration<Transfer>
+    internal class Transfer_EntityConfig : IEntityTypeConfiguration<Transfer>
     {
         public void Configure(EntityTypeBuilder<Transfer> builder)
         {

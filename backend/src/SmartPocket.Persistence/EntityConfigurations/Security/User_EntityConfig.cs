@@ -4,7 +4,7 @@ using SmartPocket.Domain.Security;
 
 namespace SmartPocket.Persistence.EntityConfigurations.Security
 {
-    internal class UserConfig : IEntityTypeConfiguration<User>
+    internal class User_EntityConfig : IEntityTypeConfiguration<User>
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {

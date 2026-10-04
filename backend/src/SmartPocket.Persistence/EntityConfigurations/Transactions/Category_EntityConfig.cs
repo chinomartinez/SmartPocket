@@ -4,7 +4,7 @@ using SmartPocket.Domain.Transactions;
 
 namespace SmartPocket.Persistence.EntityConfigurations.Transactions
 {
-    internal class CategoryConfig : IEntityTypeConfiguration<Category>
+    internal class Category_EntityConfig : IEntityTypeConfiguration<Category>
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {

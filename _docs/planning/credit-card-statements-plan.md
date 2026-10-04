@@ -523,7 +523,7 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 - Completar validaciones de creación y actualización.
 - Implementar eliminación con desvinculación de cuotas y eliminación de cargos.
 - Validar estados y pertenencia a tarjeta.
-- Agregar pruebas de integridad.
+- Las pruebas automatizadas de integridad quedan diferidas como deuda técnica.
 
 ### Fase 3: UI
 
@@ -539,7 +539,10 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 
 - Protección contra condiciones de carrera en asignación de cuotas.
 - Índice único para `CreditCardStatementPayment.TransactionId`.
-- Ajustes derivados de pruebas de concurrencia y soft delete.
+- Pruebas automatizadas de integridad, concurrencia y eliminación.
+- Ajustes derivados de esas pruebas y del comportamiento de soft delete.
+
+Las pruebas no bloquean el avance hacia la Iteración 4, pero deben retomarse antes de considerar cerrado el módulo de resúmenes.
 
 ## 14. Decisiones abiertas
 

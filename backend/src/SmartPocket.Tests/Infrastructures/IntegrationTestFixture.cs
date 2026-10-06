@@ -71,7 +71,7 @@ namespace SmartPocket.Tests.Infrastructures
             }
         }
 
-        public T GetHandler<T>() where T : IHandler
+        public T GetHandler<T>() where T : notnull
         {
             return ServiceProvider.GetRequiredService<T>();
         }

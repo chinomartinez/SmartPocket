@@ -36,19 +36,7 @@ namespace SmartPocket.WebApi.Setup
 
             foreach (var implementation in implementations)
             {
-                var handlerInterfaces = implementation
-                    .GetInterfaces()
-                    .Where(i => i != ihandlerType && ihandlerType.IsAssignableFrom(i));
-
-                if (!handlerInterfaces.Any())
-                {
-                    services.AddScoped(implementation);
-                }
-
-                foreach (var handlerInterface in handlerInterfaces)
-                {
-                    services.AddScoped(handlerInterface, implementation);
-                }
+                services.AddScoped(implementation);
             }
         }
     }

@@ -1,8 +1,6 @@
-﻿using SmartPocket.Features.Abstractions.Handlers;
-
-namespace SmartPocket.Features.Categories.Remove
+﻿namespace SmartPocket.Features.Categories.Remove
 {
-    public class CategoryRemoveCommand : ICommand<int>
+    public class CategoryRemoveCommand
     {
         public int Id { get; set; }
     }

@@ -1,9 +1,8 @@
-﻿using SmartPocket.Features.Abstractions.Handlers;
-using SmartPocket.Features.Shared.Icons;
+﻿using SmartPocket.Features.Shared.Icons;
 
 namespace SmartPocket.Features.Accounts.Update
 {
-    public class AccountUpdateCommand : ICommand<int>
+    public class AccountUpdateCommand
     {
         public int Id { get; set; }
         

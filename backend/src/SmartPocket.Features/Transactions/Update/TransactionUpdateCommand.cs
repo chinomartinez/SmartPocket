@@ -1,8 +1,6 @@
-﻿using SmartPocket.Features.Abstractions.Handlers;
-
-namespace SmartPocket.Features.Transactions.Update
+﻿namespace SmartPocket.Features.Transactions.Update
 {
-    public class TransactionUpdateCommand : ICommand<int>
+    public class TransactionUpdateCommand
     {
         public int Id { get; set; }
         public int AccountId { get; set; }

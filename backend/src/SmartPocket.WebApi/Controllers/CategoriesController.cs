@@ -26,7 +26,7 @@ namespace SmartPocket.WebApi.Controllers
             [FromServices] CategoryGetQueryHandler categoryGetHandler,
             CancellationToken cancellation)
         {
-            var request = new CategoryGetQuery { IsIncome = isIncome };
+            var request = new CategoryGetRequest { IsIncome = isIncome };
 
             var result = await categoryGetHandler.GetAll(request, cancellation);
 

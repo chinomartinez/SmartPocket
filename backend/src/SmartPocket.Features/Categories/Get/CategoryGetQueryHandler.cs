@@ -14,7 +14,7 @@ namespace SmartPocket.Features.Categories.Get
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<List<CategoryGetDTO>> GetAll(CategoryGetQuery request, CancellationToken cancellationToken)
+        public async Task<List<CategoryGetDTO>> GetAll(CategoryGetRequest request, CancellationToken cancellationToken)
         {
             var list = await _smartPocketContext.Query<Category>()
                 .Where(x => x.IsIncome == request.IsIncome)

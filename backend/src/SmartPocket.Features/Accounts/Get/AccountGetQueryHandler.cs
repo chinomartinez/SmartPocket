@@ -15,7 +15,7 @@ namespace SmartPocket.Features.Accounts.Get
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<PagedListResponse<AccountGetDTO>> GetAll(AccountGetQuery request,
+        public async Task<PagedListResponse<AccountGetDTO>> GetAll(AccountGetRequest request,
             CancellationToken cancellationToken)
         {
             var result = await _smartPocketContext.Query<Account>()

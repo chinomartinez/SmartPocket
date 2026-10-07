@@ -1,6 +1,6 @@
 ﻿namespace SmartPocket.Features.Categories.Get
 {
-    public class CategoryGetQuery
+    public class CategoryGetRequest
     {
         public bool IsIncome { get; set; }
     }

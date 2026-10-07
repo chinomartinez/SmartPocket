@@ -26,7 +26,7 @@ namespace SmartPocket.WebApi.Controllers
             [FromServices] AccountGetQueryHandler handler,
             CancellationToken cancellation)
         {
-            var result = await handler.GetAll(new AccountGetQuery(), cancellation);
+            var result = await handler.GetAll(new AccountGetRequest(), cancellation);
 
             return result;
         }

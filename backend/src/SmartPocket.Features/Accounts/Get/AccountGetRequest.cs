@@ -2,7 +2,7 @@
 
 namespace SmartPocket.Features.Accounts.Get
 {
-    public class AccountGetQuery : IPagedQuery
+    public class AccountGetRequest : IPagedQuery
     {
         public int Page { get; set; }
 

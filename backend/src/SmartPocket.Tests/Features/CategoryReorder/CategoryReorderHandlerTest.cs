@@ -28,9 +28,9 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             var cat2 = new Category("Transporte", new Icon("transport", "#00FF00"), false);
             var cat3 = new Category("Entretenimiento", new Icon("entertainment", "#0000FF"), false);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(cat1, cancellationToken);
-            await _smartPocketContext.AddAndSaveChangesAsync(cat2, cancellationToken);
-            await _smartPocketContext.AddAndSaveChangesAsync(cat3, cancellationToken);
+            _smartPocketContext.AddRange([cat1, cat2, cat3]);
+
+            await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -76,10 +76,9 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             var ingreso1 = new Category("Salario", new Icon("salary", "#00FF11"), true);
             var ingreso2 = new Category("Freelance", new Icon("freelance", "#00FF22"), true);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(gasto1, cancellationToken);
-            await _smartPocketContext.AddAndSaveChangesAsync(gasto2, cancellationToken);
-            await _smartPocketContext.AddAndSaveChangesAsync(ingreso1, cancellationToken);
-            await _smartPocketContext.AddAndSaveChangesAsync(ingreso2, cancellationToken);
+            _smartPocketContext.AddRange([gasto1, gasto2, ingreso1, ingreso2]);
+
+            await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -151,8 +150,9 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             var cat1 = new Category("Test A", new Icon("a", "#111111"), false);
             var cat2 = new Category("Test B", new Icon("b", "#222222"), false);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(cat1, cancellationToken);
-            await _smartPocketContext.AddAndSaveChangesAsync(cat2, cancellationToken);
+            _smartPocketContext.AddRange([cat1, cat2]);
+
+            await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -197,7 +197,10 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             // Arrange
             var cancellationToken = TestContext.Current.CancellationToken;
             var cat = new Category("Dup Test", new Icon("dup", "#333333"), false);
-            await _smartPocketContext.AddAndSaveChangesAsync(cat, cancellationToken);
+
+            _smartPocketContext.AddEntity(cat);
+
+            await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 
@@ -225,8 +228,10 @@ namespace SmartPocket.Tests.Features.CategoryReorder
             var catA = new Category("A-Lectura", new Icon("read", "#AA0000"), false);
             var catB = new Category("B-Lectura", new Icon("read2", "#BB0000"), false);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(catA, cancellationToken);
-            await _smartPocketContext.AddAndSaveChangesAsync(catB, cancellationToken);
+            _smartPocketContext.AddEntity(catA);
+            _smartPocketContext.AddEntity(catB);
+
+            await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
             _smartPocketContext.DiscardAllChanges();
 

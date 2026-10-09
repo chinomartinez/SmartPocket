@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.Transactions;
 using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Features.Shared.Validators;
@@ -24,7 +25,14 @@ namespace SmartPocket.Features.Categories.Update
             var validation = await _validator.ValidateCommand(request, cancellationToken);
             if (validation.IsNotValid) return validation.Errors;
 
-            var entity = await _smartPocketContext.FindAsyncOrThrow<Category>(request.Id, cancellationToken);
+            var entity = await _smartPocketContext.Query<Category>()
+                .Where(x => x.Id == request.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (entity == null)
+            {
+                return new ErrorDetailList($"Category with id {request.Id} not found");
+            }
 
             entity.Update(
                 name: request.Name,

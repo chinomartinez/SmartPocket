@@ -27,7 +27,14 @@ namespace SmartPocket.Features.Accounts.Update
             var validation = await _validator.ValidateCommand(request);
             if (validation.IsNotValid) return validation.Errors;
 
-            var entity = await _smartPocketContext.FindAsyncOrThrow<Account>(request.Id, cancellationToken);
+            var entity = await _smartPocketContext.Query<Account>()
+                .Where(a => a.Id == request.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (entity == null)
+            {
+                return new ErrorDetailList($"Account with id {request.Id} not found");
+            }
 
             entity.Update(
                 name: request.Name,

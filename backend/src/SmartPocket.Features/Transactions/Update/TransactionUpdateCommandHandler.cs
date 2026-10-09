@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.Transactions;
 using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Features.Shared.Validators;
@@ -24,7 +25,14 @@ namespace SmartPocket.Features.Transactions.Update
             var validations = await _validator.ValidateCommand(request, cancellationToken);
             if (validations.IsNotValid) return validations.Errors;
 
-            var entity = await _smartPocketContext.FindAsyncOrThrow<Transaction>(request.Id, cancellationToken);
+            var entity = await _smartPocketContext.Query<Transaction>()
+                .Where(t => t.Id == request.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (entity == null)
+            {
+                return new ErrorDetailList($"Transaction with id {request.Id} not found");
+            }
 
             entity.Update(
                 accountId: request.AccountId,

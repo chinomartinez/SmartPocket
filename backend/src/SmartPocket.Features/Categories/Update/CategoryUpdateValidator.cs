@@ -11,7 +11,7 @@ namespace SmartPocket.Features.Categories.Update
     {
         public CategoryUpdateValidator(ISmartPocketContext context)
         {
-            RuleFor(x => x.Id).SetIdValidations(context.Query<Category>());
+            RuleFor(x => x.Id).GreaterThan(0);
 
             RuleFor(x => x.Name)
                 .CascadeStop()

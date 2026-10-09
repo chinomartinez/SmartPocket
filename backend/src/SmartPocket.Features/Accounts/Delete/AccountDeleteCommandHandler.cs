@@ -1,33 +1,36 @@
-﻿using FluentValidation;
+﻿using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.Accounts;
 using SmartPocket.Features.Abstractions.Handlers;
-using SmartPocket.Features.Shared.Validators;
 using SmartPocket.Persistence;
 using SmartPocket.SharedKernel.Errors;
+using SmartPocket.SharedKernel.Results;
 
 namespace SmartPocket.Features.Accounts.Delete
 {
     public class AccountDeleteCommandHandler : IHandler
     {
         private readonly ISmartPocketContext _smartPocketContext;
-        private readonly IValidator<AccountDeleteCommand> _validator;
 
-        public AccountDeleteCommandHandler(ISmartPocketContext smartPocketContext, IValidator<AccountDeleteCommand> validator)
+        public AccountDeleteCommandHandler(ISmartPocketContext smartPocketContext)
         {
             _smartPocketContext = smartPocketContext;
-            _validator = validator;
         }
 
-        public async Task<ErrorDetailList> SoftDelete(AccountDeleteCommand command, CancellationToken cancellation)
+        public async Task<Result<ErrorDetail>> SoftDelete(int id, CancellationToken cancellation)
         {
-            var validations = await _validator.ValidateCommand(command, cancellation);
-            if (validations.IsNotValid) return validations.Errors;
+            var account = await _smartPocketContext.Query<Account>()
+                .FirstOrDefaultAsync(a => a.Id == id, cancellation);
 
-            var account = await _smartPocketContext.FindAsyncOrThrow<Account>(command.Id, cancellation);
-            
-            await _smartPocketContext.DeleteAndSaveChangesAsync(account, cancellation);
+            if (account == null)
+            {
+                return new ErrorDetail($"Account with id {id} not found.");
+            }
 
-            return ErrorDetailList.Empty;
+            _smartPocketContext.DeleteEntity(account);
+
+            await _smartPocketContext.SaveChangesAsync(cancellation);
+
+            return Result<ErrorDetail>.Success();
         }
     }
 }

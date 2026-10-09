@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SmartPocket.Features.Categories;
 using SmartPocket.Features.Categories.Create;
 using SmartPocket.Features.Categories.Get;
 using SmartPocket.Features.Categories.GetById;
@@ -14,16 +13,9 @@ namespace SmartPocket.WebApi.Controllers
     [Route("[controller]")]
     public class CategoriesController : ControllerBase
     {
-        private readonly CategoryExistsByIdQueryHandler _existsByIdQueryHandler;
-
-        public CategoriesController(CategoryExistsByIdQueryHandler existsByIdQueryHandler)
-        {
-            _existsByIdQueryHandler = existsByIdQueryHandler;
-        }
-
         [HttpGet]
-        public async Task<List<CategoryGetDTO>> Get([FromQuery] bool isIncome,
-            [FromServices] CategoryGetQueryHandler categoryGetHandler,
+        public async Task<List<CategoryGetDTO>> Get([FromServices] CategoryGetQueryHandler categoryGetHandler,
+            [FromQuery] bool isIncome,
             CancellationToken cancellation)
         {
             var request = new CategoryGetRequest { IsIncome = isIncome };
@@ -34,8 +26,8 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryGetByIdDTO>> GetById([FromRoute] int id,
-            [FromServices] CategoryGetByIdQueryHandler categoryGetByIdQueryHandler,
+        public async Task<ActionResult<CategoryGetByIdDTO>> GetById([FromServices] CategoryGetByIdQueryHandler categoryGetByIdQueryHandler,
+            [FromRoute] int id,
             CancellationToken cancellation)
         {
             var result = await categoryGetByIdQueryHandler.TryGet(id, cancellation);
@@ -46,8 +38,8 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CategoryCreateResponse>> Create([FromBody] CategoryCreateCommand command,
-            [FromServices] CategoryCreateCommandHandler categoryCreateCommandHandler,
+        public async Task<ActionResult<CategoryCreateResponse>> Create([FromServices] CategoryCreateCommandHandler categoryCreateCommandHandler,
+            [FromBody] CategoryCreateCommand command,
             CancellationToken cancellation)
         {
             var result = await categoryCreateCommandHandler.Create(command, cancellation);
@@ -56,13 +48,11 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update([FromRoute] int id,
+        public async Task<ActionResult> Update([FromServices] CategoryUpdateCommandHandler categoryUpdateCommandHandler,
+            [FromRoute] int id,
             [FromBody] CategoryCreateCommand createCommand,
-            [FromServices] CategoryUpdateCommandHandler categoryUpdateCommandHandler,
             CancellationToken cancellation)
         {
-            if (await Exists(id, cancellation) is { } notFoundResult) return notFoundResult;
-
             var command = new CategoryUpdateCommand
             {
                 Id = id,
@@ -77,32 +67,23 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Remove([FromRoute] int id,
-            [FromServices] CategoryRemoveCommandHandler categoryRemoveCommandHandler,
+        public async Task<ActionResult> Remove([FromServices] CategoryRemoveCommandHandler categoryRemoveCommandHandler,
+            [FromRoute] int id,
             CancellationToken cancellation)
         {
-            if (await Exists(id, cancellation) is { } notFoundResult) return notFoundResult;
-
-            var request = new CategoryRemoveCommand { Id = id };
-            var result = await categoryRemoveCommandHandler.Remove(request, cancellation);
+            var result = await categoryRemoveCommandHandler.Remove(id, cancellation);
 
             return result.ToActionResult();
         }
 
         [HttpPut("reorder")]
-        public async Task<ActionResult> Reorder([FromBody] CategoryReorderCommand command,
-            [FromServices] CategoryReorderCommandHandler categoryReorderCommandHandler,
+        public async Task<ActionResult> Reorder([FromServices] CategoryReorderCommandHandler categoryReorderCommandHandler,
+            [FromBody] CategoryReorderCommand command,
             CancellationToken cancellation)
         {
             var result = await categoryReorderCommandHandler.Reorder(command, cancellation);
 
             return result.ToActionResult();
-        }
-
-        private async Task<NotFoundObjectResult?> Exists(int id, CancellationToken cancellation)
-        {
-            var exists = await _existsByIdQueryHandler.Exists(id, cancellation);
-            return exists ? null : new NotFoundObjectResult($"Category with id {id} not found");
         }
     }
 }

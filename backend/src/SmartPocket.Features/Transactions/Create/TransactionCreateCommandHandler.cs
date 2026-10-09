@@ -32,7 +32,9 @@ namespace SmartPocket.Features.Transactions.Create
                 isIncome: request.IsIncome,
                 description: request.Description);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(entity, cancellationToken);
+            _smartPocketContext.AddEntity(entity);
+
+            await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
             return entity.Id;
         }

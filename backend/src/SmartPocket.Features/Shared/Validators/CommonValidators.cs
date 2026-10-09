@@ -6,18 +6,6 @@ namespace SmartPocket.Features.Shared.Validators
 {
     public static class CommonValidators
     {
-        public static IRuleBuilderOptions<T, int> SetIdValidations<T, TEntity>(
-            this IRuleBuilderInitial<T, int> ruleBuilderInitial,
-            IQueryable<TEntity> query)
-            where T : class
-            where TEntity : BaseEntity<int>
-        {
-            return ruleBuilderInitial
-                .CascadeStop()
-                .GreaterThan(0)
-                .ExistById(query);
-        }
-
         public static IRuleBuilderOptions<T, TProperty> ExistById<T, TProperty, TEntity>(
             this IRuleBuilder<T, TProperty> ruleBuilder,
             IQueryable<TEntity> query)

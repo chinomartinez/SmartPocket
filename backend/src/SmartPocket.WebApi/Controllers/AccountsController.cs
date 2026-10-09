@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SmartPocket.Features.Accounts;
 using SmartPocket.Features.Accounts.Create;
 using SmartPocket.Features.Accounts.Delete;
 using SmartPocket.Features.Accounts.Get;
@@ -14,13 +13,6 @@ namespace SmartPocket.WebApi.Controllers
     [Route("[controller]")]
     public partial class AccountsController : ControllerBase
     {
-        private readonly AccountExistsQueryHandler _accountExistsQueryHandler;
-
-        public AccountsController(AccountExistsQueryHandler accountExistsQueryHandler)
-        {
-            _accountExistsQueryHandler = accountExistsQueryHandler;
-        }
-
         [HttpGet]
         public async Task<PagedListResponse<AccountGetDTO>> Get(
             [FromServices] AccountGetQueryHandler handler,
@@ -32,8 +24,8 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<AccountGetByIdDTO>> GetById([FromRoute] int id,
-            [FromServices] AccountGetByIdQueryHandler handler,
+        public async Task<ActionResult<AccountGetByIdDTO>> GetById([FromServices] AccountGetByIdQueryHandler handler,
+            [FromRoute] int id,
             CancellationToken cancellation)
         {
             var result = await handler.TryGet(id, cancellation);
@@ -44,9 +36,8 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AccountCreateResponse>> Create(
+        public async Task<ActionResult<AccountCreateResponse>> Create([FromServices] AccountCreateCommandHandler handler,
             [FromBody] AccountCreateCommand command,
-            [FromServices] AccountCreateCommandHandler handler,
             CancellationToken cancellation)
         {
             var result = await handler.Create(command, cancellation);
@@ -55,14 +46,11 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update([FromRoute] int id,
+        public async Task<ActionResult> Update([FromServices] AccountUpdateCommandHandler handler,
+            [FromRoute] int id,
             [FromBody] AccountCreateCommand createCommand,
-            [FromServices] AccountUpdateCommandHandler handler,
             CancellationToken cancellation)
         {
-            if (await IsAccountNotFound(id, cancellation) is { } notFoundResult)
-                return notFoundResult;
-
             var command = new AccountUpdateCommand
             {
                 Id = id,
@@ -79,30 +67,13 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete([FromRoute] int id,
-            [FromServices] AccountDeleteCommandHandler handler,
+        public async Task<ActionResult> Delete([FromServices] AccountDeleteCommandHandler handler,
+            [FromRoute] int id,
             CancellationToken cancellation)
         {
-            if (await IsAccountNotFound(id, cancellation) is { } notFoundResult)
-                return notFoundResult;
-
-            var command = new AccountDeleteCommand
-            {
-                Id = id
-            };
-
-            var result = await handler.SoftDelete(command, cancellation);
+            var result = await handler.SoftDelete(id, cancellation);
 
             return result.ToActionResult();
-        }
-
-        private async Task<NotFoundObjectResult?> IsAccountNotFound(int id, CancellationToken cancellation)
-        {
-            var exists = await _accountExistsQueryHandler.Exists(id, cancellation);
-
-            if (!exists) return NotFound($"Account with id '{id}' not found.");
-
-            return null;
         }
     } 
 }

@@ -12,8 +12,7 @@ namespace SmartPocket.Features.Transactions.Update
         {
             RuleFor(x => x.Id)
                 .NotEmpty()
-                .GreaterThan(0)
-                .ExistById(smartPocketContext.Query<Transaction>());
+                .GreaterThan(0);
 
             RuleFor(x => x.AccountId)
                 .CascadeStop()

@@ -30,7 +30,9 @@ namespace SmartPocket.Features.Categories.Create
                 icon: request.Icon.ToDomainIcon(),
                 isIncome: request.IsIncome);
 
-            await _smartPocketContext.AddAndSaveChangesAsync(category, cancellationToken);
+            _smartPocketContext.AddEntity(category);
+
+            await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
             return new CategoryCreateResponse(category.Id);
         }

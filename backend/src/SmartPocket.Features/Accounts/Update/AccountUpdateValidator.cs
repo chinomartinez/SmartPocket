@@ -11,7 +11,8 @@ namespace SmartPocket.Features.Accounts.Update
     {
         public AccountUpdateValidator(ISmartPocketContext context)
         {
-            RuleFor(x => x.Id).SetIdValidations(context.Query<Account>());
+            RuleFor(x => x.Id)
+                .GreaterThan(0);
 
             RuleFor(x => x.Icon).SetValidator(new IconDTOValidator());
 

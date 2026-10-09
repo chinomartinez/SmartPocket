@@ -15,15 +15,9 @@ namespace SmartPocket.Persistence
 
         void AddRange<T>(IEnumerable<T> entities) where T : BaseEntity;
 
-        Task<T> AddAndSaveChangesAsync<T>(T entity, CancellationToken cancellationToken = default)
-            where T : BaseEntity;
-
         T DeleteEntity<T>(T entity) where T : BaseEntity;
 
         void DeleteRange<T>(IEnumerable<T> entities) where T : BaseEntity;
-
-        Task<T> DeleteAndSaveChangesAsync<T>(T entity, CancellationToken cancellationToken = default)
-            where T : BaseEntity;
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

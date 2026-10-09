@@ -1,4 +1,5 @@
-﻿using SmartPocket.Domain.Transactions;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartPocket.Domain.Transactions;
 using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Persistence;
 using SmartPocket.SharedKernel.Errors;
@@ -15,14 +16,17 @@ namespace SmartPocket.Features.Categories.Remove
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<Result<ErrorDetail>> Remove(CategoryRemoveCommand request, CancellationToken cancellationToken)
+        public async Task<Result<ErrorDetail>> Remove(int id, CancellationToken cancellationToken)
         {
-            var entity = await _smartPocketContext.FindAsync<Category>(request.Id, cancellationToken);
+            var entity = await _smartPocketContext.Query<Category>()
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
             if (entity is null) 
-                return new ErrorDetail($"No existe categoria con Id '{request.Id}'.");
+                return new ErrorDetail($"No existe categoria con Id '{id}'.");
 
-            await _smartPocketContext.DeleteAndSaveChangesAsync(entity, cancellationToken);
+            _smartPocketContext.DeleteEntity(entity);
+
+            await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
             return Result<ErrorDetail>.Success();
         }

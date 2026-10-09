@@ -94,7 +94,7 @@ namespace SmartPocket.WebApi.Controllers
             [FromRoute] int id,
             CancellationToken cancellation)
         {
-            var result = await handler.Delete(new TransactionDeleteCommand { Id = id }, cancellation);
+            var result = await handler.Delete(id, cancellation);
             return result.ToActionResult();
         }
     }

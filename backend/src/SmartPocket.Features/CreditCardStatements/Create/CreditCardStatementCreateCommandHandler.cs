@@ -4,6 +4,7 @@ using SmartPocket.Domain.CreditCards;
 using SmartPocket.Features.Abstractions.Handlers;
 using SmartPocket.Features.Shared.Validators;
 using SmartPocket.Persistence;
+using SmartPocket.SharedKernel.Errors;
 using SmartPocket.SharedKernel.Results;
 
 namespace SmartPocket.Features.CreditCardStatements.Create
@@ -30,11 +31,7 @@ namespace SmartPocket.Features.CreditCardStatements.Create
             try
             {
                 var installmentsResult = await GetInstallments(command, cancellation);
-                if (installmentsResult.IsFailure)
-                {
-                    validations.Errors.Add(installmentsResult.Error);
-                    return validations.Errors;
-                }
+                if (installmentsResult.IsFailure) return installmentsResult.Error;
 
                 var statement = new CreditCardStatement(
                     creditCardId: command.CreditCardId,
@@ -74,7 +71,7 @@ namespace SmartPocket.Features.CreditCardStatements.Create
             
         }
 
-        private async Task<ResultWithError<List<CreditCardPurchaseInstallment>>> GetInstallments(CreditCardStatementCreateCommand command,
+        private async Task<ResultWithErrors<List<CreditCardPurchaseInstallment>>> GetInstallments(CreditCardStatementCreateCommand command,
             CancellationToken cancellation)
         {
             var installments = await _smartPocketContext.Query<CreditCardPurchaseInstallment>()
@@ -84,12 +81,12 @@ namespace SmartPocket.Features.CreditCardStatements.Create
 
             if (installments.Count != command.InstallmentIds.Length)
             {
-                return "Alguna cuota no existe o no pertenece a la tarjeta del resumen.";
+                return new ErrorDetailList("Alguna cuota no existe o no pertenece a la tarjeta del resumen.");
             }
 
             if (installments.Any(x => x.CreditCardStatementId.HasValue))
             {
-                return $"Existe cuotas asociadas a resumenes";
+                return new ErrorDetailList("Existe cuotas asociadas a resumenes.");
             }
 
             return installments;

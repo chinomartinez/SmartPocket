@@ -16,7 +16,7 @@ namespace SmartPocket.Features.Transfers.Delete
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<Result<ErrorDetail>> Delete(int id, CancellationToken cancellation)
+        public async Task<SimpleResult<ErrorDetail>> Delete(int id, CancellationToken cancellation)
         {
             var transfer = await _smartPocketContext.Query<Transfer>()
                 .Where(t => t.Id == id)
@@ -31,7 +31,7 @@ namespace SmartPocket.Features.Transfers.Delete
 
             await _smartPocketContext.SaveChangesAsync(cancellation);
 
-            return Result<ErrorDetail>.Success();
+            return SimpleResult<ErrorDetail>.Success();
         }
     }
 }

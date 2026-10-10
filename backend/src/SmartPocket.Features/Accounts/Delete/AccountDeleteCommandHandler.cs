@@ -16,7 +16,7 @@ namespace SmartPocket.Features.Accounts.Delete
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<Result<ErrorDetail>> SoftDelete(int id, CancellationToken cancellation)
+        public async Task<SimpleResult<ErrorDetail>> SoftDelete(int id, CancellationToken cancellation)
         {
             var account = await _smartPocketContext.Query<Account>()
                 .FirstOrDefaultAsync(a => a.Id == id, cancellation);
@@ -30,7 +30,7 @@ namespace SmartPocket.Features.Accounts.Delete
 
             await _smartPocketContext.SaveChangesAsync(cancellation);
 
-            return Result<ErrorDetail>.Success();
+            return SimpleResult<ErrorDetail>.Success();
         }
     }
 }

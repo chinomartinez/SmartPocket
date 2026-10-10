@@ -16,7 +16,7 @@ namespace SmartPocket.Features.CreditCardStatements.Delete
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<Result<ErrorDetail>> Delete(int id, CancellationToken cancellation)
+        public async Task<SimpleResult<ErrorDetail>> Delete(int id, CancellationToken cancellation)
         {
             var statement = await _smartPocketContext.Query<CreditCardStatement>()
                 .Where(x => x.Id == id)
@@ -45,7 +45,7 @@ namespace SmartPocket.Features.CreditCardStatements.Delete
             
             await _smartPocketContext.SaveChangesAsync(cancellation);
 
-            return Result<ErrorDetail>.Success();
+            return SimpleResult<ErrorDetail>.Success();
         }
     }
 }

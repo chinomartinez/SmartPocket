@@ -16,7 +16,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Delete
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<Result<ErrorDetail>> Delete(int id, CancellationToken cancellation)
+        public async Task<SimpleResult<ErrorDetail>> Delete(int id, CancellationToken cancellation)
         {
             var entity = await _smartPocketContext.Query<CreditCardPurchase>()
                 .FirstOrDefaultAsync(x => x.Id == id, cancellation);
@@ -29,7 +29,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Delete
             _smartPocketContext.DeleteEntity(entity);
             await _smartPocketContext.SaveChangesAsync(cancellation);
 
-            return Result<ErrorDetail>.Success();
+            return SimpleResult<ErrorDetail>.Success();
         }
     }
 }

@@ -16,7 +16,7 @@ namespace SmartPocket.Features.Categories.Remove
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<Result<ErrorDetail>> Remove(int id, CancellationToken cancellationToken)
+        public async Task<SimpleResult<ErrorDetail>> Remove(int id, CancellationToken cancellationToken)
         {
             var entity = await _smartPocketContext.Query<Category>()
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
@@ -28,7 +28,7 @@ namespace SmartPocket.Features.Categories.Remove
 
             await _smartPocketContext.SaveChangesAsync(cancellationToken);
 
-            return Result<ErrorDetail>.Success();
+            return SimpleResult<ErrorDetail>.Success();
         }
     }
 }

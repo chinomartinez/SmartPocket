@@ -1,17 +1,17 @@
 ﻿namespace SmartPocket.SharedKernel.Results
 {
-    public interface IResult
+    public interface ISimpleResult
     {
         bool IsFailure { get; }
         bool IsSuccess { get; }
     }
 
-    public interface IResult<out E> : IResult
+    public interface ISimpleResult<out E> : ISimpleResult
     {
         E Error { get; }
     }
 
-    public interface IResult<out T, out E> : IResult<E>
+    public interface ISimpleResult<out T, out E> : ISimpleResult<E>
     {
         T Value { get; }
     }

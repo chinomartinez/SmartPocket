@@ -1,18 +1,18 @@
 ﻿namespace SmartPocket.SharedKernel.Results
 {
-    public class Result : IResult
+    public class SimpleResult : ISimpleResult
     {
         public bool IsFailure { get; }
 
         public bool IsSuccess { get => !IsFailure; }
 
-        protected Result(bool isFailure)
+        protected SimpleResult(bool isFailure)
         {
             IsFailure = isFailure;
         }
 
-        public static Result Failure() => new(true);
+        public static SimpleResult Failure() => new(true);
 
-        public static Result Success() => new(false);
+        public static SimpleResult Success() => new(false);
     }
 }

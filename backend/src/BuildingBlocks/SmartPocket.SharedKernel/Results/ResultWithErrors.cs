@@ -2,7 +2,7 @@
 
 namespace SmartPocket.SharedKernel.Results
 {
-    public class ResultWithErrors<T> : Result<T, ErrorDetailList>
+    public class ResultWithErrors<T> : SimpleResult<T, ErrorDetailList>
     {
         public ResultWithErrors(ErrorDetailList error) : base(error)
         {
@@ -18,33 +18,6 @@ namespace SmartPocket.SharedKernel.Results
         }
 
         public static implicit operator ResultWithErrors<T>(T value)
-        {
-            return new(value);
-        }
-    }
-
-    public class ResultWithError<T> : Result<T, ErrorDetail>
-    {
-        public ResultWithError(ErrorDetail error) : base(error)
-        {
-        }
-
-        public ResultWithError(T value) : base(value)
-        {
-        }
-
-        public static implicit operator ResultWithError<T>(string errorMessage)
-        {
-            return new(new ErrorDetail(errorMessage));
-        }
-
-
-        public static implicit operator ResultWithError<T>(ErrorDetail error)
-        {
-            return new(error);
-        }
-
-        public static implicit operator ResultWithError<T>(T value)
         {
             return new(value);
         }

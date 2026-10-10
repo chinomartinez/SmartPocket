@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartPocket.SharedKernel.Errors;
 using SmartPocket.SharedKernel.Results;
-using IResult = SmartPocket.SharedKernel.Results.IResult;
+using ISimpleResult = SmartPocket.SharedKernel.Results.ISimpleResult;
 
 namespace SmartPocket.WebApi.Extensions
 {
     internal static class ActionResultExtensions
     {
-        internal static ActionResult<T> ToActionResult<T, E>(this IResult<T, E> result)
+        internal static ActionResult<T> ToActionResult<T, E>(this ISimpleResult<T, E> result)
         {
             return result.ToActionResult(r => r);
         }
 
-        internal static ActionResult<TValue> ToActionResult<T, E, TValue>(this IResult<T, E> result,
+        internal static ActionResult<TValue> ToActionResult<T, E, TValue>(this ISimpleResult<T, E> result,
             Func<T, TValue> factory)
         {
             return result.IsSuccess
@@ -20,14 +20,14 @@ namespace SmartPocket.WebApi.Extensions
                 : new BadRequestResult();
         }
 
-        internal static ActionResult ToActionResult<E>(this IResult<E> result)
+        internal static ActionResult ToActionResult<E>(this ISimpleResult<E> result)
         {
             return result.IsSuccess
                 ? new OkResult()
                 : new BadRequestObjectResult(result.Error);
         }
 
-        internal static ActionResult ToActionResult(this IResult result)
+        internal static ActionResult ToActionResult(this ISimpleResult result)
         {
             return result.IsSuccess
                 ? new OkResult()

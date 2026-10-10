@@ -20,7 +20,7 @@ namespace SmartPocket.Features.CreditCards.Create
             _validator = validator;
         }
 
-        public async Task<Result<CreditCardCreateResponse, ErrorDetailList>> Create(CreditCardCreateCommand command, CancellationToken cancellation)
+        public async Task<SimpleResult<CreditCardCreateResponse, ErrorDetailList>> Create(CreditCardCreateCommand command, CancellationToken cancellation)
         {
             var validations = await _validator.ValidateCommand(command, cancellation);
             if (validations.IsNotValid) return validations.Errors;

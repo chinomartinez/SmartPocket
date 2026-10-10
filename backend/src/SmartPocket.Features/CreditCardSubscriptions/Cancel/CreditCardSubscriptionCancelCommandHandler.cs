@@ -16,7 +16,7 @@ namespace SmartPocket.Features.CreditCardSubscriptions.Cancel
             _smartPocketContext = smartPocketContext;
         }
 
-        public async Task<Result<ErrorDetailList>> Cancel(int creditCardSubscriptionId, CancellationToken cancellation)
+        public async Task<SimpleResult<ErrorDetailList>> Cancel(int creditCardSubscriptionId, CancellationToken cancellation)
         {
             var entity = await _smartPocketContext.Query<CreditCardSubscription>()
                 .Where(x => x.Id == creditCardSubscriptionId)
@@ -32,7 +32,7 @@ namespace SmartPocket.Features.CreditCardSubscriptions.Cancel
 
             await _smartPocketContext.SaveChangesAsync(cancellation);
 
-            return Result<ErrorDetailList>.Success();
+            return SimpleResult<ErrorDetailList>.Success();
         }
     }
 }

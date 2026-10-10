@@ -275,7 +275,6 @@ No agregues registros manuales para la configuración si la clase está dentro d
 8. Reutiliza las extensiones de `MapPropertyExtensions` y evita duplicar `ApplyCommonConfigs`.
 9. Registra el `DbSet` plural en `SmartPocketContext` y actualiza el contrato si corresponde.
 10. Revisa si el cambio requiere una migración según el flujo actual del backend.
-11. Ejecuta build y pruebas desde `backend/src/`.
 
 ## Checklist de validación
 
@@ -294,16 +293,7 @@ No agregues registros manuales para la configuración si la clase está dentro d
 - [ ] Las relaciones tienen el comportamiento de borrado intencional.
 - [ ] El `DbSet` está registrado con nombre plural y visibilidad consistente.
 - [ ] `ISmartPocketContext` fue revisado si el contrato necesita la entidad.
-- [ ] El build y las pruebas relevantes pasan.
-
-## Validación y troubleshooting
-
-Ejecuta desde `backend/src/`:
-
-```text
-dotnet build SmartPocket.sln
-dotnet test --solution SmartPocket.sln
-```
+## Troubleshooting
 
 | Problema | Revisión |
 | --- | --- |

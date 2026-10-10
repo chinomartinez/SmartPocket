@@ -287,13 +287,6 @@ Por tanto:
 - [ ] La paginación usa `ToPagedListResponse` cuando aplica.
 - [ ] Los filtros y el orden preceden a la paginación.
 
-## Validación
-
-Ejecuta desde `backend/src/`:
-
-```text
-dotnet build SmartPocket.sln
-dotnet test --solution SmartPocket.sln
-```
+## Troubleshooting
 
 Si una consulta falla en ejecución, revisa primero la traducción de LINQ al proveedor SQLite, especialmente cálculos sobre navegaciones, value objects, fechas, columnas calculadas y expresiones dentro de `Select`.

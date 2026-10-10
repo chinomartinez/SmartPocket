@@ -23,7 +23,7 @@ namespace SmartPocket.Features.Accounts.Delete
 
             if (account == null)
             {
-                return new ErrorDetail($"Account with id {id} not found.");
+                return new ErrorDetail($"Cuenta con ID {id} no encontrada.");
             }
 
             _smartPocketContext.DeleteEntity(account);

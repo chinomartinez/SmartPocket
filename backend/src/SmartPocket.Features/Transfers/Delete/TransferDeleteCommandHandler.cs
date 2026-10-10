@@ -24,7 +24,7 @@ namespace SmartPocket.Features.Transfers.Delete
 
             if (transfer is null)
             {
-                return new ErrorDetail($"Transfer with id {id} not found.");
+                return new ErrorDetail($"Transferencia con ID {id} no encontrada.");
             }
 
             _smartPocketContext.DeleteEntity(transfer);

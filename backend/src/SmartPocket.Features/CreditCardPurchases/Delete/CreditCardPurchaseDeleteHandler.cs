@@ -23,7 +23,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Delete
 
             if (entity is null)
             {
-                return new ErrorDetail($"Credit card purchase with id {id} not found.");
+                return new ErrorDetail($"Compra con ID {id} no encontrada.");
             }
 
             _smartPocketContext.DeleteEntity(entity);

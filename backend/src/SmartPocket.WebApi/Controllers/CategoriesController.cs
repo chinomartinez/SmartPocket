@@ -32,7 +32,7 @@ namespace SmartPocket.WebApi.Controllers
         {
             var result = await categoryGetByIdQueryHandler.TryGet(id, cancellation);
 
-            if (result is null) return NotFound();
+            if (result is null) return NotFound($"Categoria con ID {id} no encontrada.");
 
             return result;
         }

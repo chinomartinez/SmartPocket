@@ -33,7 +33,7 @@ namespace SmartPocket.Features.CreditCardStatements.Update
 
             if (statement is null)
             {
-                var notFoundError = $"Credit card Statement with id {command.Id} not found.";
+                var notFoundError = $"Resumen de tarjeta de crédito con ID {command.Id} no encontrado.";
                 return new ErrorDetailList(notFoundError);
             }
 

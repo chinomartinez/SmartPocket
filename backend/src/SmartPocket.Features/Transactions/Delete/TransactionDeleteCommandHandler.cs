@@ -22,7 +22,7 @@ namespace SmartPocket.Features.Transactions.Delete
 
             if (entity is null)
             {
-                return new ErrorDetailList($"Transaction with id {id} not found");
+                return new ErrorDetailList($"Transacción con ID {id} no encontrada.");
             }
 
             _smartPocketContext.DeleteEntity(entity);

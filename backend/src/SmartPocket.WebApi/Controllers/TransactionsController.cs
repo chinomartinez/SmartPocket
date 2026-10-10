@@ -57,7 +57,7 @@ namespace SmartPocket.WebApi.Controllers
             var result = await handler.GetById(id, cancellation);
 
             return result is null
-                ? NotFound("Transaction not found")
+                ? NotFound($"Transacción con ID {id} no encontrada.")
                 : Ok(result);
         }
 

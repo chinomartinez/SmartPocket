@@ -31,7 +31,7 @@ namespace SmartPocket.Features.CreditCardSubscriptions.Update
 
             if (entity is null)
             {
-                var notFoundError = $"Credit card Subscription with id {command.Id} not found.";
+                var notFoundError = $"Suscripción de tarjeta de crédito con ID {command.Id} no encontrada.";
                 return new ErrorDetailList(notFoundError);
             }
 

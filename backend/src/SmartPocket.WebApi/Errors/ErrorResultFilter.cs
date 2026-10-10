@@ -41,8 +41,8 @@ namespace SmartPocket.WebApi.Errors
             var problem = _factory.CreateProblemDetails(
                 httpContext: context.HttpContext,
                 statusCode: objR.StatusCode,
-                title: "One or more errors occurred.",
-                detail: "See the errors property for more details.");
+                title: "Se produjeron uno o más errores.",
+                detail: "Consulta la propiedad de errores para obtener más detalles.");
 
             var apiProblem = new ApiProblemDetails
             {

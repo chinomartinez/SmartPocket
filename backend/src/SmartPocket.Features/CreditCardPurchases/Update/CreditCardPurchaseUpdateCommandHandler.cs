@@ -32,7 +32,7 @@ namespace SmartPocket.Features.CreditCardPurchases.Update
 
             if (entity is null)
             {
-                var notFoundError = $"Credit card purchase with id {command.Id} not found.";
+                var notFoundError = $"Compra con ID {command.Id} no encontrada.";
                 return new ErrorDetailList(notFoundError);
             }
 

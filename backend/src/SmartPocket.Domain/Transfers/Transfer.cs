@@ -48,7 +48,7 @@ namespace SmartPocket.Domain.Transfers
         {
             if (OriginTransaction is null || DestinationTransaction is null)
             {
-                var error = "Both OriginTransaction and DestinationTransaction must be set before updating the transfer.";
+                var error = "Las transacciones de origen y destino deben establecerse antes de actualizar la transferencia.";
                 throw new InvalidOperationException(error);
             }
 

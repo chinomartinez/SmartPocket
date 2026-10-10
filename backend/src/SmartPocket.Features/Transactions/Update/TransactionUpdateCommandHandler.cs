@@ -31,7 +31,7 @@ namespace SmartPocket.Features.Transactions.Update
 
             if (entity == null)
             {
-                return new ErrorDetailList($"Transaction with id {request.Id} not found");
+                return new ErrorDetailList($"Transacción con ID {request.Id} no encontrada.");
             }
 
             entity.Update(

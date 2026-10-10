@@ -32,7 +32,7 @@ namespace SmartPocket.Features.Transfers.Update
 
             if (transfer is null)
             {
-                validations.Errors.Add($"Transfer with ID {command.Id} not found.");
+                validations.Errors.Add($"Transferencia con ID {command.Id} no encontrada.");
                 return validations.Errors;
             }
 

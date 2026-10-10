@@ -75,17 +75,17 @@ namespace SmartPocket.Domain.Transactions
         {
             if (TransactionSourceId == TransactionSourceType.None)
             {
-                throw new InvalidOperationException("Transaction source must be set before updating.");
+                throw new InvalidOperationException("El origen de la transacción debe establecerse antes de actualizarla.");
             }
 
             if (TransactionSourceId == TransactionSourceType.SystemAdjustment)
             {
-                throw new InvalidOperationException("System adjustments cannot be updated.");
+                throw new InvalidOperationException("Los ajustes del sistema no se pueden actualizar.");
             }
 
             if (TransactionSourceId == TransactionSourceType.ManualEntry && !categoryId.HasValue)
             {
-                throw new InvalidOperationException("Manual entry transactions must have a category.");
+                throw new InvalidOperationException("Las transacciones ingresadas manualmente deben tener una categoría.");
             }
 
             accountId.ThrowIsNegativeOrZero(nameof(accountId));
@@ -109,12 +109,12 @@ namespace SmartPocket.Domain.Transactions
 
             if (amount == 0)
             {
-                throw new ArgumentException("Amount cannot be zero for system adjustments.", nameof(amount));
+                throw new ArgumentException("El monto no puede ser cero para los ajustes del sistema.", nameof(amount));
             }
 
             if (string.IsNullOrWhiteSpace(description))
             {
-                throw new ArgumentException("Description cannot be null or empty for system adjustments.", nameof(description));
+                throw new ArgumentException("La descripción no puede ser nula ni estar vacía para los ajustes del sistema.", nameof(description));
             }
 
             var absoluteAmount = Math.Abs(amount);
@@ -144,12 +144,12 @@ namespace SmartPocket.Domain.Transactions
 
             if (effectiveDate == default)
             {
-                throw new ArgumentException("Effective date must be a valid date.", nameof(effectiveDate));
+                throw new ArgumentException("La fecha efectiva debe ser válida.", nameof(effectiveDate));
             }
 
             if (effectiveDate > DateTime.UtcNow)
             {
-                throw new ArgumentException("Effective date cannot be in the future.", nameof(effectiveDate));
+                throw new ArgumentException("La fecha efectiva no puede ser futura.", nameof(effectiveDate));
             }
 
             var transferTransaction = new Transaction
@@ -197,12 +197,12 @@ namespace SmartPocket.Domain.Transactions
         {
             if (effectiveDate == default)
             {
-                throw new ArgumentException("Effective date must be a valid date.", nameof(effectiveDate));
+                throw new ArgumentException("La fecha efectiva debe ser válida.", nameof(effectiveDate));
             }
 
             if (effectiveDate > DateTime.UtcNow)
             {
-                throw new ArgumentException("Effective date cannot be in the future.", nameof(effectiveDate));
+                throw new ArgumentException("La fecha efectiva no puede ser futura.", nameof(effectiveDate));
             }
         }
     }

@@ -30,7 +30,7 @@ namespace SmartPocket.WebApi.Controllers
         {
             var result = await handler.TryGet(id, cancellation);
 
-            if (result is null) return NotFound("Account with given id not found.");
+            if (result is null) return NotFound($"Cuenta con ID {id} no encontrada.");
 
             return result;
         }

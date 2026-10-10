@@ -46,7 +46,7 @@ namespace SmartPocket.Domain.CreditCards
         public void PaidStatement()
         {
             if (Status != CreditCardStatementStatus.Closed)
-                throw new InvalidOperationException("Only closed statements can be paid.");
+                throw new InvalidOperationException("Solo se pueden pagar resúmenes cerrados.");
 
             Status = CreditCardStatementStatus.Paid;
         }

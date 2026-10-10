@@ -23,7 +23,7 @@ namespace SmartPocket.Features.CreditCardSubscriptions.Delete
 
             if (entity is null)
             {
-                return new ErrorDetail($"Credit card Subscription with id {id} not found.");
+                return new ErrorDetail($"Suscripción de tarjeta de crédito con ID {id} no encontrada.");
             }
 
             _smartPocketContext.DeleteEntity(entity);

@@ -46,7 +46,7 @@ namespace SmartPocket.Features.Shared.Validators
                 .NotEmpty()
                 .Length(3)
                 .Must(value => value.All(char.IsUpper))
-                    .WithMessage("Currency code must be 3 uppercase letters.");
+                    .WithMessage("El código de moneda debe tener 3 letras mayúsculas.");
         }
     }
 }

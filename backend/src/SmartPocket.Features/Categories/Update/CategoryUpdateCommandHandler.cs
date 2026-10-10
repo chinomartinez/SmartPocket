@@ -31,7 +31,7 @@ namespace SmartPocket.Features.Categories.Update
 
             if (entity == null)
             {
-                return new ErrorDetailList($"Category with id {request.Id} not found");
+                return new ErrorDetailList($"Categoria con ID {request.Id} no encontrada.");
             }
 
             entity.Update(

@@ -24,7 +24,7 @@ namespace SmartPocket.Features.CreditCardSubscriptions.Cancel
 
             if (entity is null)
             {
-                var error = $"Credit card subscription with ID {creditCardSubscriptionId} not found.";
+                var error = $"Suscripción de tarjeta de crédito con ID {creditCardSubscriptionId} no encontrada.";
                 return new ErrorDetailList(error);
             }
 

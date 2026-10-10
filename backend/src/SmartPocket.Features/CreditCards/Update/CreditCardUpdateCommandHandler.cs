@@ -30,10 +30,7 @@ namespace SmartPocket.Features.CreditCards.Update
 
             if (entity is null)
             {
-                var error = $"Credit card with id {command.Id} not found.";
-                validations.Errors.Add(error);
-
-                return validations.Errors;
+                return new ErrorDetailList($"Tarjeta de crédito con ID {command.Id} no encontrada.");
             }
 
             entity.Update(

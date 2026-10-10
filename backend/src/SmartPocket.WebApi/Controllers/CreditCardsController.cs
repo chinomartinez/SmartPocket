@@ -40,7 +40,7 @@ namespace SmartPocket.WebApi.Controllers
             CancellationToken cancellation)
         {
             var result = await handler.Get(id, cancellation);
-            return result is null ? NotFound() : Ok(result);
+            return result is null ? NotFound($"Tarjeta de crédito con ID {id} no encontrada.") : Ok(result);
         }
 
         [HttpGet("{id}/activities")]

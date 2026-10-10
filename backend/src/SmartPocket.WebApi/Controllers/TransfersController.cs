@@ -55,7 +55,7 @@ namespace SmartPocket.WebApi.Controllers
             var result = await handler.TryGet(id, cancellation);
 
             return result is null
-                ? NotFound("Transfer not found")
+                ? NotFound($"Transferencia con ID {id} no encontrada.")
                 : Ok(result);
         }
 

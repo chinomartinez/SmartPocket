@@ -33,7 +33,7 @@ namespace SmartPocket.Features.Accounts.Update
 
             if (entity == null)
             {
-                return new ErrorDetailList($"Account with id {request.Id} not found");
+                return new ErrorDetailList($"Cuenta con ID {request.Id} no encontrada.");
             }
 
             entity.Update(

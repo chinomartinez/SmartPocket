@@ -24,7 +24,7 @@ namespace SmartPocket.Features.CreditCardStatements.Delete
 
             if (statement is null)
             {
-                return new ErrorDetail($"Credit card Statement with id {id} not found.");
+                return new ErrorDetail($"Resumen de tarjeta de crédito con ID {id} no encontrado.");
             }
 
             var installments = await _smartPocketContext.Query<CreditCardPurchaseInstallment>()

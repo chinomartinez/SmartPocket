@@ -338,6 +338,8 @@ Amount
 
 El backend debe volver a validar disponibilidad y duplicados al confirmar. Las sugerencias no reservan items.
 
+El resumen debe incluir al menos una cuota o un cargo. No se permiten resúmenes vacíos.
+
 ### 7.2. Actualizar resumen
 
 Para cuotas, la lista representa el conjunto final de cuotas incluidas.
@@ -407,8 +409,7 @@ La diferencia no se persiste y puede calcularse desde los totales.
 
 - Una cuota no puede pertenecer a más de un resumen.
 - La asignación debe verificar que `CreditCardStatementId` siga siendo `null` o pertenezca al resumen que se está editando.
-- La protección contra condiciones de carrera se incorpora como mejora del plan principal.
-- La estrategia recomendada es una actualización condicional que sólo asigne la cuota si continúa disponible.
+- La protección contra condiciones de carrera queda diferida como mejora futura.
 
 ### 9.2. Cargos
 
@@ -521,6 +522,7 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 ### Fase 2: Persistencia
 
 - Completar validaciones de creación y actualización.
+- Validar que el resumen tenga al menos una cuota o un cargo.
 - Implementar eliminación con desvinculación de cuotas y eliminación de cargos.
 - Validar estados y pertenencia a tarjeta.
 - Las pruebas automatizadas de integridad quedan diferidas como deuda técnica.
@@ -535,21 +537,46 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 - Implementar selección y edición de cargos.
 - Incorporar loading, error y empty states.
 
-### Fase 4: Mejoras de integridad
+### Fase 4: Iteración 4 - Pagos
+
+La siguiente etapa comprende backend y frontend para administrar pagos asociados a un resumen.
+
+Backend:
+
+- Agregar `TransactionSourceType.CreditCardStatementPayment`.
+- Crear, consultar, actualizar y eliminar pagos.
+- Asociar cada pago a una transacción y a un resumen.
+- Agregar `CoveredCurrencyCode`.
+- Permitir una cuenta en una moneda distinta de la moneda cubierta, sin realizar conversiones.
+- Garantizar un solo pago por resumen y moneda cubierta.
+- Garantizar que una transacción no se reutilice en otro pago.
+- Implementar los estados `Closed`, `PartiallyPaid` y `Paid`.
+- Recalcular el estado según las monedas cubiertas, no según igualdad de importes.
+- Devolver totales por moneda cubierta y monto real de cada transacción.
+
+Frontend:
+
+- Mostrar pagos asociados dentro del contexto del resumen.
+- Crear, editar, consultar y eliminar pagos sin reutilizar el modal de transacciones manuales.
+- Mostrar cuenta, fecha, descripción, importe, moneda de la cuenta y moneda cubierta.
+- Mostrar totales de items por moneda y pagos destinados a cada moneda.
+- Mantener explícita la ausencia de conversión automática.
+
+La gestión de pagos no debe abrir un modal encima del formulario de resumen. Se recomienda incorporarla como una sección del detalle/edición del resumen o como una vista interna del mismo flujo.
+
+### Fase 5: Mejoras de integridad
 
 - Protección contra condiciones de carrera en asignación de cuotas.
 - Índice único para `CreditCardStatementPayment.TransactionId`.
 - Pruebas automatizadas de integridad, concurrencia y eliminación.
 - Ajustes derivados de esas pruebas y del comportamiento de soft delete.
 
-Las pruebas no bloquean el avance hacia la Iteración 4, pero deben retomarse antes de considerar cerrado el módulo de resúmenes.
+Las mejoras de concurrencia y las pruebas automatizadas no bloquean el avance hacia la Iteración 4, pero deben retomarse antes de considerar cerrado el módulo de resúmenes.
 
 ## 14. Decisiones abiertas
 
-- Confirmar si la fecha derivada de una cuota usa exactamente `EffectiveDate + Number - 1 meses`.
 - Definir el comportamiento para fechas como `31` en meses que no tienen día 31.
 - Definir cómo se calcula un cargo mensual cuando la fecha efectiva cae en un día inexistente de un mes posterior.
-- Confirmar si la moneda distinta de la tarjeta siempre se presenta como USD o si se debe soportar una lista de monedas.
 - Definir el texto exacto de confirmación al eliminar un resumen y sus cargos.
 - Actualizar el plan general de UI y el diseño funcional, que todavía describen restricciones antiguas para resúmenes pagados.
 

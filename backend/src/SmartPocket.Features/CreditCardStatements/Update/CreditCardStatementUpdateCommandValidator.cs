@@ -128,6 +128,15 @@ namespace SmartPocket.Features.CreditCardStatements.Update
                         ctx.AddFailure("Uno o más números de cargo de suscripción existen en otros resúmenes.");
                     }
                 });
+
+            RuleFor(x => x)
+                .Must(command => command.InstallmentIds.Length > 0 ||
+                    command.SubsChargesForUpdate.Length > 0 ||
+                    command.SubsChargesForCreate.Length > 0)
+                .When(command => command.InstallmentIds is not null &&
+                    command.SubsChargesForUpdate is not null &&
+                    command.SubsChargesForCreate is not null)
+                .WithMessage("El resumen debe incluir al menos una cuota o un cargo de suscripción.");
         }
     }
 }

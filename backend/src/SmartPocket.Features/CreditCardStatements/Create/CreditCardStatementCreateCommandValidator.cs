@@ -81,6 +81,11 @@ namespace SmartPocket.Features.CreditCardStatements.Create
                     }
                 });
 
+            RuleFor(x => x)
+                .Must(command => command.InstallmentIds.Length > 0 || command.SubscriptionCharges.Length > 0)
+                .When(command => command.InstallmentIds is not null && command.SubscriptionCharges is not null)
+                .WithMessage("El resumen debe incluir al menos una cuota o un cargo de suscripción.");
+
         }
     }
 }

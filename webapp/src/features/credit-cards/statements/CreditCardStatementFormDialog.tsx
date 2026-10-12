@@ -55,6 +55,7 @@ const EMPTY_VALUES: CreditCardStatementFormValues = {
   description: "",
   closingDate: new Date().toISOString().slice(0, 10),
   dueDate: getDefaultDueDate(),
+  selectedItemsCount: 0,
 };
 
 export function CreditCardStatementFormDialog({
@@ -77,6 +78,7 @@ export function CreditCardStatementFormDialog({
           description: statement.description,
           closingDate: statement.closingDate.slice(0, 10),
           dueDate: statement.dueDate.slice(0, 10),
+          selectedItemsCount: 0,
         }
       : EMPTY_VALUES,
   });
@@ -132,6 +134,11 @@ export function CreditCardStatementFormDialog({
     if (!open || !itemsSource) return;
     setSelectedInstallmentIds(new Set(isEdit ? includedInstallments.map((item) => item.id) : []));
     setSelectedChargeKeys(new Set(isEdit ? includedCharges.map(getChargeKey) : []));
+    form.setValue(
+      "selectedItemsCount",
+      isEdit ? includedInstallments.length + includedCharges.length : 0,
+      { shouldValidate: form.formState.isSubmitted },
+    );
     setChargeAmounts(Object.fromEntries(charges.map((item) => [getChargeKey(item), item.amount])));
   }, [
     charges,
@@ -141,6 +148,7 @@ export function CreditCardStatementFormDialog({
     itemsSource,
     open,
     suggestedInstallments,
+    form,
   ]);
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -155,11 +163,21 @@ export function CreditCardStatementFormDialog({
   };
 
   const handleToggleInstallment = (id: number) => {
-    setSelectedInstallmentIds((current) => toggleSetValue(current, id));
+    const nextSelection = toggleSetValue(selectedInstallmentIds, id);
+    setSelectedInstallmentIds(nextSelection);
+    form.setValue("selectedItemsCount", nextSelection.size + selectedChargeKeys.size, {
+      shouldDirty: true,
+      shouldValidate: form.formState.isSubmitted,
+    });
   };
 
   const handleToggleCharge = (key: string) => {
-    setSelectedChargeKeys((current) => toggleSetValue(current, key));
+    const nextSelection = toggleSetValue(selectedChargeKeys, key);
+    setSelectedChargeKeys(nextSelection);
+    form.setValue("selectedItemsCount", selectedInstallmentIds.size + nextSelection.size, {
+      shouldDirty: true,
+      shouldValidate: form.formState.isSubmitted,
+    });
   };
 
   const handleChargeAmountChange = (key: string, amount: number | undefined) => {
@@ -272,6 +290,11 @@ export function CreditCardStatementFormDialog({
                       </StatementItemsSection>
                     )}
                     <StatementItemsSection title="Sugerencias">
+                      {form.formState.errors.selectedItemsCount?.message && (
+                        <p className="mb-2 text-sm text-destructive" role="alert">
+                          {form.formState.errors.selectedItemsCount.message}
+                        </p>
+                      )}
                       <StatementItemList
                         installments={suggestedInstallments}
                         charges={suggestedCharges}

@@ -338,7 +338,7 @@ Amount
 
 El backend debe volver a validar disponibilidad y duplicados al confirmar. Las sugerencias no reservan items.
 
-El resumen debe incluir al menos una cuota o un cargo. No se permiten resúmenes vacíos.
+El resumen debe incluir al menos una cuota o un cargo. Esta validación forma parte del contrato actual de creación y actualización; no se permiten resúmenes vacíos.
 
 ### 7.2. Actualizar resumen
 
@@ -381,27 +381,39 @@ Los totales no se persisten. Se calculan como parte de la consulta.
 
 ### 8.1. Totales de items
 
-Se calculan desde cuotas y cargos incluidos, agrupados por moneda:
+Se calculan desde cuotas y cargos incluidos, agrupados por cualquier moneda:
 
 ```text
-totalItemsInCardCurrency
-totalItemsInUsd
+currencySummaries: [
+  {
+    currencyCode,
+    includedAmount,
+    payment: {
+      amount,
+      currencyCode
+    }
+  }
+]
 ```
 
-La tarjeta puede tener compras o suscripciones en una moneda distinta de su moneda base.
+La tarjeta puede tener compras o suscripciones en una moneda distinta de su moneda base. La estructura no debe limitarse a ARS y USD.
 
 ### 8.2. Totales pagados
 
-Cuando exista la gestión de pagos, se calculan desde las transacciones asociadas:
+Cuando exista la gestión de pagos, se calculan desde las transacciones asociadas y se muestran dentro del resumen de la moneda cubierta:
 
 ```text
-totalPaidInCardCurrency
-totalPaidInUsd
+currencyCode: "USD"
+includedAmount: 20
+payment: {
+  amount: 40000,
+  currencyCode: "ARS"
+}
 ```
 
-El pago puede ser mayor que la suma de cuotas y cargos incluidos. Esto es válido porque el usuario puede registrar conceptos adicionales no representados como consumos, como mantenimiento u otros cargos.
+El ejemplo indica que se registraron `40.000 ARS` destinados a cubrir los items en USD. No representa una conversión ni permite comparar numéricamente ambas monedas.
 
-La diferencia no se persiste y puede calcularse desde los totales.
+El pago puede ser mayor o menor que la suma de cuotas y cargos incluidos. Esto es válido porque el usuario puede registrar importes manuales que no coincidan con los consumos registrados.
 
 ## 9. Reglas de integridad
 
@@ -425,6 +437,9 @@ Como preparación para Iteración 4:
 - `CreditCardStatementPayment.TransactionId` debe tener un índice único.
 - Una transacción no debe asociarse a más de un resumen.
 - La asociación debe validar la relación con la cuenta y la moneda cuando se implemente la feature de pagos.
+- Debe existir como máximo un pago por cada moneda cubierta del resumen.
+- El monto del pago no se compara contra el total de items.
+- Un pago puede registrarse desde una cuenta ARS para cubrir items USD, sin conversión automática.
 
 ## 10. UI del listado
 
@@ -522,7 +537,6 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 ### Fase 2: Persistencia
 
 - Completar validaciones de creación y actualización.
-- Validar que el resumen tenga al menos una cuota o un cargo.
 - Implementar eliminación con desvinculación de cuotas y eliminación de cargos.
 - Validar estados y pertenencia a tarjeta.
 - Las pruebas automatizadas de integridad quedan diferidas como deuda técnica.
@@ -546,7 +560,9 @@ Backend:
 - Agregar `TransactionSourceType.CreditCardStatementPayment`.
 - Crear, consultar, actualizar y eliminar pagos.
 - Asociar cada pago a una transacción y a un resumen.
-- Agregar `CoveredCurrencyCode`.
+- Usar `amount` para el importe real debitado de la cuenta. La moneda real surge de `Account.CurrencyCode`.
+- Usar `CoveredCurrencyCode` para indicar la moneda del resumen que el usuario declara cubrir.
+- La fecha del pago debe cumplir `ClosingDate < PaymentDate <= Today(UtcNow)`.
 - Permitir una cuenta en una moneda distinta de la moneda cubierta, sin realizar conversiones.
 - Garantizar un solo pago por resumen y moneda cubierta.
 - Garantizar que una transacción no se reutilice en otro pago.
@@ -563,6 +579,79 @@ Frontend:
 - Mantener explícita la ausencia de conversión automática.
 
 La gestión de pagos no debe abrir un modal encima del formulario de resumen. Se recomienda incorporarla como una sección del detalle/edición del resumen o como una vista interna del mismo flujo.
+
+### Contrato de consulta de pagos
+
+```text
+GET /CreditCardStatements/{statementId}/payments
+```
+
+La respuesta es un array de pagos con:
+
+```text
+id
+transactionId
+account
+amount
+effectiveDate
+description
+coveredCurrencyCode
+```
+
+### Contrato de persistencia de pagos
+
+```text
+PUT /CreditCardStatements/{statementId}/payments
+```
+
+El endpoint recibe el conjunto final de pagos y sincroniza la colección:
+
+- Pago sin `id`: crea la transacción y la relación con el resumen.
+- Pago con `id`: actualiza el pago y su transacción.
+- Pago existente ausente: elimina la relación y aplica soft delete a su transacción.
+
+No se propone un endpoint separado por cada pago.
+
+Body conceptual:
+
+```json
+{
+  "payments": [
+    {
+      "id": 12,
+      "accountId": 3,
+      "amount": 50000,
+      "effectiveDate": "2026-10-05",
+      "description": "Pago resumen",
+      "coveredCurrencyCode": "ARS"
+    },
+    {
+      "id": null,
+      "accountId": 3,
+      "amount": 40000,
+      "effectiveDate": "2026-10-05",
+      "description": "Pago dólares",
+      "coveredCurrencyCode": "USD"
+    }
+  ]
+}
+```
+
+`coveredCurrencyCode` debe validarse con `CurrencyValidations()` y además debe existir entre las monedas de los items incluidos en el resumen.
+
+### Eliminación de pagos y resúmenes
+
+Al eliminar un pago, también se elimina mediante soft delete la transacción creada para ese pago.
+
+Al eliminar un resumen pago:
+
+1. Se desvinculan sus cuotas.
+2. Se eliminan sus cargos.
+3. Se eliminan las relaciones de pagos.
+4. Se aplica soft delete a las transacciones de pago.
+5. Se aplica soft delete al resumen.
+
+El usuario puede eliminar o modificar items aunque exista un pago relacionado. SmartPocket registra decisiones manuales del usuario y no intenta imponer reglas bancarias.
 
 ### Fase 5: Mejoras de integridad
 

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SmartPocket.Features.Shared.Validators;
 
 namespace SmartPocket.Features.Transactions
 {
@@ -10,9 +11,7 @@ namespace SmartPocket.Features.Transactions
                 .NotEmpty()
                 .GreaterThan(0);
 
-            RuleFor(x => x.CurrencyCode)
-                .NotEmpty()
-                .Length(3, 3);
+            RuleFor(x => x.CurrencyCode).CurrencyValidations();
         }
     }
 }

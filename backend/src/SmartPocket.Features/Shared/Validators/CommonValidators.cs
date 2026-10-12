@@ -44,7 +44,7 @@ namespace SmartPocket.Features.Shared.Validators
             return ruleBuilderInitial
                 .CascadeStop()
                 .NotEmpty()
-                .Length(3)
+                .Length(3, 3)
                 .Must(value => value.All(char.IsUpper))
                     .WithMessage("El código de moneda debe tener 3 letras mayúsculas.");
         }

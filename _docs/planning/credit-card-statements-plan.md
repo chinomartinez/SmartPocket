@@ -558,11 +558,14 @@ La siguiente etapa comprende backend y frontend para administrar pagos asociados
 Backend:
 
 - Agregar `TransactionSourceType.CreditCardStatementPayment`.
+- Crear la transacción con `Transaction.CreateAsCreditCardStatementPayment(accountId, amount, effectiveDate)`: debe ser un gasto sin categoría y con `Description = null`.
+- No agregar un método `Update` específico para pagos. La actualización utiliza el `Transaction.Update` existente con `IsIncome = false`, `CategoryId = null` y `Description = null`.
 - Crear, consultar, actualizar y eliminar pagos.
 - Asociar cada pago a una transacción y a un resumen.
 - Usar `amount` para el importe real debitado de la cuenta. La moneda real surge de `Account.CurrencyCode`.
 - Usar `CoveredCurrencyCode` para indicar la moneda del resumen que el usuario declara cubrir.
 - La fecha del pago debe cumplir `ClosingDate < PaymentDate <= Today(UtcNow)`.
+- El factory de `Transaction` valida los invariantes propios de la transacción, incluida una fecha válida no futura. La comparación con `ClosingDate` se valida en la operación de pagos, que conoce el resumen; no se agrega al factory.
 - Permitir una cuenta en una moneda distinta de la moneda cubierta, sin realizar conversiones.
 - Garantizar un solo pago por resumen y moneda cubierta.
 - Garantizar que una transacción no se reutilice en otro pago.
@@ -574,7 +577,7 @@ Frontend:
 
 - Mostrar pagos asociados dentro del contexto del resumen.
 - Crear, editar, consultar y eliminar pagos sin reutilizar el modal de transacciones manuales.
-- Mostrar cuenta, fecha, descripción, importe, moneda de la cuenta y moneda cubierta.
+- Mostrar cuenta, fecha, importe, moneda de la cuenta y moneda cubierta.
 - Mostrar totales de items por moneda y pagos destinados a cada moneda.
 - Mantener explícita la ausencia de conversión automática.
 
@@ -594,7 +597,6 @@ transactionId
 account
 amount
 effectiveDate
-description
 coveredCurrencyCode
 ```
 
@@ -622,7 +624,6 @@ Body conceptual:
       "accountId": 3,
       "amount": 50000,
       "effectiveDate": "2026-10-05",
-      "description": "Pago resumen",
       "coveredCurrencyCode": "ARS"
     },
     {
@@ -630,7 +631,6 @@ Body conceptual:
       "accountId": 3,
       "amount": 40000,
       "effectiveDate": "2026-10-05",
-      "description": "Pago dólares",
       "coveredCurrencyCode": "USD"
     }
   ]

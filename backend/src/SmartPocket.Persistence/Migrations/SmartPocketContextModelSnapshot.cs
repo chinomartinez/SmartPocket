@@ -289,6 +289,11 @@ namespace SmartPocket.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CoveredCurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("CreditCardStatementId")
                         .HasColumnType("INTEGER");
 
@@ -297,9 +302,11 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreditCardStatementId");
+                    b.HasIndex("TransactionId")
+                        .IsUnique();
 
-                    b.HasIndex("TransactionId");
+                    b.HasIndex("CreditCardStatementId", "CoveredCurrencyCode")
+                        .IsUnique();
 
                     b.ToTable("CreditCardStatementPayment");
                 });
@@ -589,6 +596,11 @@ namespace SmartPocket.Persistence.Migrations
                         {
                             Id = 3,
                             Name = "SystemAdjustment"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "CreditCardStatementPayment"
                         });
                 });
 

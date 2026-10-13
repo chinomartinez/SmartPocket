@@ -18,6 +18,7 @@ namespace SmartPocket.Domain.Transactions
         None = 0,
         ManualEntry = 1,
         Transfer = 2,
-        SystemAdjustment = 3
+        SystemAdjustment = 3,
+        CreditCardStatementPayment = 4
     }
 }

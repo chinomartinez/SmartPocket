@@ -20,8 +20,8 @@ namespace SmartPocket.Domain.CreditCards
         public ICollection<CreditCardSubscriptionCharge> SubscriptionCharges { get; private set; } = new List<CreditCardSubscriptionCharge>();
 
         /// <summary>
-        /// Uno o más pagos, uno por moneda utilizada al saldar el resumen.
-        /// Ej: una Transaction en USD + una en ARS si pagaste ambas secciones por separado.
+        /// Como máximo un pago por cada moneda incluida en el resumen.
+        /// La moneda real de la transacción puede diferir de la moneda cubierta.
         /// </summary>
         public ICollection<CreditCardStatementPayment> Payments { get; private set; } = new List<CreditCardStatementPayment>();
 
@@ -43,12 +43,27 @@ namespace SmartPocket.Domain.CreditCards
             DueDate = dueDate;
         }
 
-        public void PaidStatement()
+        public void RecalculatePaymentStatus()
         {
-            if (Status != CreditCardStatementStatus.Closed)
-                throw new InvalidOperationException("Solo se pueden pagar resúmenes cerrados.");
+            if (Payments.Count == 0)
+            {
+                Status = CreditCardStatementStatus.Closed;
+                return;
+            }
 
-            Status = CreditCardStatementStatus.Paid;
+            var includedCurrencies = Installments
+                .Select(x => x.CreditCardPurchase.CurrencyCode)
+                .Concat(SubscriptionCharges.Select(x => x.CreditCardSubscription.CurrencyCode))
+                .Distinct()
+                .ToArray();
+
+            var coveredCurrencies = Payments
+                .Select(x => x.CoveredCurrencyCode)
+                .ToHashSet();
+
+            Status = includedCurrencies.Length > 0 && includedCurrencies.All(coveredCurrencies.Contains)
+                ? CreditCardStatementStatus.Paid
+                : CreditCardStatementStatus.PartiallyPaid;
         }
 
     }    

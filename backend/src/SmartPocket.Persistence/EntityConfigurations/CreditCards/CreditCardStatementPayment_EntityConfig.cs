@@ -8,6 +8,14 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
     {
         public void Configure(EntityTypeBuilder<CreditCardStatementPayment> builder)
         {
+            builder.ConfigureCurrency(x => x.CoveredCurrencyCode);
+
+            builder.HasIndex(x => x.TransactionId)
+                .IsUnique();
+
+            builder.HasIndex(x => new { x.CreditCardStatementId, x.CoveredCurrencyCode })
+                .IsUnique();
+
             builder.HasOne(p => p.CreditCardStatement)
                 .WithMany(s => s.Payments)
                 .HasForeignKey(p => p.CreditCardStatementId)

@@ -88,6 +88,12 @@ namespace SmartPocket.Domain.Transactions
                 throw new InvalidOperationException("Las transacciones ingresadas manualmente deben tener una categoría.");
             }
 
+            // Por el momento
+            if (TransactionSourceId != TransactionSourceType.ManualEntry && categoryId.HasValue)
+            {
+                throw new InvalidOperationException("Solo las transacciones ingresadas manualmente pueden tener una categoría.");
+            }
+
             accountId.ThrowIsNegativeOrZero(nameof(accountId));
             amount.ThrowIsNegativeOrZero(nameof(amount));
             ValditeEffectiveDate(effectiveDate);
@@ -191,6 +197,30 @@ namespace SmartPocket.Domain.Transactions
             };
 
             return manualEntryTransaction;
+        }
+
+        public static Transaction CreateAsCreditCardStatementPayment(
+            int accountId,
+            decimal amount,
+            DateTime effectiveDate)
+        {
+            accountId.ThrowIsNegativeOrZero(nameof(accountId));
+            amount.ThrowIsNegativeOrZero(nameof(amount));
+
+            ValditeEffectiveDate(effectiveDate);
+
+            var paymentTransaction = new Transaction
+            {
+                AccountId = accountId,
+                Amount = amount,
+                EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc),
+                Description = null,
+                IsIncome = false,
+                CategoryId = null,
+                TransactionSourceId = TransactionSourceType.CreditCardStatementPayment
+            };
+
+            return paymentTransaction;
         }
 
         private static void ValditeEffectiveDate(DateTime effectiveDate)

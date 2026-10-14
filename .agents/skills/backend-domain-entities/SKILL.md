@@ -106,8 +106,8 @@ public class Account : BaseAuditEntity<int>
 
 ### Constructores
 
-- Crea un constructor público que reciba los datos mínimos requeridos para construir una entidad válida.
-- Asigna los datos mediante `Update` u otros métodos de dominio para centralizar validaciones y reglas.
+- Define una API de creación mediante constructor público o fábrica estática, según la complejidad de la creación y las invariantes que deban garantizarse.
+- Asigna los datos directamente en esa API de creación. Reutiliza `Update` solo cuando crear y actualizar compartan realmente las mismas reglas; no llames a `Update` por defecto para evitar asignaciones repetidas.
 - Para constructores complejos, agrega también un constructor privado sin parámetros para que EF Core pueda materializar la entidad.
 - Si el constructor sin parámetros solo existe para EF Core, deja un comentario breve que lo indique.
 - Inicializa las colecciones de navegación en la declaración o en los constructores.
@@ -134,13 +134,26 @@ public CreditCard(
 
 ### Comportamiento y actualización
 
-- Agrega un método `Update` cuando una entidad pueda editarse después de su creación.
-- Usa métodos con nombres de dominio para transiciones específicas, por ejemplo `MarkAsPaid`, `AddInstallment` o `SetPrimary`, en lugar de exponer setters.
-- Valida invariantes antes de modificar el estado.
-- Mantén una única fuente de verdad para las reglas: el constructor y los métodos públicos deben reutilizar la misma lógica cuando sea posible.
+- Agrega un método `Update` cuando la entidad sea editable y una operación coherente necesite modificar su estado.
+- Usa métodos con nombres de dominio para transiciones específicas cuando encapsulen una regla o protejan una invariante; no los agregues solo para envolver asignaciones.
+- Valida las invariantes propias de la entidad antes de modificar su estado. Las reglas que dependan de otras entidades, consultas o del contexto de la operación pueden corresponder a la feature.
+- Reutiliza lógica entre constructor, fábrica y actualización cuando sus reglas sean realmente las mismas. No fuerces una operación de creación a pasar por un `Update` con semántica distinta.
 - Usa los guards existentes de `SmartPocket.SharedKernel.Guards` cuando ya cubran la validación requerida.
 - Devuelve excepciones coherentes con las convenciones existentes si los datos no pueden formar un estado válido.
-- No agregues un método `Update` genérico si la entidad solo puede modificarse mediante operaciones específicas.
+- No agregues un método `Update` genérico si la entidad solo puede modificarse mediante operaciones específicas. Tampoco agregues variantes específicas por origen o caso de uso sin una regla distinta que lo justifique.
+
+### Elegir métodos de dominio considerando el costo de datos
+
+Antes de agregar un método que calcula o cambia un estado, evalúa tanto su responsabilidad como los datos que necesita:
+
+- Identifica qué invariante o transición protege y si esa regla pertenece a la entidad.
+- Determina si los datos requeridos ya forman parte del estado cargado para la operación o si el método obligaría a cargar relaciones adicionales.
+- No exijas cargar colecciones o grafos grandes solo para calcular y guardar un valor escalar, como un estado. El dominio no debe acceder a la base de datos para obtenerlos.
+- Si la regla pertenece al dominio pero depende de datos externos o de una colección grande, consulta/proyecta en la feature solo los valores mínimos necesarios y pásalos a la operación de dominio cuando corresponda.
+- Si el valor es únicamente de lectura y no necesita persistirse, considera calcularlo en la proyección de consulta en vez de agregar estado o métodos a la entidad.
+- Considera una actualización incremental solo si el agregado ya dispone de información suficiente y la regla puede mantenerse consistente; no la introduzcas como optimización especulativa.
+
+Un método como `Recalculate...` no se justifica automáticamente porque el valor se llame “estado”. Comprueba si es necesario persistirlo, qué relaciones requiere y si el costo de mantenerlo en el agregado es adecuado para la operación real.
 
 Ejemplo:
 
@@ -269,8 +282,8 @@ No agregues registros manuales para la configuración si la clase está dentro d
 2. Define el namespace, carpeta plural y nombre singular.
 3. Elige `BaseEntity<T>`, `BaseAuditEntity<T>`, `BaseEntity` o las interfaces individuales.
 4. Define propiedades, claves foráneas, navegaciones y value objects.
-5. Diseña constructores que creen estados válidos y un constructor privado para EF Core si es necesario.
-6. Agrega `Update` y métodos de comportamiento que encapsulen las modificaciones permitidas.
+5. Elige constructor o fábrica estática para crear estados válidos y agrega un constructor privado para EF Core si es necesario.
+6. Agrega `Update` o métodos de comportamiento solo cuando encapsulen cambios coherentes o invariantes reales; considera el costo de los datos requeridos.
 7. Crea la configuración `_EntityConfig` y aplica solo las reglas de persistencia necesarias.
 8. Reutiliza las extensiones de `MapPropertyExtensions` y evita duplicar `ApplyCommonConfigs`.
 9. Registra el `DbSet` plural en `SmartPocketContext` y actualiza el contrato si corresponde.
@@ -282,7 +295,8 @@ No agregues registros manuales para la configuración si la clase está dentro d
 - [ ] La carpeta es plural y el nombre de la entidad es singular.
 - [ ] La clase hereda de la base o interfaces adecuadas.
 - [ ] Las propiedades mutables tienen setter privado o una excepción justificada por una clase base.
-- [ ] Las invariantes se validan en constructores y métodos de dominio.
+- [ ] Las invariantes propias de la entidad se validan en su API de creación/actualización y las reglas dependientes del contexto se asignan a la capa adecuada.
+- [ ] Ningún método de dominio exige cargar relaciones extensas solo para calcular un valor escalar.
 - [ ] Las navegaciones y colecciones se inicializan para evitar estados nulos innecesarios en pruebas.
 - [ ] Existe constructor privado para EF Core cuando el constructor de dominio es complejo.
 - [ ] Los value objects usan `readonly record struct` cuando corresponde.

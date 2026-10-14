@@ -42,29 +42,5 @@ namespace SmartPocket.Domain.CreditCards
             ClosingDate = closingDate;
             DueDate = dueDate;
         }
-
-        public void RecalculatePaymentStatus()
-        {
-            if (Payments.Count == 0)
-            {
-                Status = CreditCardStatementStatus.Closed;
-                return;
-            }
-
-            var includedCurrencies = Installments
-                .Select(x => x.CreditCardPurchase.CurrencyCode)
-                .Concat(SubscriptionCharges.Select(x => x.CreditCardSubscription.CurrencyCode))
-                .Distinct()
-                .ToArray();
-
-            var coveredCurrencies = Payments
-                .Select(x => x.CoveredCurrencyCode)
-                .ToHashSet();
-
-            Status = includedCurrencies.Length > 0 && includedCurrencies.All(coveredCurrencies.Contains)
-                ? CreditCardStatementStatus.Paid
-                : CreditCardStatementStatus.PartiallyPaid;
-        }
-
     }    
 }

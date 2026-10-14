@@ -559,7 +559,6 @@ Backend:
 
 - Agregar `TransactionSourceType.CreditCardStatementPayment`.
 - Crear la transacción con `Transaction.CreateAsCreditCardStatementPayment(accountId, amount, effectiveDate)`: debe ser un gasto sin categoría y con `Description = null`.
-- No agregar un método `Update` específico para pagos. La actualización utiliza el `Transaction.Update` existente con `IsIncome = false`, `CategoryId = null` y `Description = null`.
 - Crear, consultar, actualizar y eliminar pagos.
 - Asociar cada pago a una transacción y a un resumen.
 - Usar `amount` para el importe real debitado de la cuenta. La moneda real surge de `Account.CurrencyCode`.
@@ -572,6 +571,15 @@ Backend:
 - Implementar los estados `Closed`, `PartiallyPaid` y `Paid`.
 - Recalcular el estado según las monedas cubiertas, no según igualdad de importes.
 - Devolver totales por moneda cubierta y monto real de cada transacción.
+
+#### Evaluación pendiente del modelo de dominio
+
+Antes de implementar la feature, evaluar la mejor forma de crear, actualizar y desasignar el pago y su transacción, y de reflejar los cambios de estado. No se ha decidido todavía una API de dominio concreta.
+
+- Para crear la asociación, evaluar una fábrica estática de `CreditCardStatementPayment` que construya y devuelva el vínculo junto con su transacción, frente a crear ambos modelos por separado.
+- Para actualizar la transacción asociada, evaluar reutilizar el `Transaction.Update` existente con `IsIncome = false`, `CategoryId = null` y `Description = null`, frente a introducir otro método de dominio.
+- Para el estado del resumen, evaluar si el cambio pertenece a un método del dominio o a la operación de pagos. Considerar qué datos requiere cada alternativa y evitar cargar todas las cuotas, compras y cargos solo para calcular el estado; consultar/proyectar únicamente los valores necesarios cuando sea posible.
+- La decisión debe preservar las invariantes del modelo, respetar la semántica de soft delete y mantener eficiente la carga de datos.
 
 Frontend:
 

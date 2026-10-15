@@ -42,17 +42,32 @@ namespace SmartPocket.Features.CreditCardStatements.Update
                 return new ErrorDetailList("No se puede cambiar la tarjeta del resumen.");
             }
 
-            statement.Update(command.Description, command.ClosingDate, command.DueDate);
+            using var databaseTransaction = await _smartPocketContext.BeginTransactionAsync(cancellation);
 
-            var installmentsError = await SyncInstallments(statement, command, cancellation);
-            if (installmentsError is not null) return installmentsError;
+            try
+            {
+                statement.Update(command.Description, command.ClosingDate, command.DueDate);
 
-            var chargesError = await SyncSubscriptionCharges(statement, command, cancellation);
-            if (chargesError is not null) return chargesError;
+                var installmentsError = await SyncInstallments(statement, command, cancellation);
+                if (installmentsError is not null) return installmentsError;
 
-            await _smartPocketContext.SaveChangesAsync(cancellation);
+                var chargesError = await SyncSubscriptionCharges(statement, command, cancellation);
+                if (chargesError is not null) return chargesError;
 
-            return ErrorDetailList.Empty;
+                await _smartPocketContext.SaveChangesAsync(cancellation);
+
+                await UpdatePaymentStatus(statement, cancellation);
+                await _smartPocketContext.SaveChangesAsync(cancellation);
+
+                await databaseTransaction.CommitAsync(cancellation);
+
+                return ErrorDetailList.Empty;
+            }
+            catch
+            {
+                await databaseTransaction.RollbackAsync(cancellation);
+                throw;
+            }
         }
 
         private async Task<ErrorDetailList?> SyncInstallments(CreditCardStatement statement,
@@ -143,6 +158,39 @@ namespace SmartPocket.Features.CreditCardStatements.Update
             }
 
             return null;
+        }
+
+        private async Task UpdatePaymentStatus(
+            CreditCardStatement statement,
+            CancellationToken cancellation)
+        {
+            var itemCurrencies = await GetItemCurrencies(statement.Id, cancellation);
+            var paymentCurrencies = await _smartPocketContext.Query<CreditCardStatementPayment>()
+                .Where(x => x.CreditCardStatementId == statement.Id)
+                .Select(x => x.CoveredCurrencyCode)
+                .ToListAsync(cancellation);
+
+            statement.UpdatePaymentStatus(
+                hasPayments: paymentCurrencies.Count > 0,
+                allItemCurrenciesCovered: itemCurrencies.All(paymentCurrencies.Contains));
+        }
+
+        private async Task<List<string>> GetItemCurrencies(
+            int statementId,
+            CancellationToken cancellation)
+        {
+            var installmentCurrencies = _smartPocketContext.Query<CreditCardPurchaseInstallment>()
+                .Where(x => x.CreditCardStatementId == statementId)
+                .Select(x => x.CreditCardPurchase.CurrencyCode);
+
+            var chargeCurrencies = _smartPocketContext.Query<CreditCardSubscriptionCharge>()
+                .Where(x => x.CreditCardStatementId == statementId)
+                .Select(x => x.CreditCardSubscription.CurrencyCode);
+
+            return await installmentCurrencies
+                .Concat(chargeCurrencies)
+                .Distinct()
+                .ToListAsync(cancellation);
         }
     }
 }

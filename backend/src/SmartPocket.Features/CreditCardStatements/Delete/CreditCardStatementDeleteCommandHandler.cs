@@ -35,12 +35,24 @@ namespace SmartPocket.Features.CreditCardStatements.Delete
                 .Where(x => x.CreditCardStatementId == id)
                 .ToListAsync(cancellation);
 
+            var payments = await _smartPocketContext.Query<CreditCardStatementPayment>()
+                .Where(x => x.CreditCardStatementId == id)
+                .Include(x => x.Transaction)
+                .ToListAsync(cancellation);
+
             foreach (var installment in installments)
             {
                 installment.UnlinkFromStatement();
             }
 
             _smartPocketContext.DeleteRange(charges);
+
+            foreach (var payment in payments)
+            {
+                _smartPocketContext.DeleteEntity(payment);
+                _smartPocketContext.DeleteEntity(payment.Transaction);
+            }
+
             _smartPocketContext.DeleteEntity(statement);
             
             await _smartPocketContext.SaveChangesAsync(cancellation);

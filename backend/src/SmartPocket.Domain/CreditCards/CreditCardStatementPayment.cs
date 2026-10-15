@@ -19,9 +19,42 @@ namespace SmartPocket.Domain.CreditCards
 
         private CreditCardStatementPayment() { }
 
-        public void UpdateCoveredCurrencyCode(string coveredCurrencyCode)
+        public CreditCardStatementPayment(
+            int creditCardStatementId,
+            int accountId,
+            decimal amount,
+            DateTime effectiveDate,
+            string coveredCurrencyCode)
         {
+            CreditCardStatementId = creditCardStatementId.GetIfNotNegativeOrZero(nameof(creditCardStatementId));
             CoveredCurrencyCode = coveredCurrencyCode.GetIfNotNullOrWhiteSpace(nameof(coveredCurrencyCode));
-        }        
+
+            Transaction = Transaction.CreateAsCreditCardStatementPayment(
+                accountId: accountId,
+                amount: amount,
+                effectiveDate: effectiveDate);
+        }
+
+        public void Update(
+            int accountId,
+            decimal amount,
+            DateTime effectiveDate,
+            string coveredCurrencyCode)
+        {
+            if (Transaction is null)
+            {
+                throw new InvalidOperationException("La transacción del pago debe establecerse antes de actualizarlo.");
+            }
+
+            CoveredCurrencyCode = coveredCurrencyCode.GetIfNotNullOrWhiteSpace(nameof(coveredCurrencyCode));
+
+            Transaction.Update(
+                accountId: accountId,
+                amount: amount,
+                effectiveDate: effectiveDate,
+                isIncome: false,
+                description: null,
+                categoryId: null);
+        }
     }
 }

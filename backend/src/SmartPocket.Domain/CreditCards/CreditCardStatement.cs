@@ -42,5 +42,14 @@ namespace SmartPocket.Domain.CreditCards
             ClosingDate = closingDate;
             DueDate = dueDate;
         }
+
+        public void UpdatePaymentStatus(bool hasPayments, bool allItemCurrenciesCovered)
+        {
+            Status = !hasPayments
+                ? CreditCardStatementStatus.Closed
+                : allItemCurrenciesCovered
+                    ? CreditCardStatementStatus.Paid
+                    : CreditCardStatementStatus.PartiallyPaid;
+        }
     }    
 }

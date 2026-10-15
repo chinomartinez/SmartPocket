@@ -3,6 +3,8 @@ using SmartPocket.Features.CreditCardStatements.Create;
 using SmartPocket.Features.CreditCardStatements.Delete;
 using SmartPocket.Features.CreditCardStatements.GetById;
 using SmartPocket.Features.CreditCardStatements.List;
+using SmartPocket.Features.CreditCardStatements.Payments.Get;
+using SmartPocket.Features.CreditCardStatements.Payments.Update;
 using SmartPocket.Features.CreditCardStatements.Suggestions;
 using SmartPocket.Features.CreditCardStatements.Update;
 using SmartPocket.Persistence.PagedQuery;
@@ -86,6 +88,33 @@ namespace SmartPocket.WebApi.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("{statementId}/payments")]
+        public async Task<List<CreditCardStatementPaymentDTO>> GetPayments(
+            [FromServices] CreditCardStatementPaymentsQueryHandler handler,
+            [FromRoute] int statementId,
+            CancellationToken cancellation)
+        {
+            var result = await handler.Get(statementId, cancellation);
+            return result;
+        }
+
+        [HttpPut("{statementId}/payments")]
+        public async Task<ActionResult> UpdatePayments(
+            [FromServices] CreditCardStatementPaymentsUpdateCommandHandler handler,
+            [FromRoute] int statementId,
+            [FromBody] CreditCardStatementPaymentsUpdateBody body,
+            CancellationToken cancellation)
+        {
+            var command = new CreditCardStatementPaymentsUpdateCommand
+            {
+                StatementId = statementId,
+                Payments = body.Payments
+            };
+
+            var result = await handler.Update(command, cancellation);
+            return result.ToActionResult();
+        }
+
         #region Records
 
         public record CreditCardStatementCreateResponse(int CreditCardStatementId);
@@ -105,6 +134,11 @@ namespace SmartPocket.WebApi.Controllers
             public SubsChargeForUpdateStatementUpdateCommand[] SubsChargesForUpdate { get; set; } = default!;
 
             public SubsChargeForCreateStatementUpdateCommand[] SubsChargesForCreate { get; set; } = default!;
+        }
+
+        public record CreditCardStatementPaymentsUpdateBody
+        {
+            public CreditCardStatementPaymentUpdateItem[] Payments { get; set; } = [];
         }
 
         #endregion

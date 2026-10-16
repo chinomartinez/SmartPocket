@@ -357,6 +357,10 @@ Para cargos:
 
 La edición está permitida tanto para resúmenes `Closed` como `Paid`.
 
+Modificar el monto o los datos propios de un item no altera la moneda cubierta. En cambio,
+agregar o eliminar cuotas o cargos puede modificar el conjunto de monedas del resumen cuando
+existen pagos asociados.
+
 ### 7.3. Eliminar resumen
 
 Ruta prevista:
@@ -500,6 +504,12 @@ El flujo se mantiene dentro del contexto de la tarjeta seleccionada.
 7. Permite modificar fechas, cuotas y cargos.
 8. Permite modificar un resumen `Closed` o `Paid`.
 9. Confirma mediante el comando de actualización.
+
+Si el resumen tiene pagos asociados, la UI debe mostrar una advertencia antes de agregar o
+eliminar cuotas o cargos. Esas acciones pueden agregar una nueva moneda cubierta o quitar una
+moneda que ya tiene pagos registrados, dejando pagos sin un item correspondiente o requiriendo
+registrar pagos adicionales. La advertencia no es necesaria para modificar únicamente montos u
+otros datos que no cambien las monedas de los items.
 
 No se deben mostrar cuotas como formularios independientes. Los items incluidos y sugeridos se muestran en listas planas, ordenadas por fecha efectiva, y cada fila identifica su tipo mediante `Cuota N` o `Cargo N`.
 
@@ -659,7 +669,7 @@ Al eliminar un resumen pago:
 4. Se aplica soft delete a las transacciones de pago.
 5. Se aplica soft delete al resumen.
 
-El usuario puede eliminar o modificar items aunque exista un pago relacionado. SmartPocket registra decisiones manuales del usuario y no intenta imponer reglas bancarias.
+El usuario puede eliminar o modificar items aunque exista un pago relacionado. SmartPocket registra decisiones manuales del usuario y no intenta imponer reglas bancarias. La UI debe advertir antes de agregar o eliminar cuotas o cargos cuando el resumen ya tiene pagos, porque el conjunto de monedas cubiertas puede cambiar y dejar el resumen inconsistente hasta que el usuario ajuste sus pagos.
 
 ### Fase 5: Mejoras de integridad
 

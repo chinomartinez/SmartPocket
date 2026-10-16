@@ -28,6 +28,8 @@ namespace SmartPocket.Features.Transfers.Delete
             }
 
             _smartPocketContext.DeleteEntity(transfer);
+            _smartPocketContext.DeleteEntity(transfer.OriginTransaction);
+            _smartPocketContext.DeleteEntity(transfer.DestinationTransaction);
 
             await _smartPocketContext.SaveChangesAsync(cancellation);
 

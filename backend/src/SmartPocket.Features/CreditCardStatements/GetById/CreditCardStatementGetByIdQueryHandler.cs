@@ -90,6 +90,7 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
                 .ToListAsync(cancellation);
 
             var paymentsByCoveredCurrency = await _smartPocketContext.Query<CreditCardStatementPayment>()
+                .AsNoTracking()
                 .Where(x => x.CreditCardStatementId == id)
                 .ToDictionaryAsync(
                     x => x.CoveredCurrencyCode,

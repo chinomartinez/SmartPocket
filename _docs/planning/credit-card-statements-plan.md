@@ -385,17 +385,35 @@ Los totales no se persisten. Se calculan como parte de la consulta.
 
 ### 8.1. Totales de items
 
-Se calculan desde cuotas y cargos incluidos, agrupados por cualquier moneda:
+Se calculan desde cuotas y cargos incluidos, agrupados por cualquier moneda. En el detalle del
+resumen se devuelven dentro de `totals.currencySummaries`:
+
+```json
+{
+  "totals": {
+    "currencySummaries": [
+      {
+        "currencyCode": "USD",
+        "includedAmount": 20,
+        "payment": {
+          "amount": 40000,
+          "currencyCode": "ARS"
+        }
+      }
+    ]
+  }
+}
+```
+
+Cada `payment` utiliza la estructura común `MoneyDTO` y puede ser `null` cuando todavía no
+existe un pago para la moneda del grupo:
 
 ```text
 currencySummaries: [
   {
     currencyCode,
     includedAmount,
-    payment: {
-      amount,
-      currencyCode
-    }
+    payment: MoneyDTO | null
   }
 ]
 ```
@@ -404,7 +422,9 @@ La tarjeta puede tener compras o suscripciones en una moneda distinta de su mone
 
 ### 8.2. Totales pagados
 
-Cuando exista la gestión de pagos, se calculan desde las transacciones asociadas y se muestran dentro del resumen de la moneda cubierta:
+Los totales pagados se calculan desde las transacciones asociadas y se muestran dentro del
+resumen de la moneda cubierta. El `currencyCode` externo representa la moneda de los items y es
+conceptualmente equivalente a `CreditCardStatementPayment.CoveredCurrencyCode`:
 
 ```text
 currencyCode: "USD"
@@ -565,31 +585,34 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 
 La siguiente etapa comprende backend y frontend para administrar pagos asociados a un resumen.
 
-Backend:
+Backend — estado actual:
 
-- Agregar `TransactionSourceType.CreditCardStatementPayment`.
-- Crear la transacción con `Transaction.CreateAsCreditCardStatementPayment(accountId, amount, effectiveDate)`: debe ser un gasto sin categoría y con `Description = null`.
-- Crear, consultar, actualizar y eliminar pagos.
-- Asociar cada pago a una transacción y a un resumen.
-- Usar `amount` para el importe real debitado de la cuenta. La moneda real surge de `Account.CurrencyCode`.
-- Usar `CoveredCurrencyCode` para indicar la moneda del resumen que el usuario declara cubrir.
-- La fecha del pago debe cumplir `ClosingDate < PaymentDate <= Today(UtcNow)`.
-- El factory de `Transaction` valida los invariantes propios de la transacción, incluida una fecha válida no futura. La comparación con `ClosingDate` se valida en la operación de pagos, que conoce el resumen; no se agrega al factory.
-- Permitir una cuenta en una moneda distinta de la moneda cubierta, sin realizar conversiones.
-- Garantizar un solo pago por resumen y moneda cubierta.
-- Garantizar que una transacción no se reutilice en otro pago.
-- Implementar los estados `Closed`, `PartiallyPaid` y `Paid`.
-- Recalcular el estado según las monedas cubiertas, no según igualdad de importes.
-- Devolver totales por moneda cubierta y monto real de cada transacción.
+- [x] Agregar `TransactionSourceType.CreditCardStatementPayment`.
+- [x] Crear la transacción con `Transaction.CreateAsCreditCardStatementPayment(accountId, amount, effectiveDate)`: debe ser un gasto sin categoría y con `Description = null`.
+- [x] Crear, consultar, actualizar y eliminar pagos mediante el contrato bulk.
+- [x] Asociar cada pago a una transacción y a un resumen.
+- [x] Usar `amount` para el importe real debitado de la cuenta. La moneda real surge de `Account.CurrencyCode`.
+- [x] Usar `CoveredCurrencyCode` para indicar la moneda del resumen que el usuario declara cubrir.
+- [x] Validar `ClosingDate < PaymentDate <= Today(UtcNow)`.
+- [x] Mantener las invariantes propias de la transacción en su factory y validar la relación con el cierre en la operación de pagos.
+- [x] Permitir una cuenta en una moneda distinta de la moneda cubierta, sin realizar conversiones.
+- [x] Garantizar un solo pago por resumen y moneda cubierta.
+- [x] Garantizar que una transacción no se reutilice en otro pago.
+- [x] Implementar los estados `Closed`, `PartiallyPaid` y `Paid`.
+- [x] Recalcular el estado según las monedas cubiertas, no según igualdad de importes.
+- [x] Devolver `currencySummaries` en el detalle, con el monto real del pago mediante `MoneyDTO`.
+- [x] Crear el índice único de `CreditCardStatementPayment.TransactionId`.
 
-#### Evaluación pendiente del modelo de dominio
+El listado paginado todavía debe incorporar los totales pagados si se mantiene el requisito de
+mostrar esos valores en cada resumen del listado.
 
-Antes de implementar la feature, evaluar la mejor forma de crear, actualizar y desasignar el pago y su transacción, y de reflejar los cambios de estado. No se ha decidido todavía una API de dominio concreta.
+#### Decisiones adoptadas del modelo de dominio
 
-- Para crear la asociación, evaluar una fábrica estática de `CreditCardStatementPayment` que construya y devuelva el vínculo junto con su transacción, frente a crear ambos modelos por separado.
-- Para actualizar la transacción asociada, evaluar reutilizar el `Transaction.Update` existente con `IsIncome = false`, `CategoryId = null` y `Description = null`, frente a introducir otro método de dominio.
-- Para el estado del resumen, evaluar si el cambio pertenece a un método del dominio o a la operación de pagos. Considerar qué datos requiere cada alternativa y evitar cargar todas las cuotas, compras y cargos solo para calcular el estado; consultar/proyectar únicamente los valores necesarios cuando sea posible.
-- La decisión debe preservar las invariantes del modelo, respetar la semántica de soft delete y mantener eficiente la carga de datos.
+- `CreditCardStatementPayment` crea su transacción en el constructor y la actualiza reutilizando `Transaction.Update` con los valores propios de un pago.
+- `CreditCardStatement` mantiene la transición de estado mediante datos mínimos calculados por la operación.
+- La operación bulk carga primero el resumen y luego sus pagos con sus transacciones; las monedas de cuotas y cargos se consultan mediante proyecciones mínimas.
+- Al eliminar un pago se elimina la asociación y se aplica soft delete a su transacción.
+- La solución preserva las invariantes del modelo y evita cargar compras y suscripciones completas solo para calcular el estado.
 
 Frontend:
 
@@ -674,7 +697,6 @@ El usuario puede eliminar o modificar items aunque exista un pago relacionado. S
 ### Fase 5: Mejoras de integridad
 
 - Protección contra condiciones de carrera en asignación de cuotas.
-- Índice único para `CreditCardStatementPayment.TransactionId`.
 - Pruebas automatizadas de integridad, concurrencia y eliminación.
 - Ajustes derivados de esas pruebas y del comportamiento de soft delete.
 

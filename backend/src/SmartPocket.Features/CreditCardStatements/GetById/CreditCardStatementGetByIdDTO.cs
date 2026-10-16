@@ -1,3 +1,5 @@
+using SmartPocket.Features.Transactions;
+
 namespace SmartPocket.Features.CreditCardStatements.GetById
 {
     public class CreditCardStatementGetByIdDTO
@@ -35,10 +37,14 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
 
     public class CreditCardStatementTotalsDTO
     {
-        public decimal TotalItemsInCardCurrency { get; set; }
-        public decimal? TotalItemsInUsd { get; set; }
-        public decimal? TotalPaidInCardCurrency { get; set; }
-        public decimal? TotalPaidInUsd { get; set; }
+        public List<CreditCardStatementCurrencySummaryDTO> CurrencySummaries { get; set; } = [];
+    }
+
+    public class CreditCardStatementCurrencySummaryDTO
+    {
+        public string CurrencyCode { get; set; } = string.Empty;
+        public decimal IncludedAmount { get; set; }
+        public MoneyDTO? Payment { get; set; }
     }
 
     public class IncludedPurchaseDTO

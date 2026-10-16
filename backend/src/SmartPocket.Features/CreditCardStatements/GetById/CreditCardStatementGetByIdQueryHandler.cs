@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using SmartPocket.Domain.Configurations;
 using SmartPocket.Domain.CreditCards;
 using SmartPocket.Features.Abstractions.Handlers;
+using SmartPocket.Features.Transactions;
 using SmartPocket.Persistence;
 
 namespace SmartPocket.Features.CreditCardStatements.GetById
@@ -26,8 +26,7 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
                     x.Description,
                     x.ClosingDate,
                     x.DueDate,
-                    x.Status,
-                    CardCurrencyCode = x.CreditCard.CurrencyCode
+                    x.Status
                 })
                 .FirstOrDefaultAsync(cancellation);
 
@@ -90,9 +89,28 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
                 })
                 .ToListAsync(cancellation);
 
-            var includedAmounts = includedInstallments
+            var paymentsByCoveredCurrency = await _smartPocketContext.Query<CreditCardStatementPayment>()
+                .Where(x => x.CreditCardStatementId == id)
+                .ToDictionaryAsync(
+                    x => x.CoveredCurrencyCode,
+                    x => new MoneyDTO
+                    {
+                        Amount = x.Transaction.Amount,
+                        CurrencyCode = x.Transaction.Account.CurrencyCode
+                    },
+                    cancellation);
+
+            var currencySummaries = includedInstallments
                 .Select(x => new { x.Amount, x.CurrencyCode })
                 .Concat(includedCharges.Select(x => new { x.Amount, x.CurrencyCode }))
+                .GroupBy(x => x.CurrencyCode)
+                .OrderBy(x => x.Key)
+                .Select(currencyGroup => new CreditCardStatementCurrencySummaryDTO
+                {
+                    CurrencyCode = currencyGroup.Key,
+                    IncludedAmount = currencyGroup.Sum(x => x.Amount),
+                    Payment = paymentsByCoveredCurrency.GetValueOrDefault(currencyGroup.Key)
+                })
                 .ToList();
 
             return new CreditCardStatementGetByIdDTO
@@ -109,12 +127,7 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
                 IncludedChargeItems = includedCharges,
                 Totals = new CreditCardStatementTotalsDTO
                 {
-                    TotalItemsInCardCurrency = includedAmounts
-                        .Where(x => x.CurrencyCode == statement.CardCurrencyCode)
-                        .Sum(x => x.Amount),
-                    TotalItemsInUsd = includedAmounts
-                        .Where(x => x.CurrencyCode == Currency.USD.Code)
-                        .Sum(x => (decimal?)x.Amount)
+                    CurrencySummaries = currencySummaries
                 }
             };
         }

@@ -4,7 +4,7 @@ using SmartPocket.Features.CreditCardStatements.Delete;
 using SmartPocket.Features.CreditCardStatements.GetById;
 using SmartPocket.Features.CreditCardStatements.List;
 using SmartPocket.Features.CreditCardStatements.Payments.Get;
-using SmartPocket.Features.CreditCardStatements.Payments.Update;
+using SmartPocket.Features.CreditCardStatements.Payments.Bulk;
 using SmartPocket.Features.CreditCardStatements.Suggestions;
 using SmartPocket.Features.CreditCardStatements.Update;
 using SmartPocket.Persistence.PagedQuery;
@@ -100,12 +100,12 @@ namespace SmartPocket.WebApi.Controllers
 
         [HttpPut("{statementId}/payments")]
         public async Task<ActionResult> UpdatePayments(
-            [FromServices] CreditCardStatementPaymentsUpdateCommandHandler handler,
+            [FromServices] CreditCardStatementPaymentsBulkCommandHandler handler,
             [FromRoute] int statementId,
             [FromBody] CreditCardStatementPaymentsUpdateBody body,
             CancellationToken cancellation)
         {
-            var command = new CreditCardStatementPaymentsUpdateCommand
+            var command = new CreditCardStatementPaymentsBulkCommand
             {
                 StatementId = statementId,
                 Payments = body.Payments

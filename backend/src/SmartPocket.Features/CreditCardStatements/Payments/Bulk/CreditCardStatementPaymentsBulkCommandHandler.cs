@@ -7,24 +7,22 @@ using SmartPocket.Features.Shared.Validators;
 using SmartPocket.Persistence;
 using SmartPocket.SharedKernel.Errors;
 
-namespace SmartPocket.Features.CreditCardStatements.Payments.Update
+namespace SmartPocket.Features.CreditCardStatements.Payments.Bulk
 {
-    public class CreditCardStatementPaymentsUpdateCommandHandler : IHandler
+    public class CreditCardStatementPaymentsBulkCommandHandler : IHandler
     {
         private readonly ISmartPocketContext _smartPocketContext;
-        private readonly IValidator<CreditCardStatementPaymentsUpdateCommand> _validator;
+        private readonly IValidator<CreditCardStatementPaymentsBulkCommand> _validator;
 
-        public CreditCardStatementPaymentsUpdateCommandHandler(
+        public CreditCardStatementPaymentsBulkCommandHandler(
             ISmartPocketContext smartPocketContext,
-            IValidator<CreditCardStatementPaymentsUpdateCommand> validator)
+            IValidator<CreditCardStatementPaymentsBulkCommand> validator)
         {
             _smartPocketContext = smartPocketContext;
             _validator = validator;
         }
 
-        public async Task<ErrorDetailList> Update(
-            CreditCardStatementPaymentsUpdateCommand command,
-            CancellationToken cancellation)
+        public async Task<ErrorDetailList> Update(CreditCardStatementPaymentsBulkCommand command, CancellationToken cancellation)
         {
             var validations = await _validator.ValidateCommand(command, cancellation);
             if (validations.IsNotValid)
@@ -44,7 +42,7 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Update
             var payments = await _smartPocketContext.Query<CreditCardStatementPayment>()
                 .Where(x => x.CreditCardStatementId == statement.Id)
                 .Include(x => x.Transaction)
-                .ToListAsync(cancellation);
+                .ToDictionaryAsync(x => x.Id, cancellation);
 
             var itemCurrencies = await GetItemCurrencies(statement.Id, cancellation);
             var paymentCurrencies = command.Payments
@@ -52,35 +50,35 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Update
                 .ToHashSet(StringComparer.Ordinal);
 
             var validationError = await ValidateSynchronization(
-                statement,
-                payments,
-                itemCurrencies,
-                paymentCurrencies,
-                command.Payments,
-                cancellation);
+                statement: statement,
+                existingPaymentIds: payments.Keys.ToHashSet(),
+                itemCurrencies: itemCurrencies,
+                paymentCurrencies: paymentCurrencies,
+                desiredPayments: command.Payments,
+                cancellation: cancellation);
 
-            if (validationError is not null)
+            if (validationError.HasValue)
             {
-                return validationError;
+                return new ErrorDetailList(validationError.Value);
             }
-
-            var paymentsById = payments.ToDictionary(x => x.Id);
             var desiredPaymentIds = command.Payments
                 .Where(x => x.Id.HasValue)
                 .Select(x => x.Id!.Value)
                 .ToHashSet();
 
-            foreach (var payment in payments.Where(x => !desiredPaymentIds.Contains(x.Id)))
+            foreach (var payment in payments.Where(x => !desiredPaymentIds.Contains(x.Value.Id)))
             {
-                _smartPocketContext.DeleteEntity(payment);
-                _smartPocketContext.DeleteEntity(payment.Transaction);
+                _smartPocketContext.DeleteEntity(payment.Value);
+                _smartPocketContext.DeleteEntity(payment.Value.Transaction);
             }
 
             foreach (var desiredPayment in command.Payments)
             {
                 if (desiredPayment.Id is int paymentId)
                 {
-                    paymentsById[paymentId].Update(
+                    var payment = payments[paymentId];
+
+                    payment.Update(
                         accountId: desiredPayment.AccountId,
                         amount: desiredPayment.Amount,
                         effectiveDate: desiredPayment.EffectiveDate,
@@ -108,18 +106,14 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Update
             return ErrorDetailList.Empty;
         }
 
-        private async Task<ErrorDetailList?> ValidateSynchronization(
+        private async Task<ErrorDetail?> ValidateSynchronization(
             CreditCardStatement statement,
-            IReadOnlyCollection<CreditCardStatementPayment> payments,
+            ISet<int> existingPaymentIds,
             IReadOnlyCollection<string> itemCurrencies,
             IReadOnlySet<string> paymentCurrencies,
             IReadOnlyCollection<CreditCardStatementPaymentUpdateItem> desiredPayments,
             CancellationToken cancellation)
         {
-            var existingPaymentIds = payments
-                .Select(x => x.Id)
-                .ToHashSet();
-
             var unknownPaymentId = desiredPayments
                 .Where(x => x.Id.HasValue)
                 .Select(x => x.Id!.Value)
@@ -127,7 +121,7 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Update
 
             if (unknownPaymentId != 0)
             {
-                return new ErrorDetailList(
+                return new ErrorDetail(
                     $"El pago con ID {unknownPaymentId} no existe o no pertenece al resumen especificado.");
             }
 
@@ -136,7 +130,7 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Update
 
             if (unknownCurrency is not null)
             {
-                return new ErrorDetailList(
+                return new ErrorDetail(
                     $"La moneda cubierta '{unknownCurrency}' no existe entre los items del resumen.");
             }
 
@@ -151,7 +145,7 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Update
 
             if (existingAccountCount != accountIds.Length)
             {
-                return new ErrorDetailList("Una o más cuentas no existen.");
+                return new ErrorDetail("Una o más cuentas no existen.");
             }
 
             var invalidDate = desiredPayments
@@ -159,7 +153,7 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Update
 
             if (invalidDate is not null)
             {
-                return new ErrorDetailList(
+                return new ErrorDetail(
                     "La fecha efectiva de cada pago debe ser posterior a la fecha de cierre del resumen.");
             }
 

@@ -1,6 +1,6 @@
-namespace SmartPocket.Features.CreditCardStatements.Payments.Update
+namespace SmartPocket.Features.CreditCardStatements.Payments.Bulk
 {
-    public class CreditCardStatementPaymentsUpdateCommand
+    public class CreditCardStatementPaymentsBulkCommand
     {
         public int StatementId { get; set; }
         public CreditCardStatementPaymentUpdateItem[] Payments { get; set; } = [];

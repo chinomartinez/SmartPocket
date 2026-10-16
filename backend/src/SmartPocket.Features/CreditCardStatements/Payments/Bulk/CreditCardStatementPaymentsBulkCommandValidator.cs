@@ -1,12 +1,12 @@
 using FluentValidation;
 using SmartPocket.Features.Shared.Validators;
 
-namespace SmartPocket.Features.CreditCardStatements.Payments.Update
+namespace SmartPocket.Features.CreditCardStatements.Payments.Bulk
 {
-    public class CreditCardStatementPaymentsUpdateCommandValidator
-        : AbstractValidator<CreditCardStatementPaymentsUpdateCommand>
+    public class CreditCardStatementPaymentsBulkCommandValidator
+        : AbstractValidator<CreditCardStatementPaymentsBulkCommand>
     {
-        public CreditCardStatementPaymentsUpdateCommandValidator()
+        public CreditCardStatementPaymentsBulkCommandValidator()
         {
             RuleFor(x => x.StatementId)
                 .GreaterThan(0);
@@ -18,10 +18,8 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Update
                 .WithMessage("No puede existir más de un pago por moneda cubierta.")
                 .Must(payments => payments is null ||
                     payments.Where(x => x.Id.HasValue).Select(x => x.Id!.Value).Distinct().Count() == payments.Count(x => x.Id.HasValue))
-                .WithMessage("Los pagos no deben contener IDs duplicados.");
-
-            RuleForEach(x => x.Payments)
-                .SetValidator(new CreditCardStatementPaymentUpdateItemValidator());
+                .WithMessage("Los pagos no deben contener IDs duplicados.")
+                .ForEach(x => x.SetValidator(new CreditCardStatementPaymentUpdateItemValidator()));
         }
     }
 

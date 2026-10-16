@@ -694,6 +694,21 @@ Al eliminar un resumen pago:
 
 El usuario puede eliminar o modificar items aunque exista un pago relacionado. SmartPocket registra decisiones manuales del usuario y no intenta imponer reglas bancarias. La UI debe advertir antes de agregar o eliminar cuotas o cargos cuando el resumen ya tiene pagos, porque el conjunto de monedas cubiertas puede cambiar y dejar el resumen inconsistente hasta que el usuario ajuste sus pagos.
 
+## No olvidar
+
+### Totales pagados en el listado de resúmenes
+
+Antes de cerrar la Iteración 4 se debe decidir cómo mostrar los totales pagados en el listado
+paginado de resúmenes:
+
+- Reutilizar `currencySummaries` en cada item del listado.
+- Agregar campos compactos para la moneda de la tarjeta y otras monedas relevantes.
+- No incluir totales pagados en el listado y mostrarlos únicamente en el detalle.
+
+Esta decisión queda pendiente para la etapa final, después de definir qué información debe
+mostrarse y cómo se adaptará al diseño responsive. Debe resolverse conjuntamente en backend y
+frontend; no implementar esta parte antes de cerrar esa definición visual y funcional.
+
 ### Fase 5: Mejoras de integridad
 
 - Protección contra condiciones de carrera en asignación de cuotas.

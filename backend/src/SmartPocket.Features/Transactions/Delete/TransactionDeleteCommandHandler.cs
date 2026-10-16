@@ -25,9 +25,9 @@ namespace SmartPocket.Features.Transactions.Delete
                 return new ErrorDetailList($"Transacción con ID {id} no encontrada.");
             }
 
-            if (entity.TransactionSourceId == TransactionSourceType.CreditCardStatementPayment)
+            if (entity.TransactionSourceId != TransactionSourceType.ManualEntry)
             {
-                return new ErrorDetailList("Los pagos de resúmenes deben eliminarse desde el resumen de tarjeta de crédito.");
+                return new ErrorDetailList($"La transacción con ID {id} no puede ser eliminada porque no es de tipo 'ManualEntry'.");
             }
 
             _smartPocketContext.DeleteEntity(entity);

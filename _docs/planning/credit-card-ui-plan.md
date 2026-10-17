@@ -4,7 +4,9 @@
 
 Definir el primer diseño de interfaz para el módulo de tarjetas de crédito antes de implementar la UI y consumir los endpoints. El plan busca servir como contexto para futuras sesiones de desarrollo y puede cambiar a medida que se valide la experiencia.
 
-Este documento describe la UI inicial. No reemplaza los FRs de la fase 3.10 del roadmap ni pretende cerrar todavía el contrato de resúmenes y pagos.
+Este documento describe la UI global inicial. No reemplaza los FRs de la fase 3.10 del roadmap.
+Los contratos y decisiones específicas de resúmenes y pagos se encuentran en
+`_docs/planning/credit-card-statements-plan.md`.
 
 ## 1.1. Modelo mental del módulo
 
@@ -152,16 +154,15 @@ Esta sección forma parte del primer layout, pero su contenido exacto queda suje
 
 ### 5.1 Primera versión visual
 
-Usar un listado compacto por resumen, con información suficiente para identificarlo sin competir visualmente con las compras:
+Usar un listado compacto por resumen, con información suficiente para identificarlo sin competir visualmente con las compras. El contrato detallado está definido en `credit-card-statements-plan.md`.
 
 - Fecha de cierre.
 - Fecha de vencimiento real.
-- Estado: cerrado o pagado.
-- Total incluido.
-- Total pagado, si está disponible.
-- Diferencia, si está disponible.
-- Cantidad de cuotas/pagos incluidos.
-- Acción para ver o gestionar.
+- Estado: cerrado, parcialmente pagado o pagado.
+- Totales incluidos agrupados por cualquier moneda.
+- Pago por moneda, sólo cuando exista, mostrando importe y moneda real de la cuenta.
+- Cantidad de cuotas y cargos incluidos.
+- Acciones separadas para editar el resumen y gestionar pagos.
 
 El listado debe ordenarse por fecha de cierre descendente, mostrando primero el resumen más reciente.
 
@@ -174,16 +175,18 @@ El flujo previsto para crear un resumen es:
 3. Selecciona o confirma la fecha de vencimiento real.
 4. La UI consulta un preview no persistido.
 5. Se muestran grupos de ítems sugeridos y atrasados.
-6. El usuario incluye o excluye cuotas y pagos.
+6. El usuario incluye o excluye cuotas y cargos.
 7. El usuario confirma y se crea el resumen.
 
 El preview debe diferenciar visualmente sugeridos de atrasados y mantener visible el origen del consumo. No se debe implementar como un formulario de cuotas independientes.
 
 ### 5.3 Acciones condicionadas por estado
 
-- Resumen cerrado sin pagar: editar o eliminar.
-- Resumen pagado: consultar y gestionar pagos, sin modificar las cuotas incluidas.
-- Eliminación de resumen: confirmación explícita e información sobre la devolución de cuotas al pool.
+- Resumen cerrado: editar, gestionar pagos o eliminar.
+- Resumen parcialmente pagado: editar, gestionar pagos o eliminar, respetando las validaciones de monedas cubiertas.
+- Resumen pagado: editar, gestionar pagos o eliminar; el estado no bloquea la edición de items.
+- Gestionar pagos: diálogo independiente con el detalle cronológico de items y edición bulk de pagos.
+- Eliminación de resumen: confirmación explícita sobre la devolución de cuotas, eliminación de cargos y eliminación de pagos y sus transacciones asociadas.
 
 Hasta contar con endpoints de listado, detalle, preview, eliminación y pagos, la UI puede incluir el bloque como placeholder funcional o limitarse a la estructura visual, sin inventar datos persistidos.
 
@@ -291,7 +294,7 @@ Los servicios y hooks de API viven en `webapp/src/api/services/credit-cards/` y 
 
 - Listado compacto.
 - Nuevo resumen y preview.
-- Selección de cuotas/pagos.
+- Selección de cuotas y cargos.
 - Confirmación, edición y eliminación según estado.
 
 **Estado:** pendiente. El bloque visual existe con datos mock; todavía no consume el CRUD real de resúmenes ni existe el preview de candidatos.
@@ -300,10 +303,13 @@ Los servicios y hooks de API viven en `webapp/src/api/services/credit-cards/` y 
 
 - Asociación de transacciones a un resumen.
 - Pagos en múltiples monedas.
-- Totales incluido/pagado/diferencia.
-- Edición y eliminación con confirmaciones.
+- Totales incluidos y pagos por moneda, sin calcular diferencias entre monedas.
+- Edición local y persistencia bulk.
+- Gestión de pagos en un diálogo independiente del formulario de resumen.
+- Edición y eliminación con confirmaciones y validaciones de integridad.
 
-**Estado:** pendiente. Depende del contrato definitivo de resúmenes y pagos.
+**Estado:** contrato funcional y decisiones de UI definidos en
+`_docs/planning/credit-card-statements-plan.md`; implementación frontend pendiente.
 
 ## 10. Fechas de tarjetas y resúmenes
 
@@ -379,17 +385,13 @@ Las métricas actuales se calculan desde el overview de SmartPocket y se present
 - La actividad utiliza un read model unificado sin unificar las entidades de dominio.
 - El bloque de resúmenes continúa utilizando datos mock y todavía no está conectado a API.
 - El preview de resúmenes, la selección de cuotas/cargos y los pagos todavía no están implementados.
-- Los resúmenes utilizan conceptualmente los estados `Closed` y `Paid`.
+- Los resúmenes utilizan los estados `Closed`, `PartiallyPaid` y `Paid`.
 
 ## 11. Decisiones abiertas
 
 - Qué métricas adicionales mostrar en cada card de tarjeta, más allá del overview actual.
 - Si el detalle de la tarjeta usa tabs, secciones apiladas o un layout con dos columnas.
-- Qué información mínima debe mostrar cada resumen en el listado.
-- Si el detalle de resumen se abre en dialog, drawer o una ruta propia.
-- Cómo se visualizan importes en tarjetas con compras en ARS y USD.
 - Si el usuario puede crear un resumen desde el encabezado de la sección o desde una card de resumen vacía.
-- Qué endpoints de resumen y pagos estarán disponibles antes de comenzar la Iteración 3.
 - Contrato del preview y reglas para sugerir cuotas y cargos.
 - Cómo se determina la inclusión de una suscripción en un resumen nuevo.
 - Confirmar colores y badges definitivos para estados de compras y suscripciones.
@@ -398,8 +400,7 @@ Las métricas actuales se calculan desde el overview de SmartPocket y se present
 
 - Confirmar la información mínima de la card de tarjeta.
 - Mantener el listado combinado de compras y suscripciones con filtros por tipo.
-- Confirmar la información mínima del resumen compacto.
-- Identificar endpoints disponibles y endpoints faltantes para resúmenes, preview y pagos.
+- Consultar `_docs/planning/credit-card-statements-plan.md` para los contratos y decisiones de resúmenes y pagos.
 - Validar el flujo mobile del carrusel y de los formularios.
 - Mantener los cambios de FRs del roadmap sincronizados si las decisiones de producto modifican el alcance.
 

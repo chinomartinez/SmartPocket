@@ -42,6 +42,16 @@ namespace SmartPocket.Features.CreditCardStatements.Update
                 return new ErrorDetailList("No se puede cambiar la tarjeta del resumen.");
             }
 
+            var hasPayments = await _smartPocketContext.Query<CreditCardStatementPayment>()
+                .Where(x => x.CreditCardStatementId == statement.Id)
+                .AnyAsync(cancellation);
+
+            if (hasPayments)
+            {
+                return new ErrorDetailList(
+                    "No se puede editar un resumen con pagos asociados. Elimine primero todos los pagos.");
+            }
+
             statement.Update(command.Description, command.ClosingDate, command.DueDate);
 
             var installmentsError = await SyncInstallments(statement, command, cancellation);

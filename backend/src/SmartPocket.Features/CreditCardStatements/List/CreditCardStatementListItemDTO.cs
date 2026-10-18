@@ -1,3 +1,5 @@
+using SmartPocket.Features.CreditCardStatements.Shared;
+
 namespace SmartPocket.Features.CreditCardStatements.List
 {
     public class CreditCardStatementListItemDTO
@@ -8,8 +10,7 @@ namespace SmartPocket.Features.CreditCardStatements.List
         public DateTime ClosingDate { get; set; }
         public DateTime DueDate { get; set; }
         public string Status { get; set; } = string.Empty;
-        public decimal TotalItemsInCardCurrency { get; set; }
-        public decimal? TotalItemsInUsd { get; set; }
+        public CreditCardStatementTotalsDTO Totals { get; set; } = new();
         public int InstallmentsCount { get; set; }
         public int ChargesCount { get; set; }
     }

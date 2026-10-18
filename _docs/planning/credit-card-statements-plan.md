@@ -384,11 +384,13 @@ DELETE /CreditCardStatements/{id}
 
 La operación utiliza el tracking existente del contexto y se persiste con una única llamada a `SaveChangesAsync`:
 
-1. Cargar cuotas y cargos del resumen.
+1. Cargar cuotas, cargos y pagos del resumen.
 2. Desvincular todas las cuotas.
 3. Eliminar físicamente todos los cargos.
-4. Eliminar el resumen mediante el mecanismo de soft delete existente.
-5. Guardar los cambios.
+4. Eliminar las relaciones de pagos.
+5. Aplicar soft delete a las transacciones de pago.
+6. Eliminar el resumen mediante el mecanismo de soft delete existente.
+7. Guardar los cambios.
 
 La UI debe informar que las cuotas vuelven a estar disponibles para futuros resúmenes, que los
 cargos registrados dentro de SmartPocket serán eliminados y que los pagos y sus transacciones

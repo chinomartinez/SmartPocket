@@ -84,7 +84,7 @@ Responsive:
 Debajo del selector se muestra el detalle de la tarjeta activa. El contenido se organiza en dos bloques principales:
 
 1. **Compras y suscripciones**: listado operativo y acciones CRUD.
-2. **Resúmenes**: listado compacto de resúmenes y acceso a su detalle cuando exista suficiente API.
+2. **Resúmenes**: listado compacto de resúmenes y acceso a su detalle mediante los contratos existentes.
 
 El contenido debe actualizarse al cambiar de tarjeta sin recargar la página completa.
 
@@ -150,7 +150,8 @@ Reglas de interacción:
 
 ## 5. Sección Resúmenes
 
-Esta sección forma parte del primer layout, pero su contenido exacto queda sujeto a la API que todavía falta definir.
+Esta sección forma parte del primer layout y utiliza los contratos definidos en
+`credit-card-statements-plan.md`.
 
 ### 5.1 Primera versión visual
 
@@ -174,21 +175,26 @@ El flujo previsto para crear un resumen es:
 2. Selecciona o confirma la fecha de cierre real.
 3. Selecciona o confirma la fecha de vencimiento real.
 4. La UI consulta un preview no persistido.
-5. Se muestran grupos de ítems sugeridos y atrasados.
+5. Se muestran los ítems sugeridos manteniendo visible su origen y fecha efectiva.
 6. El usuario incluye o excluye cuotas y cargos.
 7. El usuario confirma y se crea el resumen.
 
-El preview debe diferenciar visualmente sugeridos de atrasados y mantener visible el origen del consumo. No se debe implementar como un formulario de cuotas independientes.
+El preview debe diferenciar visualmente los ítems sugeridos y mantener visible el origen del consumo. No se debe implementar como un formulario de cuotas independientes.
 
 ### 5.3 Acciones condicionadas por estado
 
 - Resumen cerrado: editar, gestionar pagos o eliminar.
-- Resumen parcialmente pagado: editar, gestionar pagos o eliminar, respetando las validaciones de monedas cubiertas.
-- Resumen pagado: editar, gestionar pagos o eliminar; el estado no bloquea la edición de items.
+- Resumen parcialmente pagado: gestionar pagos o eliminar. La edición está bloqueada mientras existan pagos.
+- Resumen pagado: gestionar pagos o eliminar. La edición está bloqueada mientras existan pagos.
 - Gestionar pagos: diálogo independiente con el detalle cronológico de items y edición bulk de pagos.
 - Eliminación de resumen: confirmación explícita sobre la devolución de cuotas, eliminación de cargos y eliminación de pagos y sus transacciones asociadas.
 
-Hasta contar con endpoints de listado, detalle, preview, eliminación y pagos, la UI puede incluir el bloque como placeholder funcional o limitarse a la estructura visual, sin inventar datos persistidos.
+La edición de cuotas, cargos y datos del resumen sólo está disponible cuando el resumen está
+`Closed`. Para editar un resumen `PartiallyPaid` o `Paid`, el usuario debe eliminar primero todos
+los pagos desde `Gestionar pagos`. La UI debe explicar esta restricción en la acción deshabilitada
+y ofrecer acceso directo a la gestión de pagos.
+
+La UI debe consumir los endpoints existentes de listado, detalle, preview, eliminación y pagos, sin inventar datos persistidos. Mientras se implementa la integración, puede conservarse el bloque visual como placeholder técnico.
 
 ## 6. Estados de la pantalla
 

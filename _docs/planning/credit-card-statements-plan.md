@@ -367,16 +367,12 @@ Para cargos:
 - Cargo existente ausente: se elimina.
 - Cargo duplicado: error.
 
-La edición está permitida tanto para resúmenes `Closed`, `PartiallyPaid` como `Paid`.
+La edición de cuotas, cargos y datos del resumen sólo está permitida cuando el estado es `Closed`.
+Los resúmenes `PartiallyPaid` y `Paid` no pueden editarse mientras tengan pagos asociados.
 
-Modificar el monto o los datos propios de un item no altera la moneda cubierta. En cambio,
-agregar o eliminar cuotas o cargos puede modificar el conjunto de monedas del resumen cuando
-existen pagos asociados. La UI debe advertir antes del primer cambio que pueda modificar ese
-conjunto de monedas. Si el cambio intenta eliminar todos los items de una moneda que tiene pagos,
-el frontend debe impedir la acción y el backend debe rechazarla como protección definitiva.
-
-Agregar una nueva moneda está permitido y puede dejar el resumen en estado `PartiallyPaid` hasta
-que se registre un pago para esa moneda.
+Para editar un resumen con pagos, el usuario debe eliminarlos primero mediante el contrato bulk de
+pagos enviando un conjunto vacío. Luego puede modificar cuotas, cargos y datos del resumen, y
+registrar nuevamente los pagos que correspondan.
 
 ### 7.3. Eliminar resumen
 
@@ -503,16 +499,14 @@ Incluido: 15.000 ARS
 
 ### 9.3. Pagos
 
-Como preparación para Iteración 4:
-
 - `CreditCardStatementPayment.TransactionId` debe tener un índice único.
 - Una transacción no debe asociarse a más de un resumen.
-- La asociación debe validar la relación con la cuenta y la moneda cuando se implemente la feature de pagos.
+- La asociación valida la relación con la cuenta y la moneda cubierta.
 - Debe existir como máximo un pago por cada moneda cubierta del resumen.
 - El monto del pago no se compara contra el total de items.
 - Un pago puede registrarse desde una cuenta ARS para cubrir items USD, sin conversión automática.
 - `CoveredCurrencyCode` debe existir entre las monedas de los items incluidos.
-- Una actualización del resumen no puede eliminar todos los items de una moneda que tiene un pago asociado.
+- Un resumen `PartiallyPaid` o `Paid` no puede actualizarse mientras tenga pagos asociados.
 - El monto del pago debe ser mayor que cero; no se impone un máximo basado en el total de items.
 - La fecha del pago debe cumplir `ClosingDate < PaymentDate <= Today(UtcNow)`.
 - La cuenta se selecciona entre las cuentas activas disponibles, sin filtrar por la moneda cubierta.
@@ -585,17 +579,11 @@ La creación no incluye pagos. Una vez persistido el resumen, el usuario puede u
 5. Mantiene seleccionados sólo los items incluidos.
 6. Permite modificar la fecha de cierre y recalcular sugerencias.
 7. Permite modificar fechas, cuotas y cargos.
-8. Permite modificar un resumen `Closed`, `PartiallyPaid` o `Paid`.
+8. Permite modificar un resumen `Closed`.
 9. Confirma mediante el comando de actualización.
 
-Si el resumen tiene pagos asociados, la UI debe mostrar una advertencia antes del primer cambio
-que pueda modificar el conjunto de monedas cubiertas. La advertencia no es necesaria para
-modificar únicamente montos u otros datos que no cambien las monedas de los items.
-
-Si el usuario intenta quitar el último item de una moneda que tiene un pago asociado, la UI debe
-impedir la acción y ofrecer acceso a `Gestionar pagos`. El backend debe aplicar la misma regla como
-protección definitiva. Agregar una nueva moneda se permite, aunque puede dejar el resumen en
-`PartiallyPaid`.
+Si el resumen está `PartiallyPaid` o `Paid`, la UI debe bloquear la edición y ofrecer acceso a
+`Gestionar pagos`. El usuario debe eliminar todos los pagos antes de volver a editar el resumen.
 
 No se deben mostrar cuotas como formularios independientes. Los items incluidos y sugeridos se muestran en listas planas, ordenadas por fecha efectiva, y cada fila identifica su tipo mediante `Cuota N` o `Cargo N`.
 
@@ -749,7 +737,7 @@ Backend — estado actual:
 - [x] Recalcular el estado según las monedas cubiertas, no según igualdad de importes.
 - [x] Devolver `currencySummaries` en el detalle, con el monto real del pago mediante `MoneyDTO`.
 - [x] Crear el índice único de `CreditCardStatementPayment.TransactionId`.
-- [ ] Rechazar la actualización de un resumen que elimine todos los items de una moneda con pagos asociados.
+- [ ] Rechazar la actualización de un resumen `PartiallyPaid` o `Paid` mientras tenga pagos asociados.
 
 El listado paginado debe devolver también `currencySummaries` con el pago nullable para cada moneda.
 
@@ -770,6 +758,7 @@ Frontend:
 - [ ] Mantener explícita la ausencia de conversión automática.
 - [ ] Mostrar una tabla cronológica de cuotas y cargos, con columnas dinámicas por moneda.
 - [ ] Mostrar acciones independientes `Editar resumen` y `Gestionar pagos` en cada tarjeta.
+- [ ] Bloquear `Editar resumen` cuando el resumen tenga pagos y ofrecer acceso a `Gestionar pagos`.
 - [ ] Mantener un borrador local y guardar pagos mediante una única mutación bulk.
 - [ ] Implementar confirmación al descartar cambios al cambiar entre ambos diálogos.
 - [ ] Implementar loading, errores, validaciones locales y preservación del borrador ante errores.
@@ -845,11 +834,10 @@ Al eliminar un resumen pago:
 4. Se aplica soft delete a las transacciones de pago.
 5. Se aplica soft delete al resumen.
 
-El usuario puede modificar items aunque exista un pago relacionado, pero no puede eliminar todos
-los items de una moneda que tenga pagos asociados. La UI debe advertir antes del primer cambio que
-pueda modificar las monedas cubiertas y debe bloquear preventivamente esa eliminación. El backend
-aplica la misma regla como protección definitiva. Agregar una nueva moneda está permitido y puede
-dejar el resumen en estado `PartiallyPaid` hasta que el usuario ajuste sus pagos.
+El usuario sólo puede modificar items y datos del resumen cuando éste está `Closed`. Los resúmenes
+`PartiallyPaid` y `Paid` deben desbloquearse eliminando primero todos sus pagos mediante la
+operación bulk. La UI debe comunicar la restricción y ofrecer acceso a `Gestionar pagos`; el backend
+aplica la misma regla como protección definitiva.
 
 ## No olvidar
 
@@ -881,7 +869,7 @@ Las mejoras de concurrencia y las pruebas automatizadas no bloquean el avance ha
 - Cálculo mensual de cargos aprobado.
 - Comportamiento de cargos faltantes aprobado.
 - Eliminación de cargos y desvinculación de cuotas definida.
-- Edición de resúmenes `Closed`, `PartiallyPaid` y `Paid` confirmada.
+- Edición de resúmenes `Closed` confirmada; los estados `PartiallyPaid` y `Paid` requieren eliminar primero todos los pagos.
 - Totales por moneda definidos.
 - Pagos mantenidos fuera del flujo de creación y edición de items, pero contemplados en el contrato de detalle y en la Iteración 4.
 - Gestión de pagos independiente del diálogo de edición, con edición local y persistencia bulk.

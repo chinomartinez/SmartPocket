@@ -745,9 +745,12 @@ Backend — estado actual:
 - [x] Recalcular el estado según las monedas cubiertas, no según igualdad de importes.
 - [x] Devolver `currencySummaries` en el detalle, con el monto real del pago mediante `MoneyDTO`.
 - [x] Crear el índice único de `CreditCardStatementPayment.TransactionId`.
-- [ ] Rechazar la actualización de un resumen `PartiallyPaid` o `Paid` mientras tenga pagos asociados.
+- [x] Rechazar la actualización de un resumen `PartiallyPaid` o `Paid` mientras tenga pagos asociados.
 
-El listado paginado debe devolver también `currencySummaries` con el pago nullable para cada moneda.
+- [x] Devolver `currencySummaries` con el pago nullable para cada moneda en el listado paginado.
+
+El backend de la Iteración 4 está implementado. El frontend de pagos y las mejoras de concurrencia
+y pruebas automatizadas permanecen pendientes.
 
 #### Decisiones adoptadas del modelo de dominio
 

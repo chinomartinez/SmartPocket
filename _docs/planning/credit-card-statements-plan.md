@@ -697,13 +697,17 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 
 ### Fase 3: UI
 
-- Reemplazar mocks de `CreditCardStatementList`.
+- Mantener la integración real de `CreditCardStatementList` y sus formularios.
 - Incorporar paginación.
 - Crear los diálogos separados de edición del resumen y gestión de pagos.
 - Mostrar dos bloques visuales: detalle del resumen y sugerencias.
 - Ordenar cada bloque por fecha efectiva.
 - Implementar selección y edición de cargos.
 - Incorporar loading, error y empty states.
+
+**Estado:** la base de resúmenes ya está implementada en frontend y backend. El listado, detalle,
+sugerencias, creación, edición y eliminación consumen los contratos reales. Quedan las adaptaciones
+de pagos indicadas en la Iteración 4.
 
 ### Fase 4: Iteración 4 - Pagos
 

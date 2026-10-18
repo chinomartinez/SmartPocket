@@ -303,7 +303,10 @@ Los servicios y hooks de API viven en `webapp/src/api/services/credit-cards/` y 
 - Selección de cuotas y cargos.
 - Confirmación, edición y eliminación según estado.
 
-**Estado:** pendiente. El bloque visual existe con datos mock; todavía no consume el CRUD real de resúmenes ni existe el preview de candidatos.
+**Estado:** base implementada en frontend y backend. El listado, detalle, sugerencias, creación,
+edición y eliminación ya consumen los contratos reales. Quedan adaptaciones relacionadas con la
+Iteración 4: `PartiallyPaid`, `currencySummaries`, bloqueo de edición cuando existen pagos y la
+acción `Gestionar pagos`.
 
 ### Iteración 4: Pagos
 
@@ -389,8 +392,9 @@ Las métricas actuales se calculan desde el overview de SmartPocket y se present
 - Compras y suscripciones tienen formularios separados conectados a create/update/delete.
 - Las suscripciones activas pueden cancelarse desde el menú contextual.
 - La actividad utiliza un read model unificado sin unificar las entidades de dominio.
-- El bloque de resúmenes continúa utilizando datos mock y todavía no está conectado a API.
-- El preview de resúmenes, la selección de cuotas/cargos y los pagos todavía no están implementados.
+- El bloque de resúmenes consume el listado paginado, el detalle, las sugerencias y las mutations reales.
+- El preview de resúmenes, la selección de cuotas/cargos y la edición de items están implementados.
+- La adaptación a `currencySummaries`, el estado `PartiallyPaid`, el bloqueo de edición con pagos y la gestión de pagos todavía están pendientes.
 - Los resúmenes utilizan los estados `Closed`, `PartiallyPaid` y `Paid`.
 
 ## 11. Decisiones abiertas

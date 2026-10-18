@@ -73,7 +73,17 @@ export interface CreditCardActivityFilters {
 
 export type CreditCardActivityPage = PagedListResponse<CreditCardActivityListItemDTO>;
 
-export type CreditCardStatementStatus = "Closed" | "Paid";
+export type CreditCardStatementStatus = "Closed" | "PartiallyPaid" | "Paid";
+
+export interface CreditCardStatementCurrencySummaryDTO {
+  currencyCode: string;
+  includedAmount: number;
+  payment: MoneyDTO | null;
+}
+
+export interface CreditCardStatementTotalsDTO {
+  currencySummaries: CreditCardStatementCurrencySummaryDTO[];
+}
 
 export interface CreditCardStatementListItemDTO {
   id: number;
@@ -82,8 +92,7 @@ export interface CreditCardStatementListItemDTO {
   closingDate: string;
   dueDate: string;
   status: CreditCardStatementStatus;
-  totalItemsInCardCurrency: number;
-  totalItemsInUsd: number | null;
+  totals: CreditCardStatementTotalsDTO;
   installmentsCount: number;
   chargesCount: number;
 }
@@ -127,13 +136,6 @@ export interface CreditCardStatementChargeItemDTO {
 export interface CreditCardStatementSuggestionsDTO {
   suggestedInstallmentItems: CreditCardStatementInstallmentItemDTO[];
   suggestedChargeItems: CreditCardStatementChargeItemDTO[];
-}
-
-export interface CreditCardStatementTotalsDTO {
-  totalItemsInCardCurrency: number;
-  totalItemsInUsd: number | null;
-  totalPaidInCardCurrency: number | null;
-  totalPaidInUsd: number | null;
 }
 
 export interface CreditCardStatementDetailDTO extends CreditCardStatementListItemDTO {

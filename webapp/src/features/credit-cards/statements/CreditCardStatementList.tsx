@@ -38,6 +38,7 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
   };
 
   const handleOpenEdit = (statement: CreditCardStatementListItemDTO) => {
+    if (statement.status !== "Closed") return;
     setStatementToEdit(statement);
     setFormOpen(true);
   };
@@ -155,7 +156,7 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
         itemName={statementToDelete?.description ?? ""}
         itemType="resumen"
         title="¿Eliminar resumen?"
-        description="Las cuotas volverán a estar disponibles y los cargos de suscripción de este resumen se eliminarán de SmartPocket."
+         description="Las cuotas volverán a estar disponibles, los cargos se eliminarán y los pagos y sus transacciones asociadas se eliminarán de SmartPocket."
         isDeleting={deleteMutation.isPending}
       />
     </section>

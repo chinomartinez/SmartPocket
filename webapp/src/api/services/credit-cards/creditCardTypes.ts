@@ -175,6 +175,34 @@ export interface CreditCardStatementUpdateCommand {
   subsChargesForCreate: CreditCardStatementChargeCreateCommand[];
 }
 
+export interface CreditCardStatementPaymentAccountDTO {
+  id: number;
+  name: string;
+  currencyCode: string;
+  icon: IconDTO;
+}
+
+export interface CreditCardStatementPaymentDTO {
+  id: number;
+  transactionId: number;
+  account: CreditCardStatementPaymentAccountDTO;
+  amount: number;
+  effectiveDate: string;
+  coveredCurrencyCode: string;
+}
+
+export interface CreditCardStatementPaymentInput {
+  id: number | null;
+  accountId: number;
+  amount: number;
+  effectiveDate: string;
+  coveredCurrencyCode: string;
+}
+
+export interface CreditCardStatementPaymentsBulkCommand {
+  payments: CreditCardStatementPaymentInput[];
+}
+
 export interface CreditCardStatementChargeUpdateCommand {
   id: number;
   chargeNumber: number;

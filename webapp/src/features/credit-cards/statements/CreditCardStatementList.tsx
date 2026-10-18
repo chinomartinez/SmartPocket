@@ -10,6 +10,7 @@ import {
 import type { CreditCardStatementListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { CreditCardStatementFormDialog } from "./CreditCardStatementFormDialog";
 import { CreditCardStatementItem } from "./CreditCardStatementItem";
+import { CreditCardStatementPaymentsDialog } from "./CreditCardStatementPaymentsDialog";
 
 const PAGE_SIZE = 3;
 
@@ -22,6 +23,8 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
   const [page, setPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
   const [statementToEdit, setStatementToEdit] = useState<CreditCardStatementListItemDTO>();
+  const [statementToManagePayments, setStatementToManagePayments] =
+    useState<CreditCardStatementListItemDTO>();
   const [statementToDelete, setStatementToDelete] = useState<CreditCardStatementListItemDTO>();
   const statementsQuery = useCreditCardStatements({
     creditCardId: cardId,
@@ -45,6 +48,10 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
 
   const handleRequestDelete = (statement: CreditCardStatementListItemDTO) => {
     setStatementToDelete(statement);
+  };
+
+  const handleManagePayments = (statement: CreditCardStatementListItemDTO) => {
+    setStatementToManagePayments(statement);
   };
 
   const handleFormOpenChange = (open: boolean) => {
@@ -111,6 +118,7 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
                 statement={statement}
                 currencyCode={currencyCode}
                 onOpen={handleOpenEdit}
+                onManagePayments={handleManagePayments}
                 onDelete={handleRequestDelete}
               />
             ))}
@@ -149,6 +157,15 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
         open={formOpen}
         onOpenChange={handleFormOpenChange}
       />
+      {statementToManagePayments && (
+        <CreditCardStatementPaymentsDialog
+          statementId={statementToManagePayments.id}
+          open={Boolean(statementToManagePayments)}
+          onOpenChange={(open) => {
+            if (!open) setStatementToManagePayments(undefined);
+          }}
+        />
+      )}
       <DeleteConfirmationDialog
         open={Boolean(statementToDelete)}
         onOpenChange={handleDeleteOpenChange}

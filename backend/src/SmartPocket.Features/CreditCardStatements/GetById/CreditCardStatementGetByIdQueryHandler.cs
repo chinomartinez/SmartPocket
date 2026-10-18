@@ -93,12 +93,18 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
             var paymentsByCoveredCurrency = await _smartPocketContext.Query<CreditCardStatementPayment>()
                 .AsNoTracking()
                 .Where(x => x.CreditCardStatementId == id)
+                .Select(x => new
+                {
+                    x.CoveredCurrencyCode,
+                    x.Transaction.Amount,
+                    CurrencyCode = x.Transaction.Account.CurrencyCode
+                })
                 .ToDictionaryAsync(
                     x => x.CoveredCurrencyCode,
                     x => new MoneyDTO
                     {
-                        Amount = x.Transaction.Amount,
-                        CurrencyCode = x.Transaction.Account.CurrencyCode
+                        Amount = x.Amount,
+                        CurrencyCode = x.CurrencyCode
                     },
                     cancellation);
 

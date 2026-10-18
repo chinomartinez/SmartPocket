@@ -5,6 +5,8 @@ import type {
   CreditCardStatementDetailDTO,
   CreditCardStatementListItemDTO,
   CreditCardStatementListRequest,
+  CreditCardStatementPaymentsBulkCommand,
+  CreditCardStatementPaymentDTO,
   CreditCardStatementSuggestionsDTO,
   CreditCardStatementUpdateCommand,
 } from "./creditCardTypes";
@@ -42,5 +44,16 @@ export const creditCardStatementService = {
 
   delete: async (id: number) => {
     await spApiClient.delete(`/creditcardstatements/${id}`);
+  },
+
+  getPayments: async (statementId: number) => {
+    const response = await spApiClient.get<CreditCardStatementPaymentDTO[]>(
+      `/creditcardstatements/${statementId}/payments`,
+    );
+    return response.data;
+  },
+
+  updatePayments: async (statementId: number, data: CreditCardStatementPaymentsBulkCommand) => {
+    await spApiClient.put(`/creditcardstatements/${statementId}/payments`, data);
   },
 };

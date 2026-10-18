@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronRight, Trash2 } from "lucide-react";
+import { CalendarDays, ChevronRight, Trash2, WalletCards } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { CreditCardStatementListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
@@ -8,6 +8,7 @@ interface CreditCardStatementItemProps {
   statement: CreditCardStatementListItemDTO;
   currencyCode: string;
   onOpen: (statement: CreditCardStatementListItemDTO) => void;
+  onManagePayments: (statement: CreditCardStatementListItemDTO) => void;
   onDelete: (statement: CreditCardStatementListItemDTO) => void;
 }
 
@@ -15,6 +16,7 @@ export function CreditCardStatementItem({
   statement,
   currencyCode,
   onOpen,
+  onManagePayments,
   onDelete,
 }: CreditCardStatementItemProps) {
   const canEdit = statement.status === "Closed";
@@ -97,6 +99,15 @@ export function CreditCardStatementItem({
             <ChevronRight className="ml-1 inline size-3.5" />
           </span>
         </div>
+      </button>
+      <button
+        type="button"
+        aria-label={`Gestionar pagos de ${statement.description}`}
+        title="Gestionar pagos"
+        onClick={() => onManagePayments(statement)}
+        className="absolute right-10 top-4 rounded-md p-1.5 text-text-quaternary transition-colors hover:bg-sp-blue-500/10 hover:text-sp-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sp-blue-400"
+      >
+        <WalletCards className="size-4" />
       </button>
       <button
         type="button"

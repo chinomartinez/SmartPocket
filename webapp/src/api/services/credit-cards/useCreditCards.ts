@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { accountKeys } from "@/api/services/accounts/useAccounts";
+import { dashboardKeys } from "@/api/services/dashboard/useDashboard";
 import { creditCardService } from "./creditCardService";
 import { creditCardStatementService } from "./creditCardStatementService";
 import type {
@@ -8,6 +10,7 @@ import type {
   CreditCardSubscriptionCommand,
   CreditCardStatementCreateCommand,
   CreditCardStatementListRequest,
+  CreditCardStatementPaymentsBulkCommand,
   CreditCardStatementUpdateCommand,
 } from "./creditCardTypes";
 
@@ -25,6 +28,7 @@ export const creditCardKeys = {
   statementSuggestions: (id: number, closingDate: string) =>
     ["credit-cards", "statement-suggestions", id, closingDate] as const,
   statementSuggestionsRoot: (id: number) => ["credit-cards", "statement-suggestions", id] as const,
+  statementPayments: (id: number) => ["credit-cards", "statement-payments", id] as const,
 };
 
 export function useCreditCards() {
@@ -74,6 +78,14 @@ export function useCreditCardStatementSuggestions(id: number, closingDate: strin
   });
 }
 
+export function useCreditCardStatementPayments(id: number, enabled = true) {
+  return useQuery({
+    queryKey: creditCardKeys.statementPayments(id),
+    queryFn: () => creditCardStatementService.getPayments(id),
+    enabled: enabled && id > 0,
+  });
+}
+
 function invalidateCreditCardStatementQueries(
   queryClient: ReturnType<typeof useQueryClient>,
   creditCardId: number,
@@ -116,6 +128,24 @@ export function useDeleteCreditCardStatement() {
     mutationFn: ({ id }: { id: number; creditCardId: number }) => creditCardStatementService.delete(id),
     onSuccess: (_, variables) =>
       invalidateCreditCardStatementQueries(queryClient, variables.creditCardId, variables.id),
+  });
+}
+
+export function useUpdateCreditCardStatementPayments() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (variables: {
+      statementId: number;
+      creditCardId: number;
+      data: CreditCardStatementPaymentsBulkCommand;
+    }) => creditCardStatementService.updatePayments(variables.statementId, variables.data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.statementPayments(variables.statementId) });
+      invalidateCreditCardStatementQueries(queryClient, variables.creditCardId, variables.statementId);
+      queryClient.invalidateQueries({ queryKey: accountKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+    },
   });
 }
 

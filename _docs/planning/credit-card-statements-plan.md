@@ -523,8 +523,8 @@ Debe mostrar:
 - Items incluidos agrupados por cualquier moneda, con la moneda de la tarjeta primero.
 - El pago registrado para cada moneda sólo cuando exista, mostrando importe y moneda real de la cuenta.
 - Cantidad de cuotas y cargos incluidos.
-- Acción `Editar resumen`.
-- Acción `Gestionar pagos`.
+- Acción contextual `Editar resumen` cuando el estado es `Closed`.
+- Acción `Gestionar pagos` cuando el estado es `Closed`, `PartiallyPaid` o `Paid`.
 - Acción para eliminar el resumen.
 
 Los importes incluidos y pagos se representan mediante `totals.currencySummaries`. No se muestran
@@ -582,8 +582,9 @@ La creación no incluye pagos. Una vez persistido el resumen, el usuario puede u
 8. Permite modificar un resumen `Closed`.
 9. Confirma mediante el comando de actualización.
 
-Si el resumen está `PartiallyPaid` o `Paid`, la UI debe bloquear la edición y ofrecer acceso a
-`Gestionar pagos`. El usuario debe eliminar todos los pagos antes de volver a editar el resumen.
+Si el resumen está `PartiallyPaid` o `Paid`, el formulario de edición no se abre desde el listado.
+El usuario debe eliminar todos los pagos mediante `Gestionar pagos`, guardar el conjunto vacío y
+volver al listado antes de poder editar el resumen.
 
 No se deben mostrar cuotas como formularios independientes. Los items incluidos y sugeridos se muestran en listas planas, ordenadas por fecha efectiva, y cada fila identifica su tipo mediante `Cuota N` o `Cargo N`.
 
@@ -593,13 +594,13 @@ La gestión de pagos es un diálogo amplio y responsive, separado del diálogo d
 resumen. No se abre como un modal encima del formulario de resumen. La pantalla muestra el
 contexto completo del resumen y permite editar únicamente los pagos.
 
-La navegación entre ambos flujos es bidireccional:
+Los diálogos se abren desde las acciones del listado:
 
-- Desde el listado, `Editar resumen` abre el diálogo de edición.
-- Desde el listado, `Gestionar pagos` abre el diálogo de pagos.
-- Desde `Editar resumen`, se puede abrir `Gestionar pagos`.
-- Desde `Gestionar pagos`, se puede abrir `Editar resumen`.
-- Si el diálogo actual tiene cambios sin guardar, el cambio de flujo solicita confirmación para descartarlos.
+- Un resumen `Closed` muestra `Editar resumen` y `Gestionar pagos`, porque todavía necesita una vía para registrar el primer pago.
+- Un resumen `PartiallyPaid` o `Paid` muestra únicamente `Gestionar pagos`.
+- Para editar un resumen con pagos, el usuario debe eliminar todos los pagos, guardar el conjunto vacío y volver al listado. El resumen volverá a `Closed` y entonces mostrará `Editar resumen`.
+- No existen botones para navegar directamente entre ambos diálogos.
+- Si el diálogo actual se cierra con cambios sin guardar, se solicita confirmación para descartarlos.
 
 #### Detalle cronológico
 
@@ -716,11 +717,12 @@ La siguiente etapa comprende backend y frontend para administrar pagos asociados
 Frontend — implementación pendiente:
 
 - Actualizar los DTOs del listado para recibir `totals.currencySummaries` y `payment` nullable.
-- Reemplazar la tarjeta actual por una tarjeta con totales genéricos, estado parcial y acciones independientes.
+- Reemplazar la tarjeta actual por una tarjeta con totales genéricos, estado parcial y acciones contextuales según el estado.
 - Crear el diálogo responsive de `Gestionar pagos`.
 - Construir en frontend la tabla cronológica uniendo cuotas y cargos.
 - Implementar filas locales de pago por moneda y guardado bulk.
-- Implementar navegación entre edición y gestión con confirmación de descarte.
+- Mostrar acciones contextuales según el estado, manteniendo disponible `Gestionar pagos` para resúmenes `Closed`.
+- Confirmar el descarte al cerrar un diálogo con cambios sin guardar.
 - Implementar validaciones de fechas, importes y filas parcialmente completas.
 - Mantener las cachés de resúmenes, tarjetas, cuentas, actividades y dashboard sincronizadas.
 
@@ -761,10 +763,9 @@ Frontend:
 - [ ] Mostrar totales de items por moneda y pagos destinados a cada moneda.
 - [ ] Mantener explícita la ausencia de conversión automática.
 - [ ] Mostrar una tabla cronológica de cuotas y cargos, con columnas dinámicas por moneda.
-- [ ] Mostrar acciones independientes `Editar resumen` y `Gestionar pagos` en cada tarjeta.
-- [ ] Bloquear `Editar resumen` cuando el resumen tenga pagos y ofrecer acceso a `Gestionar pagos`.
+- [ ] Mostrar `Editar resumen` sólo para resúmenes `Closed` y `Gestionar pagos` para cualquier estado.
 - [ ] Mantener un borrador local y guardar pagos mediante una única mutación bulk.
-- [ ] Implementar confirmación al descartar cambios al cambiar entre ambos diálogos.
+- [ ] Implementar confirmación al cerrar un diálogo con cambios sin guardar.
 - [ ] Implementar loading, errores, validaciones locales y preservación del borrador ante errores.
 
 La gestión de pagos se abre en un diálogo amplio y responsive separado del diálogo de edición del

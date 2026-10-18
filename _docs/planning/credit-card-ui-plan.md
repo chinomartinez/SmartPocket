@@ -163,7 +163,8 @@ Usar un listado compacto por resumen, con información suficiente para identific
 - Totales incluidos agrupados por cualquier moneda.
 - Pago por moneda, sólo cuando exista, mostrando importe y moneda real de la cuenta.
 - Cantidad de cuotas y cargos incluidos.
-- Acciones separadas para editar el resumen y gestionar pagos.
+- `Editar resumen` cuando el estado sea cerrado.
+- `Gestionar pagos` para cualquier estado, incluido un resumen cerrado sin pagos.
 
 El listado debe ordenarse por fecha de cierre descendente, mostrando primero el resumen más reciente.
 
@@ -183,16 +184,16 @@ El preview debe diferenciar visualmente los ítems sugeridos y mantener visible 
 
 ### 5.3 Acciones condicionadas por estado
 
-- Resumen cerrado: editar, gestionar pagos o eliminar.
-- Resumen parcialmente pagado: gestionar pagos o eliminar. La edición está bloqueada mientras existan pagos.
-- Resumen pagado: gestionar pagos o eliminar. La edición está bloqueada mientras existan pagos.
+- Resumen cerrado: `Editar resumen`, `Gestionar pagos` o eliminar.
+- Resumen parcialmente pagado: `Gestionar pagos` o eliminar. La edición no está disponible.
+- Resumen pagado: `Gestionar pagos` o eliminar. La edición no está disponible.
 - Gestionar pagos: diálogo independiente con el detalle cronológico de items y edición bulk de pagos.
 - Eliminación de resumen: confirmación explícita sobre la devolución de cuotas, eliminación de cargos y eliminación de pagos y sus transacciones asociadas.
 
 La edición de cuotas, cargos y datos del resumen sólo está disponible cuando el resumen está
 `Closed`. Para editar un resumen `PartiallyPaid` o `Paid`, el usuario debe eliminar primero todos
-los pagos desde `Gestionar pagos`. La UI debe explicar esta restricción en la acción deshabilitada
-y ofrecer acceso directo a la gestión de pagos.
+los pagos desde `Gestionar pagos`, guardar el conjunto vacío y volver al listado. No se utilizan
+botones de navegación directa entre ambos diálogos.
 
 La UI debe consumir los endpoints existentes de listado, detalle, preview, eliminación y pagos, sin inventar datos persistidos. Mientras se implementa la integración, puede conservarse el bloque visual como placeholder técnico.
 

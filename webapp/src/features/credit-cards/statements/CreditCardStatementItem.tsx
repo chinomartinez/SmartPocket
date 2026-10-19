@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronRight, Trash2, WalletCards } from "lucide-react";
+import { CalendarDays, Trash2, WalletCards } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { CreditCardStatementListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
@@ -24,7 +24,6 @@ export function CreditCardStatementItem({
     if (canEdit) onOpen(statement);
   };
   const handleDelete = () => onDelete(statement);
-  const totalItems = statement.installmentsCount + statement.chargesCount;
   const currencySummaries = [...statement.totals.currencySummaries].sort(
     (first, second) =>
       Number(first.currencyCode !== currencyCode) - Number(second.currencyCode !== currencyCode),
@@ -62,44 +61,54 @@ export function CreditCardStatementItem({
               <CalendarDays className="size-3.5" />
               Cierre {formatClosingDate} · vence {formatDueDate}
             </p>
+            <p className="mt-1 text-xs text-text-quaternary">
+              {statement.installmentsCount} {statement.installmentsCount === 1 ? "cuota" : "cuotas"}{" "}
+              · {statement.chargesCount} {statement.chargesCount === 1 ? "cargo" : "cargos"}
+            </p>
           </div>
           <Badge
             variant="outline"
-             className={
-               statement.status === "Paid"
-                 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                 : statement.status === "PartiallyPaid"
-                   ? "border-sky-500/30 bg-sky-500/10 text-sky-300"
-                   : "border-amber-500/30 bg-amber-500/10 text-amber-300"
-             }
-           >
-             {statusLabel}
-           </Badge>
-        </div>
-        <div className="mt-4 flex items-end justify-between gap-3">
-          <div>
-             <p className="text-xs text-text-quaternary">Items incluidos</p>
-             <div className="mt-1 space-y-1">
-               {currencySummaries.map((summary) => (
-                 <div key={summary.currencyCode} className="text-foreground">
-                   <p className="text-lg font-semibold">
-                     {formatCurrency(summary.includedAmount, summary.currencyCode)}
-                   </p>
-                   {summary.payment && (
-                     <p className="text-xs text-text-quaternary">
-                       Pago: {formatCurrency(summary.payment.amount, summary.payment.currencyCode)}
-                     </p>
-                   )}
-                 </div>
-               ))}
-             </div>
-          </div>
-          <span className="text-xs text-text-quaternary">
-            {totalItems} {totalItems === 1 ? "ítem" : "ítems"}{" "}
-            <ChevronRight className="ml-1 inline size-3.5" />
-          </span>
+            className={
+              statement.status === "Paid"
+                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                : statement.status === "PartiallyPaid"
+                  ? "border-sky-500/30 bg-sky-500/10 text-sky-300"
+                  : "border-amber-500/30 bg-amber-500/10 text-amber-300"
+            }
+          >
+            {statusLabel}
+          </Badge>
         </div>
       </button>
+      <div className="mt-2 overflow-x-auto rounded-md border border-border-subtle/70 bg-surface-container-low/40">
+        <table className="w-full min-w-[360px] border-collapse text-xs">
+          <thead>
+            <tr className="border-b border-border-subtle text-text-quaternary">
+              <th className="px-3 py-2 text-left font-medium">Moneda</th>
+              <th className="px-3 py-2 text-right font-medium">Incluido</th>
+              <th className="px-3 py-2 text-right font-medium">Pagado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currencySummaries.map((summary) => (
+              <tr
+                key={summary.currencyCode}
+                className="border-b border-border-subtle/60 last:border-b-0"
+              >
+                <td className="px-3 py-2 font-semibold text-foreground">{summary.currencyCode}</td>
+                <td className="px-3 py-2 text-right font-semibold text-foreground">
+                  {formatCurrency(summary.includedAmount, summary.currencyCode)}
+                </td>
+                <td className="px-3 py-2 text-right font-semibold text-sp-blue-400">
+                  {summary.payment
+                    ? formatCurrency(summary.payment.amount, summary.payment.currencyCode)
+                    : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <button
         type="button"
         aria-label={`Gestionar pagos de ${statement.description}`}

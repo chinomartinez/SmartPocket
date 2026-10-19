@@ -79,7 +79,7 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
   const handleNextPage = () => setPage((currentPage) => Math.min(totalPages, currentPage + 1));
 
   return (
-    <section className="space-y-4" aria-labelledby="statements-title">
+    <section className="min-w-0 space-y-4" aria-labelledby="statements-title">
       <div className="flex items-end justify-between gap-3">
         <div>
           <h2 id="statements-title" className="text-xl font-semibold text-foreground">
@@ -87,7 +87,7 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
           </h2>
           <p className="mt-1 text-sm text-text-quaternary">Cierres registrados de la tarjeta</p>
         </div>
-        <Button variant="outline" size="sm" onClick={handleOpenCreate}>
+        <Button variant="outline" size="sm" className="shrink-0" onClick={handleOpenCreate}>
           <Plus className="size-4" /> Nuevo resumen
         </Button>
       </div>

@@ -81,7 +81,7 @@ export function CreditCardStatementItem({
         </div>
       </button>
       <div className="mt-2 overflow-x-auto rounded-md border border-border-subtle/70 bg-surface-container-low/40">
-        <table className="w-full min-w-[360px] border-collapse text-xs">
+        <table className="w-full border-collapse text-xs">
           <thead>
             <tr className="border-b border-border-subtle text-text-quaternary">
               <th className="px-3 py-2 text-left font-medium">Moneda</th>

@@ -318,8 +318,8 @@ acción `Gestionar pagos`.
 - Gestión de pagos en un diálogo independiente del formulario de resumen.
 - Edición y eliminación con confirmaciones y validaciones de integridad.
 
-**Estado:** contrato funcional y decisiones de UI definidos en
-`_docs/planning/credit-card-statements-plan.md`; implementación frontend pendiente.
+**Estado:** implementación funcional completada en frontend y backend. Quedan únicamente mejoras
+menores de UI.
 
 ## 10. Fechas de tarjetas y resúmenes
 
@@ -395,7 +395,7 @@ Las métricas actuales se calculan desde el overview de SmartPocket y se present
 - La actividad utiliza un read model unificado sin unificar las entidades de dominio.
 - El bloque de resúmenes consume el listado paginado, el detalle, las sugerencias y las mutations reales.
 - El preview de resúmenes, la selección de cuotas/cargos y la edición de items están implementados.
-- La adaptación a `currencySummaries`, el estado `PartiallyPaid`, el bloqueo de edición con pagos y la gestión de pagos todavía están pendientes.
+- La adaptación a `currencySummaries`, el estado `PartiallyPaid`, el bloqueo de edición con pagos y la gestión de pagos están implementados. Quedan únicamente mejoras menores de UI.
 - Los resúmenes utilizan los estados `Closed`, `PartiallyPaid` y `Paid`.
 
 ## 11. Decisiones abiertas

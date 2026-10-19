@@ -696,7 +696,6 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 - Completar validaciones de creación y actualización.
 - Implementar eliminación con desvinculación de cuotas y eliminación de cargos.
 - Validar estados y pertenencia a tarjeta.
-- Las pruebas automatizadas de integridad quedan diferidas como deuda técnica.
 
 ### Fase 3: UI
 
@@ -708,25 +707,24 @@ Las mutations de compras y suscripciones también deben invalidar listado, detal
 - Implementar selección y edición de cargos.
 - Incorporar loading, error y empty states.
 
-**Estado:** la base de resúmenes ya está implementada en frontend y backend. El listado, detalle,
-sugerencias, creación, edición y eliminación consumen los contratos reales. Quedan las adaptaciones
-de pagos indicadas en la Iteración 4.
+**Estado:** implementada en frontend y backend. El listado, detalle, sugerencias, creación, edición
+y eliminación consumen los contratos reales.
 
 ### Fase 4: Iteración 4 - Pagos
 
 La siguiente etapa comprende backend y frontend para administrar pagos asociados a un resumen.
 
-Frontend — implementación pendiente:
+Frontend — implementación completada:
 
-- Actualizar los DTOs del listado para recibir `totals.currencySummaries` y `payment` nullable.
-- Reemplazar la tarjeta actual por una tarjeta con totales genéricos, estado parcial y acciones contextuales según el estado.
-- Crear el diálogo responsive de `Gestionar pagos`.
-- Construir en frontend la tabla cronológica uniendo cuotas y cargos.
-- Implementar filas locales de pago por moneda y guardado bulk.
-- Mostrar acciones contextuales según el estado, manteniendo disponible `Gestionar pagos` para resúmenes `Closed`.
-- Confirmar el descarte al cerrar un diálogo con cambios sin guardar.
-- Implementar validaciones de fechas, importes y filas parcialmente completas.
-- Mantener las cachés de resúmenes, tarjetas, cuentas, actividades y dashboard sincronizadas.
+- [x] Actualizar los DTOs del listado para recibir `totals.currencySummaries` y `payment` nullable.
+- [x] Reemplazar la tarjeta actual por una tarjeta con totales genéricos, estado parcial y acciones contextuales según el estado.
+- [x] Crear el diálogo responsive de `Gestionar pagos`.
+- [x] Construir en frontend la tabla cronológica uniendo cuotas y cargos.
+- [x] Implementar filas locales de pago por moneda y guardado bulk.
+- [x] Mostrar acciones contextuales según el estado, manteniendo disponible `Gestionar pagos` para resúmenes `Closed`.
+- [x] Confirmar el descarte al cerrar un diálogo con cambios sin guardar.
+- [x] Implementar validaciones de fechas, importes y filas parcialmente completas.
+- [x] Mantener las cachés de resúmenes, tarjetas, cuentas, actividades y dashboard sincronizadas.
 
 Backend — estado actual:
 
@@ -749,8 +747,8 @@ Backend — estado actual:
 
 - [x] Devolver `currencySummaries` con el pago nullable para cada moneda en el listado paginado.
 
-El backend de la Iteración 4 está implementado. El frontend de pagos y las mejoras de concurrencia
-y pruebas automatizadas permanecen pendientes.
+El backend y el frontend de la Iteración 4 están implementados. Quedan únicamente mejoras menores
+de UI.
 
 #### Decisiones adoptadas del modelo de dominio
 
@@ -762,16 +760,16 @@ y pruebas automatizadas permanecen pendientes.
 
 Frontend:
 
-- [ ] Mostrar pagos asociados dentro del contexto del resumen.
-- [ ] Crear, editar, consultar y eliminar pagos sin reutilizar el modal de transacciones manuales.
-- [ ] Mostrar cuenta, fecha, importe, moneda de la cuenta y moneda cubierta.
-- [ ] Mostrar totales de items por moneda y pagos destinados a cada moneda.
-- [ ] Mantener explícita la ausencia de conversión automática.
-- [ ] Mostrar una tabla cronológica de cuotas y cargos, con columnas dinámicas por moneda.
-- [ ] Mostrar `Editar resumen` sólo para resúmenes `Closed` y `Gestionar pagos` para cualquier estado.
-- [ ] Mantener un borrador local y guardar pagos mediante una única mutación bulk.
-- [ ] Implementar confirmación al cerrar un diálogo con cambios sin guardar.
-- [ ] Implementar loading, errores, validaciones locales y preservación del borrador ante errores.
+- [x] Mostrar pagos asociados dentro del contexto del resumen.
+- [x] Crear, editar, consultar y eliminar pagos sin reutilizar el modal de transacciones manuales.
+- [x] Mostrar cuenta, fecha, importe, moneda de la cuenta y moneda cubierta.
+- [x] Mostrar totales de items por moneda y pagos destinados a cada moneda.
+- [x] Mantener explícita la ausencia de conversión automática.
+- [x] Mostrar una tabla cronológica de cuotas y cargos, con columnas dinámicas por moneda.
+- [x] Mostrar `Editar resumen` sólo para resúmenes `Closed` y `Gestionar pagos` para cualquier estado.
+- [x] Mantener un borrador local y guardar pagos mediante una única mutación bulk.
+- [x] Implementar confirmación al cerrar un diálogo con cambios sin guardar.
+- [x] Implementar loading, errores, validaciones locales y preservación del borrador ante errores.
 
 La gestión de pagos se abre en un diálogo amplio y responsive separado del diálogo de edición del
 resumen. No se permite un modal de pagos encima del formulario de resumen.
@@ -857,14 +855,6 @@ aplica la misma regla como protección definitiva.
 Cada moneda muestra el importe incluido y, sólo cuando existe, una línea con el importe y la
 moneda real del pago. La moneda de la tarjeta aparece primero y las demás se ordenan por código.
 No se calcula ni se muestra una diferencia monetaria.
-
-### Fase 5: Mejoras de integridad
-
-- Protección contra condiciones de carrera en asignación de cuotas.
-- Pruebas automatizadas de integridad, concurrencia y eliminación.
-- Ajustes derivados de esas pruebas y del comportamiento de soft delete.
-
-Las mejoras de concurrencia y las pruebas automatizadas no bloquean el avance hacia la Iteración 4, pero deben retomarse antes de considerar cerrado el módulo de resúmenes.
 
 ## 14. Decisiones abiertas
 

@@ -33,7 +33,7 @@ export function SelectedCreditCardOverview({
 
   return (
     <section
-      className="rounded-2xl border border-border-subtle bg-surface-container-low/70 p-5 md:p-6"
+      className="glass-card rounded-2xl p-5 md:p-6"
       aria-labelledby="selected-card-title"
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">

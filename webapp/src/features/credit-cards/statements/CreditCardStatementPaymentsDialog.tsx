@@ -234,9 +234,9 @@ function StatementItemsTable({
       </div>
       <div className="overflow-x-auto rounded-lg border border-border-subtle">
         <table className="min-w-[640px] w-full text-left text-sm">
-          <thead className="bg-surface-container-low text-xs text-text-quaternary">
+          <thead className="bg-secondary text-xs text-text-quaternary">
             <tr>
-              <th className="sticky left-0 z-10 min-w-52 bg-surface-container-low px-3 py-2">Item</th>
+              <th className="sticky left-0 z-10 min-w-52 bg-secondary px-3 py-2">Item</th>
               <th className="whitespace-nowrap px-3 py-2">Fecha</th>
               {currencyCodes.map((currencyCode) => (
                 <th key={currencyCode} className="whitespace-nowrap px-3 py-2 text-right">
@@ -248,7 +248,7 @@ function StatementItemsTable({
           <tbody className="divide-y divide-border-subtle/70">
             {items.map((item) => (
               <tr key={item.id}>
-                <td className="sticky left-0 bg-surface px-3 py-2">
+                <td className="sticky left-0 bg-background px-3 py-2">
                   <p className="max-w-64 truncate font-medium text-foreground">{item.description}</p>
                   <p className="text-xs text-text-quaternary">{item.typeLabel}</p>
                 </td>
@@ -294,7 +294,7 @@ function PaymentDraftList({
         {draftPayments.map((payment, index) => (
           <div
             key={payment.coveredCurrencyCode}
-            className="grid gap-3 rounded-lg border border-border-subtle bg-surface-container-low/40 p-3 md:grid-cols-[1fr_1.4fr_1fr_1fr] md:items-end"
+            className="grid gap-3 rounded-lg border border-border-subtle bg-secondary/30 p-3 md:grid-cols-[1fr_1.4fr_1fr_1fr] md:items-end"
           >
             <div>
               <p className="text-sm font-medium text-foreground">{payment.coveredCurrencyCode}</p>
@@ -308,7 +308,7 @@ function PaymentDraftList({
                 value={payment.accountId?.toString()}
                 onValueChange={(value) => onPaymentChange(index, { accountId: Number(value) })}
               >
-                <SelectTrigger className="w-full bg-surface text-foreground">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Seleccionar cuenta" />
                 </SelectTrigger>
                 <SelectContent>
@@ -332,7 +332,6 @@ function PaymentDraftList({
                     amount: event.target.value === "" ? undefined : event.target.valueAsNumber,
                   })
                 }
-                className="bg-surface text-foreground"
               />
             </label>
             <label className="space-y-1 text-xs text-text-quaternary">
@@ -341,7 +340,6 @@ function PaymentDraftList({
                 type="date"
                 value={payment.effectiveDate}
                 onChange={(event) => onPaymentChange(index, { effectiveDate: event.target.value })}
-                className="bg-surface text-foreground"
               />
             </label>
           </div>

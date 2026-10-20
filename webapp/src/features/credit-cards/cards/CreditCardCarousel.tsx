@@ -88,7 +88,7 @@ export function CreditCardCarousel({ cards, selectedCardId, onSelect }: CreditCa
                     </span>
                   </div>
                 </button>
-                <div className="flex items-center justify-between bg-surface-container-high/80 px-4 py-2.5 text-xs text-text-quaternary">
+                <div className="flex items-center justify-between bg-secondary/80 px-4 py-2.5 text-xs text-text-quaternary">
                   <span>
                     Cierre habitual: {card.statementClosingRange.startDay} al{" "}
                     {card.statementClosingRange.endDay} · vence {card.paymentDueRange.startDay} al{" "}

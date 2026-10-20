@@ -91,7 +91,7 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
           <Plus className="size-4" /> Nuevo resumen
         </Button>
       </div>
-      <div className="rounded-xl border border-border-subtle bg-surface-container-low/40 p-2">
+      <div className="glass-card rounded-xl p-2">
         {statementsQuery.isLoading ? (
           <div className="space-y-2 p-3">
             {[1, 2, 3].map((item) => (

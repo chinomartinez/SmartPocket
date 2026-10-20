@@ -100,7 +100,7 @@ export function CreditCardStatementItem({
           </div>
         </div>
       </div>
-      <div className="mt-2 overflow-x-auto rounded-md border border-border-subtle/70 bg-surface-container-low/40">
+      <div className="mt-2 overflow-x-auto rounded-md border border-border-subtle/70 bg-secondary/30">
         <table className="w-full border-collapse text-xs">
           <thead>
             <tr className="border-b border-border-subtle text-text-quaternary">

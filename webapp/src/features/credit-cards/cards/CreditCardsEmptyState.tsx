@@ -7,7 +7,7 @@ interface CreditCardsEmptyStateProps {
 
 export function CreditCardsEmptyState({ onAdd }: CreditCardsEmptyStateProps) {
   return (
-    <section className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-dashed border-border-subtle bg-surface-container-low/50 p-8 text-center">
+    <section className="glass-card flex min-h-[360px] flex-col items-center justify-center rounded-2xl border-dashed p-8 text-center">
       <CreditCard className="size-12 text-sp-blue-400" />
       <h2 className="mt-4 text-xl font-semibold text-foreground">
         Aún no tenés tarjetas de crédito

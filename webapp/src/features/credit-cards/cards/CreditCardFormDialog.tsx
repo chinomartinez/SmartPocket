@@ -217,7 +217,7 @@ export function CreditCardFormDialog({ card, open, onOpenChange }: CreditCardFor
               />
             </div>
 
-            <div className="space-y-4 rounded-xl border border-border-subtle bg-surface-container-low/50 p-4">
+            <div className="space-y-4 rounded-xl border border-border-subtle bg-secondary/30 p-4">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Fechas habituales</h3>
                 <p className="mt-1 text-xs text-text-quaternary">

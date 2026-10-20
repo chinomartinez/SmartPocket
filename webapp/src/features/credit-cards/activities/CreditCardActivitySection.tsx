@@ -142,7 +142,7 @@ export function CreditCardActivitySection({
           </Button>
         </div>
       </div>
-      <div className="flex flex-col gap-3 rounded-xl border border-border-subtle bg-surface-container-low/50 p-3 sm:flex-row">
+      <div className="flex flex-col gap-3 rounded-xl border border-border-subtle bg-secondary/30 p-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-quaternary" />
           <input
@@ -166,7 +166,7 @@ export function CreditCardActivitySection({
           ))}
         </div>
       </div>
-      <div className="overflow-hidden rounded-xl border border-border-subtle bg-surface-container-low/40">
+      <div className="glass-card overflow-hidden rounded-xl">
         <div className="hidden grid-cols-[minmax(0,1.7fr)_110px_130px_110px_32px] gap-4 border-b border-border-subtle px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-text-quaternary md:grid">
           <span>Consumo</span>
           <span className="text-center">Fecha</span>

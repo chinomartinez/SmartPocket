@@ -52,7 +52,7 @@ export function AccountsPage() {
         </div>
         <Button onClick={handleCreateClick} className="flex items-center gap-2">
           <PlusIcon className="h-5 w-5" />
-          <span className="hidden sm:inline">Nueva Cuenta</span>
+          <span className="hidden sm:inline">Nueva cuenta</span>
         </Button>
       </div>
 

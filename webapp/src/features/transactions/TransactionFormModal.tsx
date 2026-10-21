@@ -206,7 +206,7 @@ export function TransactionFormModal({
       <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
         <DialogHeader className="mb-1 pb-1 border-b border-slate-700/50">
           <DialogTitle>
-            {mode === "create" ? "Nueva Transacción" : "Editar Transacción"}
+            {mode === "create" ? "Nueva transacción" : "Editar transacción"}
           </DialogTitle>
         </DialogHeader>
 
@@ -508,8 +508,8 @@ export function TransactionFormModal({
                   {isSubmitting
                     ? "Guardando..."
                     : mode === "create"
-                      ? "Crear Transacción"
-                      : "Guardar Cambios"}
+                      ? "Crear transacción"
+                      : "Guardar cambios"}
                 </Button>
               </div>
             </div>

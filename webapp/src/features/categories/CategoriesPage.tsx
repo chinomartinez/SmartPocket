@@ -151,7 +151,7 @@ export function CategoriesPage() {
                 className="bg-green-600 hover:bg-green-700 transition-colors flex-1 sm:flex-initial"
               >
                 <CheckIcon className="h-5 w-5 mr-2" />
-                {reorderMutation.isPending ? "Guardando..." : "Guardar Orden"}
+                {reorderMutation.isPending ? "Guardando..." : "Guardar orden"}
               </Button>
               <Button
                 onClick={handleCancelReorder}
@@ -173,7 +173,7 @@ export function CategoriesPage() {
                 aria-label="Reordenar categorías"
               >
                 <ArrowsUpDownIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">Reordenar Categorías</span>
+                <span className="hidden sm:inline">Reordenar categorías</span>
               </Button>
               <Button
                 onClick={handleCreate}
@@ -181,7 +181,7 @@ export function CategoriesPage() {
                 aria-label="Nueva categoría"
               >
                 <PlusIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">Nueva Categoría</span>
+                <span className="hidden sm:inline">Nueva categoría</span>
               </Button>
             </>
           )}
@@ -255,7 +255,7 @@ export function CategoriesPage() {
               </p>
               <Button onClick={handleCreate}>
                 <PlusIcon className="h-5 w-5 mr-2" />
-                Crear Categoría
+                Crear categoría
               </Button>
             </div>
           </Card>

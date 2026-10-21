@@ -239,8 +239,8 @@ export function CreditCardStatementFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="!flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="modal-form !flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-2xl">
+        <DialogHeader className="pb-4 border-b border-border-subtle">
           <DialogTitle>{isEdit ? "Editar resumen" : "Armar nuevo resumen"}</DialogTitle>
           <DialogDescription>
             Seleccioná los registros de SmartPocket que querés incluir.
@@ -311,12 +311,13 @@ export function CreditCardStatementFormDialog({
                 )}
               </div>
             </div>
-            <DialogFooter className="shrink-0 border-t border-border-subtle pt-4 sm:flex-row">
+            <DialogFooter className="shrink-0 gap-3 border-t border-border-subtle pt-4">
               <Button
                 type="button"
                 variant="outline"
                 className="w-full sm:w-auto"
                 onClick={handleCancel}
+                disabled={activeMutation.isPending}
               >
                 Cancelar
               </Button>

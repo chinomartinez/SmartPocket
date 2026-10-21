@@ -28,9 +28,9 @@ interface TransferFiltersProps {
 
 const PERIOD_OPTIONS = [
   { value: "today" as const, label: "Hoy" },
-  { value: "week" as const, label: "Esta Semana" },
-  { value: "month" as const, label: "Este Mes" },
-  { value: "year" as const, label: "Este Año" },
+  { value: "week" as const, label: "Esta semana" },
+  { value: "month" as const, label: "Este mes" },
+  { value: "year" as const, label: "Este año" },
   { value: "custom" as const, label: "Personalizado" },
 ];
 

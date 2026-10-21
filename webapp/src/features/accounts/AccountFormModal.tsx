@@ -130,7 +130,7 @@ export function AccountFormModal({ account, open, onOpenChange }: AccountFormMod
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
         <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
-          <DialogTitle>{mode === "create" ? "Nueva Cuenta" : "Editar Cuenta"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? "Nueva cuenta" : "Editar cuenta"}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -313,8 +313,8 @@ export function AccountFormModal({ account, open, onOpenChange }: AccountFormMod
                 {isSubmitting
                   ? "Guardando..."
                   : mode === "create"
-                    ? "Crear Cuenta"
-                    : "Guardar Cambios"}
+                    ? "Crear cuenta"
+                    : "Guardar cambios"}
               </Button>
             </div>
           </form>

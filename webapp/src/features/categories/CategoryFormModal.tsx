@@ -155,7 +155,7 @@ export function CategoryFormModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
         <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
-          <DialogTitle>{mode === "create" ? "Nueva Categoría" : "Editar Categoría"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? "Nueva categoría" : "Editar categoría"}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>

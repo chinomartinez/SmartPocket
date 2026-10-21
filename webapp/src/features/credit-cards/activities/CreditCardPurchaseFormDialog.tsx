@@ -130,8 +130,8 @@ export function CreditCardPurchaseFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-lg">
+        <DialogHeader className="pb-4 border-b border-border-subtle">
           <DialogTitle>{isEdit ? "Editar compra" : "Agregar compra"}</DialogTitle>
           <DialogDescription>
             Registrá una compra única o en cuotas de esta tarjeta.
@@ -277,8 +277,14 @@ export function CreditCardPurchaseFormDialog({
             </div>
             </div>
 
-            <DialogFooter className="shrink-0 border-t border-border-subtle pt-4 sm:flex-row">
-              <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => handleOpenChange(false)}>
+            <DialogFooter className="shrink-0 gap-3 border-t border-border-subtle pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => handleOpenChange(false)}
+                disabled={activeMutation.isPending}
+              >
                 Cancelar
               </Button>
               <Button type="submit" disabled={activeMutation.isPending} className="w-full sm:w-auto">

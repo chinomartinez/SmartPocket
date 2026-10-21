@@ -175,7 +175,7 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
       <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
         <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
           <DialogTitle>
-            {mode === "create" ? "Nueva Transferencia" : "Editar Transferencia"}
+            {mode === "create" ? "Nueva transferencia" : "Editar transferencia"}
           </DialogTitle>
         </DialogHeader>
 
@@ -389,8 +389,8 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
                   {isSubmitting
                     ? "Guardando..."
                     : mode === "create"
-                      ? "Crear Transferencia"
-                      : "Guardar Cambios"}
+                      ? "Crear transferencia"
+                      : "Guardar cambios"}
                 </Button>
               </div>
             </div>

@@ -167,7 +167,7 @@ export function CreditCardStatementPaymentsDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="!flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:max-w-6xl">
-        <DialogHeader>
+        <DialogHeader className="pb-4 border-b border-border-subtle">
           <DialogTitle className="flex items-center gap-2">
             <WalletCards className="size-5" /> Gestionar pagos
           </DialogTitle>
@@ -204,11 +204,22 @@ export function CreditCardStatementPaymentsDialog({
           ) : null}
         </div>
 
-        <DialogFooter className="shrink-0 border-t border-border-subtle pt-4 sm:flex-row">
-          <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+        <DialogFooter className="shrink-0 gap-3 border-t border-border-subtle pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => handleOpenChange(false)}
+            disabled={updateMutation.isPending}
+          >
             Cancelar
           </Button>
-          <Button type="button" onClick={handleSave} disabled={isLoading || updateMutation.isPending}>
+          <Button
+            type="button"
+            className="w-full sm:w-auto"
+            onClick={handleSave}
+            disabled={isLoading || updateMutation.isPending}
+          >
             {updateMutation.isPending ? "Guardando..." : "Guardar pagos"}
           </Button>
         </DialogFooter>

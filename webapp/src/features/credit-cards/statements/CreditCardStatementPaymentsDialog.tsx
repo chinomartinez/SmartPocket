@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import { Loader2, WalletCards } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CalendarDays, ChevronDown, Loader2, Trash2, WalletCards } from "lucide-react";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { ErrorAlert } from "@/components/ErrorAlert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -23,6 +26,7 @@ import { useAccounts } from "@/api/services/accounts/useAccounts";
 import type {
   CreditCardStatementDetailDTO,
   CreditCardStatementPaymentDTO,
+  CreditCardStatementStatus,
 } from "@/api/services/credit-cards/creditCardTypes";
 import {
   useCreditCardStatementById,
@@ -31,7 +35,8 @@ import {
 } from "@/api/services/credit-cards/useCreditCards";
 import type { ApiError } from "@/api/types";
 import { formatCurrency } from "@/utils/formatters";
-import { formatDateOnly } from "@/utils/dateHelpers";
+import { formatDateOnly, formatDateToISO } from "@/utils/dateHelpers";
+import { cn } from "@/utils/utils";
 
 interface CreditCardStatementPaymentsDialogProps {
   statementId: number;
@@ -57,6 +62,21 @@ interface StatementDetailItem {
   amount: number;
 }
 
+const STATEMENT_STATUS_LABELS: Record<CreditCardStatementStatus, string> = {
+  Closed: "Cerrado",
+  PartiallyPaid: "Parcialmente pagado",
+  Paid: "Pagado",
+};
+
+const STATEMENT_STATUS_CLASSES: Record<CreditCardStatementStatus, string> = {
+  Closed: "border-amber-500/30 bg-amber-500/10 text-amber-300",
+  PartiallyPaid: "border-sky-500/30 bg-sky-500/10 text-sky-300",
+  Paid: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+};
+
+const PAID_BADGE_CLASSES = "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+const UNPAID_BADGE_CLASSES = "border-amber-500/30 bg-amber-500/10 text-amber-300";
+
 export function CreditCardStatementPaymentsDialog({
   statementId,
   open,
@@ -68,17 +88,22 @@ export function CreditCardStatementPaymentsDialog({
   const updateMutation = useUpdateCreditCardStatementPayments();
   const [draftPayments, setDraftPayments] = useState<DraftPayment[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [removalCurrency, setRemovalCurrency] = useState<string | null>(null);
+  const seededForOpen = useRef(false);
 
   useEffect(() => {
     if (!open) {
+      seededForOpen.current = false;
       setDraftPayments([]);
       setValidationError(null);
+      setRemovalCurrency(null);
       return;
     }
 
-    if (detailQuery.data && paymentsQuery.data) {
+    if (!seededForOpen.current && detailQuery.data && paymentsQuery.data) {
       setDraftPayments(createDraftPayments(detailQuery.data, paymentsQuery.data));
       setValidationError(null);
+      seededForOpen.current = true;
     }
   }, [detailQuery.data, open, paymentsQuery.data]);
 
@@ -91,13 +116,18 @@ export function CreditCardStatementPaymentsDialog({
   const isLoading = detailQuery.isLoading || paymentsQuery.isLoading || accountsQuery.isLoading;
   const queryError = detailQuery.error ?? paymentsQuery.error ?? accountsQuery.error;
   const accounts = accountsQuery.data ?? [];
-  const currencySummaries = detailQuery.data?.totals.currencySummaries ?? [];
+  const statement = detailQuery.data;
+  const removalDraft = removalCurrency
+    ? draftPayments.find((payment) => payment.coveredCurrencyCode === removalCurrency)
+    : undefined;
+  const removalIsPersisted = Boolean(removalDraft && removalDraft.id !== null);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       updateMutation.reset();
       setDraftPayments([]);
       setValidationError(null);
+      setRemovalCurrency(null);
     }
 
     onOpenChange(nextOpen);
@@ -112,8 +142,22 @@ export function CreditCardStatementPaymentsDialog({
     setValidationError(null);
   };
 
+  const handleConfirmRemove = () => {
+    if (!removalCurrency) return;
+
+    const index = draftPayments.findIndex(
+      (payment) => payment.coveredCurrencyCode === removalCurrency,
+    );
+
+    if (index >= 0) {
+      handlePaymentChange(index, { accountId: undefined, amount: undefined });
+    }
+
+    setRemovalCurrency(null);
+  };
+
   const handleSave = () => {
-    if (!detailQuery.data) return;
+    if (!statement) return;
 
     const filledPayments = draftPayments.filter(
       (payment) => payment.accountId !== undefined || payment.amount !== undefined,
@@ -135,7 +179,7 @@ export function CreditCardStatementPaymentsDialog({
     const today = getTodayDate();
     const invalidDate = filledPayments.find(
       (payment) =>
-        payment.effectiveDate <= detailQuery.data.closingDate.slice(0, 10) ||
+        payment.effectiveDate <= statement.closingDate.slice(0, 10) ||
         payment.effectiveDate > today,
     );
 
@@ -147,7 +191,7 @@ export function CreditCardStatementPaymentsDialog({
     updateMutation.mutate(
       {
         statementId,
-        creditCardId: detailQuery.data.creditCardId,
+        creditCardId: statement.creditCardId,
         data: {
           payments: filledPayments.map((payment) => ({
             id: payment.id,
@@ -166,14 +210,34 @@ export function CreditCardStatementPaymentsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="!flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:max-w-6xl">
-        <DialogHeader className="pb-4 border-b border-border-subtle">
-          <DialogTitle className="flex items-center gap-2">
-            <WalletCards className="size-5" /> Gestionar pagos
-          </DialogTitle>
-          <DialogDescription>
-            Registrá los pagos personales asociados al resumen. Esto no ejecuta ni verifica un pago bancario.
-          </DialogDescription>
+      <DialogContent className="modal-form flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden p-4 sm:h-auto sm:max-w-6xl sm:p-6">
+        <DialogHeader className="gap-3 border-b border-border-subtle pb-4 text-left">
+          <div className="flex flex-wrap items-start justify-between gap-3 pr-8 sm:pr-0">
+            <div className="min-w-0 space-y-1">
+              <DialogTitle className="flex items-center gap-2">
+                <WalletCards className="size-5" /> Gestionar pagos
+              </DialogTitle>
+              <DialogDescription>
+                Registrá los pagos personales asociados al resumen. Esto no ejecuta ni verifica un pago
+                bancario.
+              </DialogDescription>
+            </div>
+            {statement && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className={STATEMENT_STATUS_CLASSES[statement.status]}
+                  title="Estado guardado. Se actualiza al guardar."
+                >
+                  {STATEMENT_STATUS_LABELS[statement.status]}
+                </Badge>
+                <span className="inline-flex items-center gap-1.5 text-xs text-text-quaternary">
+                  <CalendarDays className="size-3.5 shrink-0" />
+                  Vence {formatDateOnly(statement.dueDate, { day: "2-digit", month: "short" })}
+                </span>
+              </div>
+            )}
+          </div>
         </DialogHeader>
 
         {apiError && <ErrorAlert error={apiError} />}
@@ -184,23 +248,21 @@ export function CreditCardStatementPaymentsDialog({
           </p>
         )}
 
-        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto pr-1">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 [-webkit-overflow-scrolling:touch]">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-12 text-sm text-text-quaternary">
               <Loader2 className="size-4 animate-spin" /> Cargando detalle del resumen...
             </div>
-          ) : detailQuery.data ? (
-            <>
-              <StatementItemsTable
-                items={detailItems}
-                currencyCodes={currencySummaries.map((summary) => summary.currencyCode)}
-              />
-              <PaymentDraftList
+          ) : statement ? (
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
+              <PaymentDraftsSection
                 accounts={accounts}
                 draftPayments={draftPayments}
                 onPaymentChange={handlePaymentChange}
+                onRemovePayment={setRemovalCurrency}
               />
-            </>
+              <StatementDetailPanel items={detailItems} />
+            </div>
           ) : null}
         </div>
 
@@ -223,140 +285,268 @@ export function CreditCardStatementPaymentsDialog({
             {updateMutation.isPending ? "Guardando..." : "Guardar pagos"}
           </Button>
         </DialogFooter>
+
+        <DeleteConfirmationDialog
+          open={removalCurrency !== null}
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) setRemovalCurrency(null);
+          }}
+          onConfirm={handleConfirmRemove}
+          itemName={removalCurrency ?? ""}
+          itemType="pago"
+          title={removalCurrency ? `¿Quitar pago en ${removalCurrency}?` : "¿Quitar pago?"}
+          description={
+            removalCurrency
+              ? removalIsPersisted
+                ? `El pago de ${removalCurrency} se eliminará del resumen al guardar los cambios.`
+                : `Se descartará el pago de ${removalCurrency} que estás cargando. Todavía no fue guardado.`
+              : ""
+          }
+        />
       </DialogContent>
     </Dialog>
   );
 }
 
-function StatementItemsTable({
-  items,
-  currencyCodes,
+function PaymentDraftsSection({
+  accounts,
+  draftPayments,
+  onPaymentChange,
+  onRemovePayment,
 }: {
-  items: StatementDetailItem[];
-  currencyCodes: string[];
+  accounts: AccountGetDTO[];
+  draftPayments: DraftPayment[];
+  onPaymentChange: (index: number, changes: Partial<DraftPayment>) => void;
+  onRemovePayment: (currencyCode: string) => void;
 }) {
   return (
-    <section aria-labelledby="statement-items-title" className="space-y-3">
+    <section aria-labelledby="payment-drafts-title" className="space-y-3">
       <div>
-        <h3 id="statement-items-title" className="font-semibold text-foreground">
-          Detalle del resumen
+        <h3 id="payment-drafts-title" className="font-semibold text-foreground">
+          Pagos por moneda
         </h3>
-        <p className="text-sm text-text-quaternary">Items incluidos, ordenados por fecha efectiva.</p>
+        <p className="text-sm text-text-quaternary">
+          Un pago por moneda. El importe es el total pagado, no se acumula.
+        </p>
       </div>
-      <div className="overflow-x-auto rounded-lg border border-border-subtle">
-        <table className="min-w-[640px] w-full text-left text-sm">
-          <thead className="bg-secondary text-xs text-text-quaternary">
-            <tr>
-              <th className="sticky left-0 z-10 min-w-52 bg-secondary px-3 py-2">Item</th>
-              <th className="whitespace-nowrap px-3 py-2">Fecha</th>
-              {currencyCodes.map((currencyCode) => (
-                <th key={currencyCode} className="whitespace-nowrap px-3 py-2 text-right">
-                  {currencyCode}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border-subtle/70">
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td className="sticky left-0 bg-background px-3 py-2">
-                  <p className="max-w-64 truncate font-medium text-foreground">{item.description}</p>
-                  <p className="text-xs text-text-quaternary">{item.typeLabel}</p>
-                </td>
-                <td className="whitespace-nowrap px-3 py-2 text-text-quaternary">
-                  {formatDateOnly(item.effectiveDate, { day: "2-digit", month: "short" })}
-                </td>
-                {currencyCodes.map((currencyCode) => (
-                  <td key={currencyCode} className="whitespace-nowrap px-3 py-2 text-right text-foreground">
-                    {item.currencyCode === currencyCode
-                      ? formatCurrency(item.amount, currencyCode)
-                      : "—"}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="space-y-3">
+        {draftPayments.map((payment, index) => (
+          <CurrencyPaymentCard
+            key={payment.coveredCurrencyCode}
+            payment={payment}
+            accounts={accounts}
+            onChange={(changes) => onPaymentChange(index, changes)}
+            onRemove={() => onRemovePayment(payment.coveredCurrencyCode)}
+          />
+        ))}
       </div>
     </section>
   );
 }
 
-function PaymentDraftList({
+function CurrencyPaymentCard({
+  payment,
   accounts,
-  draftPayments,
-  onPaymentChange,
+  onChange,
+  onRemove,
 }: {
+  payment: DraftPayment;
   accounts: AccountGetDTO[];
-  draftPayments: DraftPayment[];
-  onPaymentChange: (index: number, changes: Partial<DraftPayment>) => void;
+  onChange: (changes: Partial<DraftPayment>) => void;
+  onRemove: () => void;
 }) {
+  const isPaid = isPaymentComplete(payment);
+  const paidAmount =
+    payment.amount !== undefined && Number.isFinite(payment.amount) ? payment.amount : 0;
+  const pendingAmount = Math.max(payment.includedAmount - paidAmount, 0);
+  const hasData = payment.accountId !== undefined || payment.amount !== undefined;
+  const accountFieldId = `payment-account-${payment.coveredCurrencyCode}`;
+  const amountFieldId = `payment-amount-${payment.coveredCurrencyCode}`;
+  const dateFieldId = `payment-date-${payment.coveredCurrencyCode}`;
+
   return (
-    <section aria-labelledby="payment-draft-title" className="space-y-3">
-      <div>
-        <h3 id="payment-draft-title" className="font-semibold text-foreground">
-          Pagos por moneda cubierta
-        </h3>
-        <p className="text-sm text-text-quaternary">
-          Una fila vacía significa que esa moneda todavía no fue pagada.
-        </p>
-      </div>
-      <div className="space-y-3">
-        {draftPayments.map((payment, index) => (
-          <div
-            key={payment.coveredCurrencyCode}
-            className="grid gap-3 rounded-lg border border-border-subtle bg-secondary/30 p-3 md:grid-cols-[1fr_1.4fr_1fr_1fr] md:items-end"
+    <article className="rounded-lg border border-border-subtle bg-secondary/30 p-3 sm:p-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold text-foreground">{payment.coveredCurrencyCode}</h3>
+          <Badge variant="outline" className={isPaid ? PAID_BADGE_CLASSES : UNPAID_BADGE_CLASSES}>
+            {isPaid ? "Pagado" : "Sin pago"}
+          </Badge>
+        </div>
+        {hasData && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label={`Quitar pago en ${payment.coveredCurrencyCode}`}
+            className="ml-auto text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            onClick={onRemove}
           >
-            <div>
-              <p className="text-sm font-medium text-foreground">{payment.coveredCurrencyCode}</p>
-              <p className="text-xs text-text-quaternary">
-                Incluido: {formatCurrency(payment.includedAmount, payment.coveredCurrencyCode)}
-              </p>
-            </div>
-            <label className="space-y-1 text-xs text-text-quaternary">
-              Cuenta
-              <Select
-                value={payment.accountId?.toString()}
-                onValueChange={(value) => onPaymentChange(index, { accountId: Number(value) })}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Seleccionar cuenta" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id.toString()}>
-                      {account.name} · {account.currency.code}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </label>
-            <label className="space-y-1 text-xs text-text-quaternary">
-              Importe real debitado
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={payment.amount ?? ""}
-                onChange={(event) =>
-                  onPaymentChange(index, {
-                    amount: event.target.value === "" ? undefined : event.target.valueAsNumber,
-                  })
-                }
-              />
-            </label>
-            <label className="space-y-1 text-xs text-text-quaternary">
-              Fecha del pago
-              <Input
-                type="date"
-                value={payment.effectiveDate}
-                onChange={(event) => onPaymentChange(index, { effectiveDate: event.target.value })}
-              />
-            </label>
-          </div>
-        ))}
+            <Trash2 className="size-4" />
+            Quitar pago
+          </Button>
+        )}
+      </div>
+
+      <dl className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
+        <div className="flex items-baseline gap-1.5">
+          <dt className="text-text-quaternary">Incluido</dt>
+          <dd className="font-medium tabular-nums text-foreground">
+            {formatCurrency(payment.includedAmount, payment.coveredCurrencyCode)}
+          </dd>
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <dt className="text-text-quaternary">Pagado</dt>
+          <dd
+            className={cn(
+              "font-medium tabular-nums",
+              isPaid ? "text-emerald-400" : "text-foreground",
+            )}
+          >
+            {formatCurrency(paidAmount, payment.coveredCurrencyCode)}
+          </dd>
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <dt className="text-text-quaternary">Pendiente</dt>
+          <dd
+            className={cn(
+              "font-medium tabular-nums",
+              pendingAmount > 0 ? "text-amber-300" : "text-foreground",
+            )}
+          >
+            {formatCurrency(pendingAmount, payment.coveredCurrencyCode)}
+          </dd>
+        </div>
+      </dl>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="space-y-1">
+          <Label htmlFor={accountFieldId} className="text-xs font-normal text-text-quaternary">
+            Cuenta
+          </Label>
+          <Select
+            value={payment.accountId?.toString()}
+            onValueChange={(value) => onChange({ accountId: Number(value) })}
+          >
+            <SelectTrigger id={accountFieldId} className="w-full">
+              <SelectValue placeholder="Seleccionar cuenta" />
+            </SelectTrigger>
+            <SelectContent>
+              {accounts.map((account) => (
+                <SelectItem key={account.id} value={account.id.toString()}>
+                  {account.name} · {account.currency.code}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor={amountFieldId} className="text-xs font-normal text-text-quaternary">
+            Importe
+          </Label>
+          <Input
+            id={amountFieldId}
+            type="number"
+            min="0"
+            step="0.01"
+            value={payment.amount ?? ""}
+            onChange={(event) =>
+              onChange({
+                amount: event.target.value === "" ? undefined : event.target.valueAsNumber,
+              })
+            }
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor={dateFieldId} className="text-xs font-normal text-text-quaternary">
+            Fecha
+          </Label>
+          <Input
+            id={dateFieldId}
+            type="date"
+            value={payment.effectiveDate}
+            onChange={(event) => onChange({ effectiveDate: event.target.value })}
+          />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function StatementDetailPanel({ items }: { items: StatementDetailItem[] }) {
+  const [isOpen, setIsOpen] = useState(true);
+  const hasMultipleCurrencies =
+    new Set(items.map((item) => item.currencyCode)).size > 1;
+  const itemsLabel = items.length === 1 ? "1 item incluido" : `${items.length} items incluidos`;
+
+  return (
+    <section
+      aria-labelledby="statement-detail-title"
+      className="rounded-lg border border-border-subtle"
+    >
+      <h3 id="statement-detail-title">
+        <button
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls="statement-detail-body"
+          onClick={() => setIsOpen((current) => !current)}
+          className="flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left transition-colors hover:bg-hover-muted focus-visible:ring-2 focus-visible:ring-sp-blue-400 focus-visible:outline-none"
+        >
+          <span className="min-w-0">
+            <span className="block font-semibold text-foreground">Detalle del resumen</span>
+            <span className="block text-xs font-normal text-text-quaternary">{itemsLabel}</span>
+          </span>
+          <ChevronDown
+            className={cn(
+              "size-4 shrink-0 text-text-quaternary transition-transform",
+              isOpen && "rotate-180",
+            )}
+          />
+        </button>
+      </h3>
+
+      <div id="statement-detail-body" hidden={!isOpen}>
+        {items.length === 0 ? (
+          <p className="border-t border-border-subtle px-4 py-3 text-sm text-text-quaternary">
+            Sin items incluidos.
+          </p>
+        ) : (
+          <ul className="divide-y divide-border-subtle/70 border-t border-border-subtle">
+            {items.map((item) => (
+              <li key={item.id} className="flex items-start justify-between gap-3 px-4 py-2.5">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {item.description}
+                  </p>
+                  <p className="truncate text-xs text-text-quaternary">
+                    {item.typeLabel} ·{" "}
+                    {formatDateOnly(item.effectiveDate, { day: "2-digit", month: "short" })}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-sm tabular-nums whitespace-nowrap text-foreground">
+                    {formatCurrency(item.amount, item.currencyCode)}
+                  </p>
+                  {hasMultipleCurrencies && (
+                    <p className="text-xs text-text-quaternary">{item.currencyCode}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
+  );
+}
+
+function isPaymentComplete(payment: DraftPayment) {
+  return (
+    payment.accountId !== undefined &&
+    payment.amount !== undefined &&
+    Number.isFinite(payment.amount) &&
+    payment.amount > 0 &&
+    payment.effectiveDate !== ""
   );
 }
 
@@ -406,5 +596,5 @@ function getInstallmentDate(effectiveDate: string, installmentNumber: number) {
 }
 
 function getTodayDate() {
-  return new Date().toISOString().slice(0, 10);
+  return formatDateToISO(new Date());
 }

@@ -341,3 +341,5 @@ $RECYCLE.BIN/
 # BMAD output artifacts (optional - uncomment if needed)
 # _bmad-output/
 # _bmad/_memory/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/

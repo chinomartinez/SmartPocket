@@ -212,7 +212,7 @@ export function CreditCardStatementPaymentsDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="modal-form flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden p-4 sm:h-auto sm:max-w-6xl sm:p-6">
         <DialogHeader className="gap-3 border-b border-border-subtle pb-4 text-left">
-          <div className="flex flex-wrap items-start justify-between gap-3 pr-8 sm:pr-0">
+          <div className="flex flex-wrap items-end justify-between gap-3 pr-8 sm:pr-10">
             <div className="min-w-0 space-y-1">
               <DialogTitle className="flex items-center gap-2">
                 <WalletCards className="size-5" /> Gestionar pagos
@@ -355,11 +355,13 @@ function CurrencyPaymentCard({
   onChange: (changes: Partial<DraftPayment>) => void;
   onRemove: () => void;
 }) {
+  const [areFieldsOpen, setAreFieldsOpen] = useState(false);
   const isPaid = isPaymentComplete(payment);
   const paidAmount =
     payment.amount !== undefined && Number.isFinite(payment.amount) ? payment.amount : 0;
   const pendingAmount = Math.max(payment.includedAmount - paidAmount, 0);
   const hasData = payment.accountId !== undefined || payment.amount !== undefined;
+  const fieldsId = `payment-fields-${payment.coveredCurrencyCode}`;
   const accountFieldId = `payment-account-${payment.coveredCurrencyCode}`;
   const amountFieldId = `payment-amount-${payment.coveredCurrencyCode}`;
   const dateFieldId = `payment-date-${payment.coveredCurrencyCode}`;
@@ -419,7 +421,29 @@ function CurrencyPaymentCard({
         </div>
       </dl>
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)]">
+      <button
+        type="button"
+        aria-expanded={areFieldsOpen}
+        aria-controls={fieldsId}
+        onClick={() => setAreFieldsOpen((current) => !current)}
+        className="mt-2 flex w-full items-center justify-between gap-2 border-t border-border-subtle/60 pt-2 text-left text-xs font-medium text-sp-blue-300 transition-colors hover:text-sp-blue-200 focus-visible:ring-2 focus-visible:ring-sp-blue-400 focus-visible:outline-none sm:hidden"
+      >
+        <span>{areFieldsOpen ? "Ocultar" : isPaid ? "Editar pago" : "Cargar pago"}</span>
+        <ChevronDown
+          className={cn(
+            "size-4 shrink-0 transition-transform",
+            areFieldsOpen && "rotate-180",
+          )}
+        />
+      </button>
+
+      <div
+        id={fieldsId}
+        className={cn(
+          "mt-3 grid gap-3 sm:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)]",
+          !areFieldsOpen && "hidden sm:grid",
+        )}
+      >
         <div className="space-y-1">
           <Label htmlFor={accountFieldId} className="text-xs font-normal text-text-quaternary">
             Cuenta
@@ -474,9 +498,7 @@ function CurrencyPaymentCard({
 }
 
 function StatementDetailPanel({ items }: { items: StatementDetailItem[] }) {
-  const [isOpen, setIsOpen] = useState(true);
-  const hasMultipleCurrencies =
-    new Set(items.map((item) => item.currencyCode)).size > 1;
+  const hasMultipleCurrencies = new Set(items.map((item) => item.currencyCode)).size > 1;
   const itemsLabel = items.length === 1 ? "1 item incluido" : `${items.length} items incluidos`;
 
   return (
@@ -484,58 +506,40 @@ function StatementDetailPanel({ items }: { items: StatementDetailItem[] }) {
       aria-labelledby="statement-detail-title"
       className="rounded-lg border border-border-subtle"
     >
-      <h3 id="statement-detail-title">
-        <button
-          type="button"
-          aria-expanded={isOpen}
-          aria-controls="statement-detail-body"
-          onClick={() => setIsOpen((current) => !current)}
-          className="flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left transition-colors hover:bg-hover-muted focus-visible:ring-2 focus-visible:ring-sp-blue-400 focus-visible:outline-none"
-        >
-          <span className="min-w-0">
-            <span className="block font-semibold text-foreground">Detalle del resumen</span>
-            <span className="block text-xs font-normal text-text-quaternary">{itemsLabel}</span>
-          </span>
-          <ChevronDown
-            className={cn(
-              "size-4 shrink-0 text-text-quaternary transition-transform",
-              isOpen && "rotate-180",
-            )}
-          />
-        </button>
-      </h3>
-
-      <div id="statement-detail-body" hidden={!isOpen}>
-        {items.length === 0 ? (
-          <p className="border-t border-border-subtle px-4 py-3 text-sm text-text-quaternary">
-            Sin items incluidos.
-          </p>
-        ) : (
-          <ul className="divide-y divide-border-subtle/70 border-t border-border-subtle">
-            {items.map((item) => (
-              <li key={item.id} className="flex items-start justify-between gap-3 px-4 py-2.5">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {item.description}
-                  </p>
-                  <p className="truncate text-xs text-text-quaternary">
-                    {item.typeLabel} ·{" "}
-                    {formatDateOnly(item.effectiveDate, { day: "2-digit", month: "short" })}
-                  </p>
-                </div>
-                <div className="shrink-0 text-right">
-                  <p className="text-sm tabular-nums whitespace-nowrap text-foreground">
-                    {formatCurrency(item.amount, item.currencyCode)}
-                  </p>
-                  {hasMultipleCurrencies && (
-                    <p className="text-xs text-text-quaternary">{item.currencyCode}</p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="px-4 py-3">
+        <h3 id="statement-detail-title" className="font-semibold text-foreground">
+          Detalle del resumen
+        </h3>
+        <p className="text-xs text-text-quaternary">{itemsLabel}</p>
       </div>
+
+      {items.length === 0 ? (
+        <p className="border-t border-border-subtle px-4 py-3 text-sm text-text-quaternary">
+          Sin items incluidos.
+        </p>
+      ) : (
+        <ul className="divide-y divide-border-subtle/70 border-t border-border-subtle">
+          {items.map((item) => (
+            <li key={item.id} className="flex items-start justify-between gap-3 px-4 py-2.5">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-foreground">{item.description}</p>
+                <p className="truncate text-xs text-text-quaternary">
+                  {item.typeLabel} ·{" "}
+                  {formatDateOnly(item.effectiveDate, { day: "2-digit", month: "short" })}
+                </p>
+              </div>
+              <div className="shrink-0 text-right">
+                <p className="text-sm tabular-nums whitespace-nowrap text-foreground">
+                  {formatCurrency(item.amount, item.currencyCode)}
+                </p>
+                {hasMultipleCurrencies && (
+                  <p className="text-xs text-text-quaternary">{item.currencyCode}</p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

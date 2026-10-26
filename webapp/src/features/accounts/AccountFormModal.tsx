@@ -11,7 +11,13 @@ import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import { accountSchema, type AccountFormValues } from "./accountSchema";
 import type { AccountGetDTO } from "@/api/services/accounts/accountTypes";
 import type { ApiError } from "@/api/types";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -129,7 +135,7 @@ export function AccountFormModal({ account, open, onOpenChange }: AccountFormMod
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
-        <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
+        <DialogHeader className="pb-4 border-b border-border-subtle">
           <DialogTitle>{mode === "create" ? "Nueva cuenta" : "Editar cuenta"}</DialogTitle>
         </DialogHeader>
 
@@ -299,7 +305,7 @@ export function AccountFormModal({ account, open, onOpenChange }: AccountFormMod
             </div>
 
             {/* Botones de acción */}
-            <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:justify-end">
+            <DialogFooter className="shrink-0 gap-3 border-t border-border-subtle pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -316,7 +322,7 @@ export function AccountFormModal({ account, open, onOpenChange }: AccountFormMod
                     ? "Crear cuenta"
                     : "Guardar cambios"}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

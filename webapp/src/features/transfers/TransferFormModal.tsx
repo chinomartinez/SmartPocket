@@ -16,7 +16,13 @@ import { useAccounts } from "@/api/services/accounts/useAccounts";
 import { transferSchema, type TransferFormValues } from "./transferSchema";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import type { ApiError } from "@/api/types";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -173,7 +179,7 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
-        <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
+        <DialogHeader className="pb-4 border-b border-border-subtle">
           <DialogTitle>
             {mode === "create" ? "Nueva transferencia" : "Editar transferencia"}
           </DialogTitle>
@@ -357,7 +363,7 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
             </div>
 
             {/* Botones de acción */}
-            <div className="flex shrink-0 flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <DialogFooter className="shrink-0 flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
               {/* Botón Eliminar - Solo en modo edit */}
               {showDeleteButton ? (
                 <Button
@@ -393,7 +399,7 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
                       : "Guardar cambios"}
                 </Button>
               </div>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
 

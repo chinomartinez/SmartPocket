@@ -239,7 +239,7 @@ export function CreditCardStatementFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="modal-form !flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-2xl">
+      <DialogContent className="modal-form flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-2xl">
         <DialogHeader className="pb-4 border-b border-border-subtle">
           <DialogTitle>{isEdit ? "Editar resumen" : "Armar nuevo resumen"}</DialogTitle>
           <DialogDescription>

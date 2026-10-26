@@ -16,7 +16,13 @@ import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
 import { categorySchema, type CategoryFormValues } from "./categorySchema";
 import type { CategoryGetDTO } from "@/api/services/categories/categoryTypes";
 import type { ApiError } from "@/api/types";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import {
   Form,
@@ -154,7 +160,7 @@ export function CategoryFormModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="modal-form flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-md">
-        <DialogHeader className="mb-4 pb-4 border-b border-slate-700/50">
+        <DialogHeader className="pb-4 border-b border-border-subtle">
           <DialogTitle>{mode === "create" ? "Nueva categoría" : "Editar categoría"}</DialogTitle>
         </DialogHeader>
 
@@ -289,7 +295,7 @@ export function CategoryFormModal({
             </div>
 
             {/* Botones de acción */}
-            <div className="flex shrink-0 flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <DialogFooter className="shrink-0 flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
               {/* Botón Eliminar - Solo en modo edit y si NO es default */}
               {showDeleteButton ? (
                 <Button
@@ -321,7 +327,7 @@ export function CategoryFormModal({
                   {isSubmitting ? "Guardando..." : mode === "create" ? "Crear" : "Guardar"}
                 </Button>
               </div>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

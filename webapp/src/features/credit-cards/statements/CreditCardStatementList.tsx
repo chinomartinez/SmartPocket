@@ -10,7 +10,7 @@ import {
 import type { CreditCardStatementListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { CreditCardStatementFormDialog } from "./CreditCardStatementFormDialog";
 import { CreditCardStatementItem } from "./CreditCardStatementItem";
-import { CreditCardStatementPaymentsDialog } from "./CreditCardStatementPaymentsDialog";
+import { CreditCardStatementPaymentsDialog } from "./payments/CreditCardStatementPaymentsDialog";
 
 const PAGE_SIZE = 3;
 

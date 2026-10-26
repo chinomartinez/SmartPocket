@@ -1,6 +1,6 @@
 /**
  * Date Helpers
- * Utilidades para manejo de fechas ISO 8601 UTC
+ * Utilidades para manejo de fechas date-only y timestamps (local/UTC)
  */
 
 export interface DateRange {
@@ -58,24 +58,17 @@ export function formatDateOnly(dateString: string, options?: Intl.DateTimeFormat
 }
 
 /**
- * Formatea una fecha a formato ISO 8601 (YYYY-MM-DD)
+ * Formatea la fecha local de un Date como YYYY-MM-DD, sin convertirla a UTC.
  * @param date Fecha a formatear
- * @returns String en formato ISO 8601 (YYYY-MM-DD)
+ * @returns Fecha local en formato YYYY-MM-DD, o "" si la fecha es inválida
  */
 export function formatDateToISO(date: Date): string {
+  if (Number.isNaN(date.getTime())) return "";
+
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-}
-
-/**
- * Convierte un string ISO 8601 a objeto Date
- * @param isoString String en formato ISO 8601 (YYYY-MM-DD)
- * @returns Objeto Date
- */
-export function parseDateFromISO(isoString: string): Date {
-  return new Date(isoString);
 }
 
 /**
@@ -198,7 +191,9 @@ export function getPeriodRange(
 export function AddCurrentTimeToDate(effectiveDate: string): string {
   const currentTime = new Date();
 
-  const date = new Date(effectiveDate);
+  // Sin la "Z" el string fecha+hora se interpreta como hora local. Un string
+  // solo fecha se interpretaría como UTC y correría el día en offsets negativos.
+  const date = new Date(`${effectiveDate.slice(0, 10)}T00:00:00`);
   date.setHours(
     currentTime.getHours(),
     currentTime.getMinutes(),

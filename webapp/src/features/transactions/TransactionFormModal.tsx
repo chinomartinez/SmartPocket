@@ -48,7 +48,7 @@ import { ErrorAlert } from "@/components/ErrorAlert";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { MiniCalculator } from "./MiniCalculator";
 import { cn } from "@/utils/utils";
-import { AddCurrentTimeToDate } from "@/utils/dateHelpers";
+import { AddCurrentTimeToDate, formatDateToISO } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface TransactionFormModalProps {
@@ -62,7 +62,7 @@ const DEFAULT_FORM_VALUES: TransactionFormValues = {
   accountId: 0,
   categoryId: 0,
   amount: 0,
-  effectiveDate: new Date().toISOString().split("T")[0],
+  effectiveDate: formatDateToISO(new Date()),
   description: "",
   tags: [],
 };
@@ -99,13 +99,14 @@ export function TransactionFormModal({
             accountId: transaction.accountId,
             categoryId: transaction.categoryId,
             amount: transaction.accountMoney.amount,
-            effectiveDate: transaction.effectiveDate.split("T")[0],
+            effectiveDate: formatDateToISO(new Date(transaction.effectiveDate)),
             description: transaction.description || "",
             tags: [],
           }
         : {
             ...DEFAULT_FORM_VALUES,
             accountId: principalAccountId ?? 0,
+            effectiveDate: formatDateToISO(new Date()),
           },
   });
 

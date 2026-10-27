@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { dateOnlySchema } from "@/utils/dateSchema";
 
 export const creditCardStatementSchema = z
   .object({
     description: z.string().trim().min(1, "La descripción es obligatoria.").max(200),
-    closingDate: z.string().min(1, "La fecha de cierre es obligatoria."),
-    dueDate: z.string().min(1, "La fecha de vencimiento es obligatoria."),
+    closingDate: dateOnlySchema,
+    dueDate: dateOnlySchema,
     selectedItemsCount: z
       .number()
       .int()

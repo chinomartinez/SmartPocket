@@ -2,7 +2,7 @@ import type {
   CreditCardStatementDetailDTO,
   CreditCardStatementPaymentDTO,
 } from "@/api/services/credit-cards/creditCardTypes";
-import { dateOnlyFromDateTime, todayDateOnly } from "@/utils/dateHelpers";
+import { dateOnlyFromDateTime, toDateOnlyUtc, todayDateOnly } from "@/utils/dateHelpers";
 import type { DraftPayment, StatementDetailItem } from "./paymentTypes";
 
 export function isPaymentComplete(payment: DraftPayment) {
@@ -56,8 +56,15 @@ export function getStatementDetailItems(
   ].sort((first, second) => first.effectiveDate.localeCompare(second.effectiveDate));
 }
 
-function getInstallmentDate(effectiveDate: string, installmentNumber: number) {
+/**
+ * Fecha de la cuota N de una compra.
+ * Se calcula en UTC a propósito para replicar el AddMonths de EF Core sobre SQLite:
+ * el backend normaliza el overflow de fin de mes (31/01 + 1 mes = 03/03), no lo
+ * recorta al último día del mes. No cambiar a toDateOnly(): el cálculo debe ser
+ * independiente de la zona horaria.
+ */
+export function getInstallmentDate(effectiveDate: string, installmentNumber: number) {
   const date = new Date(`${effectiveDate}T00:00:00Z`);
   date.setUTCMonth(date.getUTCMonth() + installmentNumber - 1);
-  return date.toISOString().slice(0, 10);
+  return toDateOnlyUtc(date);
 }

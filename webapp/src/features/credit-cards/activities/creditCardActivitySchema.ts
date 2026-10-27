@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { dateOnlySchema } from "@/utils/dateSchema";
 
 const commonActivityFields = {
   categoryId: z.number().int().positive("Elegí una categoría"),
   description: z.string().min(1, "La descripción es obligatoria").max(200),
-  effectiveDate: z.string().min(1, "La fecha es obligatoria"),
+  effectiveDate: dateOnlySchema,
   currencyCode: z
     .string()
     .length(3, "Usá un código de 3 letras")

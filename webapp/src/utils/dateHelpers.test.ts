@@ -6,8 +6,10 @@ import {
   dateOnlyFromDateTime,
   daysBetweenDateOnly,
   formatDateOnlyLabel,
+  isValidDateOnly,
   parseInstant,
   toDateOnly,
+  toDateOnlyUtc,
   todayDateOnly,
   withCurrentTime,
 } from "./dateHelpers";
@@ -92,6 +94,30 @@ describe("dateOnlyFromInstant", () => {
 
   it("devuelve vacío para un instante inválido", () => {
     expect(dateOnlyFromInstant("sin-fecha")).toBe("");
+  });
+});
+
+describe("toDateOnlyUtc", () => {
+  it("devuelve la fecha en UTC sin convertir a local", () => {
+    expect(toDateOnlyUtc(new Date("2026-10-21T23:30:00-03:00"))).toBe("2026-10-22");
+  });
+
+  it("devuelve vacío para una fecha inválida", () => {
+    expect(toDateOnlyUtc(new Date("no-es-una-fecha"))).toBe("");
+  });
+});
+
+describe("isValidDateOnly", () => {
+  it("acepta fechas reales en formato YYYY-MM-DD", () => {
+    expect(isValidDateOnly("2026-10-21")).toBe(true);
+    expect(isValidDateOnly("2024-02-29")).toBe(true);
+  });
+
+  it("rechaza timestamps, formatos inválidos y fechas inexistentes", () => {
+    expect(isValidDateOnly("2026-10-21T00:00:00Z")).toBe(false);
+    expect(isValidDateOnly("2026-2-3")).toBe(false);
+    expect(isValidDateOnly("2026-02-30")).toBe(false);
+    expect(isValidDateOnly("")).toBe(false);
   });
 });
 

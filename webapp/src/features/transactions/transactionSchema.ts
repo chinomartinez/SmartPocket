@@ -4,6 +4,7 @@
  */
 
 import { z } from "zod";
+import { dateOnlySchema } from "@/utils/dateSchema";
 
 /**
  * Schema de validación para crear/editar transacciones
@@ -28,10 +29,7 @@ export const transactionSchema = z.object({
   amount: z.number("El monto debe ser un número válido").positive("El monto debe ser mayor a 0"),
 
   // Fecha efectiva de la transacción
-  effectiveDate: z
-    .string()
-    .min(1, "La fecha es requerida")
-    .refine((date) => !isNaN(Date.parse(date)), "La fecha debe ser válida (formato ISO 8601)"),
+  effectiveDate: dateOnlySchema,
 
   // Descripción opcional
   description: z

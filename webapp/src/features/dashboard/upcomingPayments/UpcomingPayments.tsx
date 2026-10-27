@@ -5,16 +5,12 @@ import { formatCurrency } from "@/utils/formatters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/router/routes";
 import { cn } from "@/utils/utils";
+import { daysBetweenDateOnly, todayDateOnly } from "@/utils/dateHelpers";
 
 export default function UpcomingPayments() {
-  // Helper function to calculate days until due date
-  const getDaysUntil = (dueDate: Date): number => {
-    const today = new Date();
-    const due = new Date(dueDate);
-    const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
+  // Días de calendario entre hoy y el vencimiento (negativo si está vencido)
+  const getDaysUntil = (dueDate: string): number =>
+    daysBetweenDateOnly(todayDateOnly(), dueDate);
 
   // Helper function to format days remaining text
   const formatDaysRemaining = (days: number): string => {

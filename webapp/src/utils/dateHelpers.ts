@@ -84,6 +84,19 @@ export function toDateOnly(date: Date): string {
 }
 
 /**
+ * Formatea la fecha UTC de un Date como YYYY-MM-DD.
+ * Se usa sólo para cálculos que deben ser independientes de la zona horaria.
+ */
+export function toDateOnlyUtc(date: Date): string {
+  if (Number.isNaN(date.getTime())) return "";
+
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * Devuelve la fecha local de hoy como YYYY-MM-DD.
  */
 export function todayDateOnly(): string {
@@ -109,6 +122,20 @@ export function dateOnlyFromDateTime(value: string): string {
  */
 export function dateOnlyFromInstant(instant: string): string {
   return toDateOnly(new Date(instant));
+}
+
+/**
+ * Valida que un string sea una fecha de calendario real en formato YYYY-MM-DD.
+ */
+export function isValidDateOnly(value: string): boolean {
+  if (!DATE_ONLY_PATTERN.test(value)) return false;
+
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  return (
+    date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+  );
 }
 
 /**

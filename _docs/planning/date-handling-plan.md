@@ -21,17 +21,21 @@ Fuera de alcance por ahora:
 
 Ya corregido:
 
-- `AddCurrentTimeToDate` interpreta la fecha del picker como local (antes UTC) y conserva la hora actual en el timestamp enviado.
+- `AddCurrentTimeToDate` interpreta la fecha del picker como local (antes UTC) y conserva la hora actual en el timestamp enviado. Renombrado a `withCurrentTime`.
 - `TransactionFormModal` y `TransferFormModal` usan fecha local en el valor por defecto y en el prefill de edición.
 - El default de creación se recalcula mediante el prop `values` de React Hook Form, sin `useEffect`.
 - Los formularios con fecha por defecto (compra, suscripción, resumen, transacción y transferencia) calculan ese valor con una factory `getCreateValues()` usada tanto en `values` como en `form.reset`. Así el default se recalcula al abrir y al reabrir el formulario, aunque la app cruce medianoche.
-- `CreditCardPurchaseFormDialog`, `CreditCardSubscriptionFormDialog` y `CreditCardStatementFormDialog` ya no usan `toISOString().slice(0, 10)`; el cierre se calcula con `formatDateToISO(new Date())`.
-- `getDefaultDueDate` suma 15 días sobre el calendario local y formatea con `formatDateToISO`, calculando cierre y vencimiento desde el mismo instante.
-- `formatDateToISO` documentado como fecha local, con guard para fechas inválidas.
+- `CreditCardPurchaseFormDialog`, `CreditCardSubscriptionFormDialog` y `CreditCardStatementFormDialog` ya no usan `toISOString().slice(0, 10)`; el cierre se calcula con `toDateOnly(new Date())`.
+- `getDefaultDueDate` suma 15 días sobre el calendario local y formatea con `toDateOnly`, calculando cierre y vencimiento desde el mismo instante.
+- `dateHelpers` expone la API centralizada: `toDateOnly`, `toDateOnlyUtc`, `todayDateOnly`, `dateOnlyFromDateTime`, `dateOnlyFromInstant`, `compareDateOnly`, `compareInstants`, `parseInstant`, `daysBetweenDateOnly`, `isValidDateOnly`, `formatDateOnlyLabel`, `formatInstantLabel` y `withCurrentTime`.
+- Ninguna feature usa `toISOString`, `.slice(0, 10)`, `.split("T")` ni `new Date("...")`; la regla ESLint `no-restricted-syntax` lo bloquea en `src/features/**`.
+- La validación Zod de fechas usa `dateOnlySchema` (rechaza timestamps y fechas inexistentes) en transacciones, transferencias, compras, suscripciones y resúmenes.
+- `getInstallmentDate` está documentado y testeado como espejo del `AddMonths` de EF Core/SQLite, incluido el overflow de fin de mes.
+- `UpcomingPayments` usa DateOnly y `daysBetweenDateOnly`.
 - `parseDateFromISO` eliminado por no tener usos.
-- Tests de regresión en `webapp/src/utils/dateHelpers.test.ts`.
+- Tests de regresión en `dateHelpers.test.ts`, `dateSchema.test.ts`, `paymentHelpers.test.ts` y `formatters.test.ts`.
 
-Pendiente: ver sección 5 (hallazgos de las fases 1 y 2).
+Pendiente: Fase 2 (secciones 5 y 7).
 
 ## 3. Modelo conceptual
 
@@ -64,9 +68,9 @@ Pendiente: ver sección 5 (hallazgos de las fases 1 y 2).
 | --- | --- | --- | --- |
 | `CreditCardPurchase.EffectiveDate` | `DateOnly` | `DateOnly` | Ya correcto |
 | `CreditCardSubscription.EffectiveDate` | `DateOnly` | `DateOnly` | Ya correcto |
-| `CreditCardStatement.ClosingDate` | `DateTime` | `DateOnly` | Hoy el frontend hace `.slice(0, 10)` |
+| `CreditCardStatement.ClosingDate` | `DateTime` | `DateOnly` | Hoy el frontend usa `dateOnlyFromDateTime` (puente) |
 | `CreditCardStatement.DueDate` | `DateTime` | `DateOnly` | Ídem |
-| `CreditCardStatementPayment.EffectiveDate` | `DateTime` | `DateOnly` | Revisar la relación con `Transaction` |
+| `CreditCardStatementPayment.EffectiveDate` | `DateTime` | `DateOnly` | Hoy el frontend usa `dateOnlyFromDateTime` (puente); revisar la relación con `Transaction` |
 | `Transaction.EffectiveDate` | `DateTime` | `DateOnly` (a confirmar) | El usuario no elige hora; hoy se agrega la hora actual |
 | `Transfer.EffectiveDate` | `DateTime` | `DateOnly` (a confirmar) | Ídem |
 | `CreatedAt` / `LastModifiedAt` | `DateTime` | `DateTime` UTC | Auditoría; no cambia |
@@ -75,18 +79,10 @@ Pendiente: ver sección 5 (hallazgos de las fases 1 y 2).
 
 ## 5. Hallazgos pendientes
 
-Los hallazgos de la Fase 0 están corregidos y se detallan en la sección 2. Quedan pendientes:
+Los hallazgos de frontend de las fases 0 y 1 están corregidos y se detallan en la sección 2. Queda pendiente el cambio de contrato del backend:
 
 | Archivo | Problema | Impacto | Fase |
 | --- | --- | --- | --- |
-| `features/credit-cards/statements/CreditCardStatementFormDialog.tsx` | `.slice(0, 10)` sobre `DateTime` del backend (edición) | Funciona por la asunción "medianoche UTC"; frágil ante cambios de contrato | 2 |
-| `features/credit-cards/statements/payments/paymentHelpers.ts` | `.slice(0, 10)` sobre `payment.effectiveDate` | Ídem | 2 |
-| `features/credit-cards/statements/payments/CreditCardStatementPaymentsDialog.tsx` | Comparación por strings con `.slice(0, 10)` | Ídem | 2 |
-| `utils/dateHelpers.ts` | `formatDateLocal` (instante → local) vs `formatDateOnly` (date-only → display) | Nombres ambiguos; elegir mal corre un día | 1 |
-| `utils/dateHelpers.ts` | `formatDateToISO` devuelve fecha local, pero el nombre sugiere ISO/UTC | Riesgo de mal uso | 1 |
-| `features/.../payments/paymentHelpers.ts` | `getInstallmentDate` hace la cuenta en UTC para replicar `AddMonths` del backend | Correcto, pero necesita comentario/test para que nadie lo "arregle" | 1 |
-| `features/transactions/transactionSchema.ts`, `features/transfers/transferSchema.ts` | Validación con `Date.parse` acepta date-only y timestamps | No garantiza el formato del campo | 1 |
-| `features/dashboard/upcomingPayments/UpcomingPayments.tsx` | `new Date("YYYY-MM-DD")` (UTC) contra `new Date()` local + `Math.ceil` | Con datos reales puede dar días corridos; hoy usa mock | 1 |
 | `backend/.../Transaction.cs` | `EffectiveDate` es `DateTime` y se fuerza a UTC | Con DateOnly desaparece la hora y la conversión local | 2 |
 
 ## 6. Decisiones
@@ -120,7 +116,7 @@ Notas de implementación:
 
 - Además de `values`, la factory `getCreateValues()` se usa en `form.reset`. Sin eso, el reset de cierre reintroducía la fecha capturada al importar el módulo y reabrir el mismo día no la actualizaba.
 - El mismo patrón se aplicó a `TransactionFormModal` y `TransferFormModal`, incluyendo la cuenta principal en el reset.
-- `formatDateToISO` queda cubierto por los tests existentes de `dateHelpers`; `getDefaultDueDate` sigue privado al diálogo, sin test dedicado.
+- `toDateOnly` queda cubierto por los tests existentes de `dateHelpers`; `getDefaultDueDate` sigue privado al diálogo, sin test dedicado.
 
 Criterios de aceptación:
 
@@ -129,25 +125,32 @@ Criterios de aceptación:
 - Sin `toISOString().slice(0, 10)` en los formularios de creación.
 - `pnpm run build`, eslint y tests en verde.
 
-### Fase 1 - Capa de fechas centralizada (frontend)
+### Fase 1 - Capa de fechas centralizada (frontend) (completada)
 
 Objetivo: que ninguna feature vuelva a improvisar con fechas.
 
-API propuesta en `webapp/src/utils/dateHelpers.ts`:
+Estado: completada. El detalle está en la sección 2.
+
+API implementada en `webapp/src/utils/dateHelpers.ts`:
 
 ```ts
 // DateOnly
 todayDateOnly(): string;
 toDateOnly(date: Date): string;
+toDateOnlyUtc(date: Date): string;
 formatDateOnlyLabel(value: string, options?: Intl.DateTimeFormatOptions): string;
 compareDateOnly(a: string, b: string): number;
+daysBetweenDateOnly(from: string, to: string): number;
+isValidDateOnly(value: string): boolean;
 
 // Puente mientras el backend siga mandando DateTime para campos de calendario
 dateOnlyFromDateTime(value: string): string;
+dateOnlyFromInstant(instant: string): string;
 
 // Instant / auditoría
-nowInstant(): string;
 formatInstantLabel(instant: string, options?: Intl.DateTimeFormatOptions): string;
+compareInstants(a: string, b: string): number;
+parseInstant(instant: string): Date;
 
 // Puente temporal: Transaction/Transfer todavía envían DateTime (se elimina en Fase 2)
 withCurrentTime(dateOnly: string): string;
@@ -163,6 +166,14 @@ Tareas:
 - Documentar `getInstallmentDate` como espejo de `AddMonths` del backend.
 - Unificar la validación Zod de fechas si se repite.
 - Evaluar una regla ESLint `no-restricted-syntax` para prohibir `toISOString().slice` y `.split("T")` en `src/features/**`.
+
+Notas de implementación:
+
+- La validación Zod quedó en `webapp/src/utils/dateSchema.ts` (`dateOnlySchema`) y se usa en transacciones, transferencias, compras/suscripciones y resúmenes.
+- La regla ESLint se aplicó a `src/features/**` y bloquea `toISOString().slice`, `.slice(0, 10)`, `.split("T")` y `new Date("...")`.
+- `getInstallmentDate` replica el overflow de SQLite: 31/01 + 1 mes = 03/03. Queda cubierto por tests para que nadie lo "corrija" a último día del mes.
+- Tests nuevos: `dateSchema.test.ts` y `paymentHelpers.test.ts`; se amplió `dateHelpers.test.ts` y se alineó `formatters.test.ts` con la salida real (es-AR/ARS).
+- `pnpm run lint` sigue mostrando errores previos ajenos a fechas (`any` en `errorHandler`, `var` en `accountService`, `react-refresh` en componentes UI y un unused en `AccountsPage`). Los archivos tocados por la fase pasan sin errores.
 
 Criterios de aceptación:
 
@@ -201,7 +212,7 @@ Impacto frontend:
 
 Criterios de aceptación:
 
-- No queda ningún `.slice(0, 10)` en el frontend.
+- No queda ningún `dateOnlyFromDateTime` ni `.slice(0, 10)` en el frontend.
 - Los formularios no agregan hora.
 - Tests backend de serialización y validadores.
 - Migración verificada con datos de ejemplo.
@@ -248,5 +259,7 @@ Go/no-go: después de la fase 2.
 - `_docs/planning/credit-card-ui-plan.md`
 - `webapp/src/utils/dateHelpers.ts`
 - `webapp/src/utils/dateHelpers.test.ts`
+- `webapp/src/utils/dateSchema.ts`
+- `webapp/src/features/credit-cards/statements/payments/paymentHelpers.ts`
 - `backend/src/SmartPocket.Domain/Transactions/Transaction.cs`
 - `backend/src/SmartPocket.Features/CreditCardStatements/Payments/Bulk/CreditCardStatementPaymentsBulkCommandHandler.cs`

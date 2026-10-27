@@ -2,7 +2,7 @@ export interface Payment {
   id: string;
   title: string;
   amount: number;
-  dueDate: Date;
+  dueDate: string; // YYYY-MM-DD (DateOnly)
   category: string;
   categoryIcon: string;
   isPaid: boolean;

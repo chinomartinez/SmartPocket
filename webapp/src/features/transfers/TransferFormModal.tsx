@@ -54,13 +54,15 @@ interface TransferFormModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const DEFAULT_FORM_VALUES: TransferFormValues = {
-  originAccountId: 0,
-  destinationAccountId: 0,
-  amount: 0,
-  effectiveDate: formatDateToISO(new Date()),
-  description: "",
-};
+function getCreateValues(principalAccountId?: number): TransferFormValues {
+  return {
+    originAccountId: principalAccountId ?? 0,
+    destinationAccountId: 0,
+    amount: 0,
+    effectiveDate: formatDateToISO(new Date()),
+    description: "",
+  };
+}
 
 export function TransferFormModal({ transferId, open, onOpenChange }: TransferFormModalProps) {
   // Derivar modo del transferId
@@ -92,11 +94,7 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
             effectiveDate: formatDateToISO(new Date(transfer.effectiveDate)),
             description: transfer.description || "",
           }
-        : {
-            ...DEFAULT_FORM_VALUES,
-            originAccountId: principalAccountId ?? 0,
-            effectiveDate: formatDateToISO(new Date()),
-          },
+        : getCreateValues(principalAccountId),
   });
 
   // Estado de dialog de confirmación de eliminación
@@ -111,7 +109,7 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
     if (!isOpen) {
       activeMutation.reset();
       deleteMutation.reset();
-      form.reset(DEFAULT_FORM_VALUES);
+      form.reset(getCreateValues(principalAccountId));
     }
     onOpenChange(isOpen);
   };

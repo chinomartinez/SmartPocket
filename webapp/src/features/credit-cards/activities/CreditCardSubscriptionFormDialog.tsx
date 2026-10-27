@@ -41,6 +41,7 @@ import {
   type CreditCardSubscriptionActivityFormValues,
 } from "./creditCardActivitySchema";
 import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
+import { formatDateToISO } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface CreditCardSubscriptionFormDialogProps {
@@ -51,13 +52,15 @@ interface CreditCardSubscriptionFormDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const DEFAULT_VALUES: CreditCardSubscriptionActivityFormValues = {
-  categoryId: 0,
-  description: "",
-  effectiveDate: new Date().toISOString().slice(0, 10),
-  currencyCode: "ARS",
-  amount: 0,
-};
+function getCreateValues(): CreditCardSubscriptionActivityFormValues {
+  return {
+    categoryId: 0,
+    description: "",
+    effectiveDate: formatDateToISO(new Date()),
+    currencyCode: "ARS",
+    amount: 0,
+  };
+}
 
 export function CreditCardSubscriptionFormDialog({
   cardId,
@@ -84,7 +87,7 @@ export function CreditCardSubscriptionFormDialog({
           currencyCode: activity.currencyCode,
           amount: activity.amount,
         }
-      : DEFAULT_VALUES,
+      : getCreateValues(),
   });
 
   const handleFormError = useFormErrorHandler(form);
@@ -97,7 +100,7 @@ export function CreditCardSubscriptionFormDialog({
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       activeMutation.reset();
-      form.reset(DEFAULT_VALUES);
+      form.reset(getCreateValues());
     }
     onOpenChange(nextOpen);
   };

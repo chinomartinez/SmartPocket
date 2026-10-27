@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { formatCurrency } from "@/utils/formatters";
-import { formatDateOnly } from "@/utils/dateHelpers";
+import { formatDateOnly, formatDateToISO } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 import type { ApiError } from "@/api/types";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
@@ -51,12 +51,15 @@ interface CreditCardStatementFormDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const EMPTY_VALUES: CreditCardStatementFormValues = {
-  description: "",
-  closingDate: new Date().toISOString().slice(0, 10),
-  dueDate: getDefaultDueDate(),
-  selectedItemsCount: 0,
-};
+function getCreateValues(): CreditCardStatementFormValues {
+  const now = new Date();
+  return {
+    description: "",
+    closingDate: formatDateToISO(now),
+    dueDate: getDefaultDueDate(now),
+    selectedItemsCount: 0,
+  };
+}
 
 export function CreditCardStatementFormDialog({
   cardId,
@@ -80,7 +83,7 @@ export function CreditCardStatementFormDialog({
           dueDate: statement.dueDate.slice(0, 10),
           selectedItemsCount: 0,
         }
-      : EMPTY_VALUES,
+      : getCreateValues(),
   });
 
   const closingDate = form.watch("closingDate");
@@ -154,7 +157,7 @@ export function CreditCardStatementFormDialog({
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       activeMutation.reset();
-      form.reset(EMPTY_VALUES);
+      form.reset(getCreateValues());
       setSelectedInstallmentIds(new Set());
       setSelectedChargeKeys(new Set());
       setChargeAmounts({});
@@ -560,8 +563,8 @@ function toggleSetValue<T>(current: Set<T>, value: T) {
   return next;
 }
 
-function getDefaultDueDate() {
-  const date = new Date();
+function getDefaultDueDate(from = new Date()): string {
+  const date = new Date(from);
   date.setDate(date.getDate() + 15);
-  return date.toISOString().slice(0, 10);
+  return formatDateToISO(date);
 }

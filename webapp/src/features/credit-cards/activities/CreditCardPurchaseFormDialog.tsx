@@ -41,6 +41,7 @@ import {
   type CreditCardPurchaseActivityFormValues,
 } from "./creditCardActivitySchema";
 import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
+import { formatDateToISO } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface CreditCardPurchaseFormDialogProps {
@@ -51,14 +52,16 @@ interface CreditCardPurchaseFormDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const DEFAULT_VALUES: CreditCardPurchaseActivityFormValues = {
-  categoryId: 0,
-  description: "",
-  effectiveDate: new Date().toISOString().slice(0, 10),
-  currencyCode: "ARS",
-  amount: 0,
-  installments: 1,
-};
+function getCreateValues(): CreditCardPurchaseActivityFormValues {
+  return {
+    categoryId: 0,
+    description: "",
+    effectiveDate: formatDateToISO(new Date()),
+    currencyCode: "ARS",
+    amount: 0,
+    installments: 1,
+  };
+}
 
 export function CreditCardPurchaseFormDialog({
   cardId,
@@ -85,7 +88,7 @@ export function CreditCardPurchaseFormDialog({
           amount: activity.amount,
           installments: activity.installmentsCount ?? 1,
         }
-      : DEFAULT_VALUES,
+      : getCreateValues(),
   });
 
   const handleFormError = useFormErrorHandler(form);
@@ -99,7 +102,7 @@ export function CreditCardPurchaseFormDialog({
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       activeMutation.reset();
-      form.reset(DEFAULT_VALUES);
+      form.reset(getCreateValues());
     }
     onOpenChange(nextOpen);
   };

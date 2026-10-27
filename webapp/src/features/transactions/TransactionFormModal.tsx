@@ -57,15 +57,17 @@ interface TransactionFormModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const DEFAULT_FORM_VALUES: TransactionFormValues = {
-  isIncome: false,
-  accountId: 0,
-  categoryId: 0,
-  amount: 0,
-  effectiveDate: formatDateToISO(new Date()),
-  description: "",
-  tags: [],
-};
+function getCreateValues(principalAccountId?: number): TransactionFormValues {
+  return {
+    isIncome: false,
+    accountId: principalAccountId ?? 0,
+    categoryId: 0,
+    amount: 0,
+    effectiveDate: formatDateToISO(new Date()),
+    description: "",
+    tags: [],
+  };
+}
 
 export function TransactionFormModal({
   transactionId,
@@ -103,11 +105,7 @@ export function TransactionFormModal({
             description: transaction.description || "",
             tags: [],
           }
-        : {
-            ...DEFAULT_FORM_VALUES,
-            accountId: principalAccountId ?? 0,
-            effectiveDate: formatDateToISO(new Date()),
-          },
+        : getCreateValues(principalAccountId),
   });
 
   // Estado derivado: tipo de transacción determina categorías disponibles
@@ -142,7 +140,7 @@ export function TransactionFormModal({
     if (!isOpen) {
       activeMutation.reset();
       deleteMutation.reset();
-      form.reset(DEFAULT_FORM_VALUES);
+      form.reset(getCreateValues(principalAccountId));
     }
     onOpenChange(isOpen);
   };

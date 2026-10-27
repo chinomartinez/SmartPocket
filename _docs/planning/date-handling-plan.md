@@ -70,9 +70,9 @@ Pendiente: Fase 2 (secciones 5 y 7).
 | `CreditCardSubscription.EffectiveDate` | `DateOnly` | `DateOnly` | Ya correcto |
 | `CreditCardStatement.ClosingDate` | `DateTime` | `DateOnly` | Hoy el frontend usa `dateOnlyFromDateTime` (puente) |
 | `CreditCardStatement.DueDate` | `DateTime` | `DateOnly` | Ídem |
-| `CreditCardStatementPayment.EffectiveDate` | `DateTime` | `DateOnly` | Hoy el frontend usa `dateOnlyFromDateTime` (puente); revisar la relación con `Transaction` |
-| `Transaction.EffectiveDate` | `DateTime` | `DateOnly` (a confirmar) | El usuario no elige hora; hoy se agrega la hora actual |
-| `Transfer.EffectiveDate` | `DateTime` | `DateOnly` (a confirmar) | Ídem |
+| `CreditCardStatementPayment.EffectiveDate` | `DateTime` | `DateOnly` | No tiene columna propia: usa `Transaction.EffectiveDate` |
+| `Transaction.EffectiveDate` | `DateTime` | `DateOnly` | Confirmado para la Fase 2; hoy se agrega la hora actual |
+| `Transfer.EffectiveDate` | `DateTime` | `DateOnly` | Confirmado para la Fase 2 |
 | `CreatedAt` / `LastModifiedAt` | `DateTime` | `DateTime` UTC | Auditoría; no cambia |
 | Timestamps de logs (`errorLogger`) | `Instant` | `Instant` | Técnicos; no cambia |
 | `DayRangeDTO` (cierre/vencimiento habitual) | `int` | `int` | No es fecha |
@@ -88,7 +88,7 @@ Los hallazgos de frontend de las fases 0 y 1 están corregidos y se detallan en 
 ## 6. Decisiones
 
 - **D1**: Todo dato que el usuario elige es DateOnly. No se captura hora en ningún formulario.
-- **D2**: `DateTime` queda reservado para auditoría (`CreatedAt`, `LastModifiedAt`) y timestamps técnicos. La probabilidad de pasar todos los contratos y entidades de negocio a `DateOnly` es alta; se confirma en la fase 2.
+- **D2**: Confirmado en la Fase 2: los campos de negocio pasan a `DateOnly`; `DateTime` queda reservado para auditoría y timestamps técnicos.
 - **D3**: El frontend tiene un único adaptador de fechas. Las features no usan `Date` directamente.
 - **D4**: No se agrega una librería de fechas en las fases 0 y 1. Temporal se evalúa recién en la fase 3.
 - **D5**: Los cambios de contrato del backend se hacen en un trabajo separado, con migración y validaciones propias.
@@ -185,37 +185,60 @@ Criterios de aceptación:
 
 Objetivo: eliminar las asunciones "este `DateTime` en realidad es una fecha".
 
-Alcance probable:
+Estado: pendiente de implementación.
+
+Alcance confirmado:
 
 - Statements: `ClosingDate`, `DueDate` → `DateOnly`.
-- Payments: `EffectiveDate` → `DateOnly`.
-- Transactions / Transfers: `EffectiveDate` → `DateOnly` (a confirmar).
+- Transactions: `EffectiveDate` → `DateOnly`.
+- Transfers: `EffectiveDate` → `DateOnly`.
+- Payments: `CreditCardStatementPayment` no tiene columna de fecha propia; usa `Transaction.EffectiveDate`. Al pasar la transacción a `DateOnly`, el pago queda `DateOnly`.
 - Auditoría (`CreatedAt`, `LastModifiedAt`) y logs: siguen `DateTime` UTC.
+
+Decisiones de datos:
+
+- La base de desarrollo no se borra. Se conservan los datos y se les corta la hora.
+- No se hace backup ni rollback: no hay producción y es una decisión explícita.
+- No se hace conversión de zona horaria ni auditoría histórica. El día queda tal como está guardado.
+- EF Core guarda `DateOnly` como `TEXT` `"YYYY-MM-DD"`. Si el valor tiene hora, leerlo como `DateOnly` lanza `FormatException` (verificado contra SQLite). Por eso la limpieza es obligatoria antes de usar la app con el modelo nuevo.
+
+SQL de limpieza (lo ejecuta el usuario, no el agente):
+
+```sql
+UPDATE CreditCardStatement SET ClosingDate = substr(ClosingDate, 1, 10), DueDate = substr(DueDate, 1, 10);
+UPDATE Transactions SET EffectiveDate = substr(EffectiveDate, 1, 10);
+UPDATE Transfers SET EffectiveDate = substr(EffectiveDate, 1, 10);
+```
+
+Reglas de ejecución:
+
+- El agente puede modificar código y crear el archivo de migración.
+- El agente NO ejecuta `dotnet ef database update`, ni SQL contra la base, ni backups.
+- El usuario revisa el diff y aplica la migración/limpieza cuando corresponda.
 
 Impacto backend:
 
 - DTOs, comandos y entidades.
-- Validadores:
-  - `EffectiveDate <= DateTime.UtcNow` → comparación de `DateOnly`.
-  - `payment.EffectiveDate <= statement.ClosingDate`.
-- `AddMonths` de sugerencias de cuotas.
-- Consultas por rango y orden:
-  - El listado de transacciones ya usa `ThenByDescending(CreatedAt)` como desempate; con DateOnly el orden intra-día queda cubierto por auditoría.
-- Migraciones de columnas `DateTime` → `DateOnly`.
+- Validadores: se mantiene el criterio existente de compras/suscripciones (`DateOnly.FromDateTime(DateTime.UtcNow)`). Los pagos comparan contra `statement.ClosingDate`.
+- `AddMonths` de sugerencias de cuotas: no se toca.
+- Consultas por rango y orden: los filtros `From`/`To` pasan a `DateOnly`; el desempate intra-día sigue con `CreatedAt`.
+- `CreateAsSystemAdjustment` usa `DateOnly.FromDateTime(DateTime.UtcNow)`.
 
 Impacto frontend:
 
 - Tipos de DTO.
-- Eliminación de `dateOnlyFromDateTime` y de `AddCurrentTimeToDate` / `withCurrentTime`.
+- Eliminación de `dateOnlyFromDateTime`, `dateOnlyFromInstant` y `withCurrentTime`.
 - Formularios: envían el DateOnly tal cual, sin agregar hora.
 - Prefill de edición: usa el DateOnly del backend directamente.
+- Listas: `formatDateOnlyLabel` y comparación date-only.
+- `RecentTransactions`: necesita un formateador relativo date-only.
 
 Criterios de aceptación:
 
-- No queda ningún `dateOnlyFromDateTime` ni `.slice(0, 10)` en el frontend.
+- No queda ningún `dateOnlyFromDateTime`, `dateOnlyFromInstant` ni `withCurrentTime` en el frontend.
 - Los formularios no agregan hora.
 - Tests backend de serialización y validadores.
-- Migración verificada con datos de ejemplo.
+- La migración queda creada en el repo, sin aplicarse desde el agente.
 
 ### Fase 3 - Temporal (opcional)
 
@@ -230,11 +253,11 @@ Go/no-go: después de la fase 2.
 
 ## 8. Riesgos y migración de datos
 
-- **Instantes con hora**: `Transaction.EffectiveDate` y `Transfer.EffectiveDate` hoy guardan la hora de creación/edición. Al pasar a DateOnly se pierde; aceptable porque el usuario nunca eligió hora.
-- **Conversión de datos existentes**: hay que decidir con qué zona horaria se toma el día de un `DateTime` almacenado. Para un usuario en Argentina, lo esperable es el día local (ART), no el UTC.
-- **Datos ya corridos**: los registros creados con el bug de UTC pueden tener la fecha un día antes. Una migración ingenua consolidaría el error. Antes de migrar, auditar `EffectiveDate` contra `CreatedAt`.
-- **Backup y rollback**: snapshot previo y script reversible.
-- **Validadores de fecha futura**: con DateOnly, comparar contra el día UTC permite hasta un día de diferencia con el día local. Definir la regla antes de implementar.
+- **Instantes con hora**: `Transaction.EffectiveDate` y `Transfer.EffectiveDate` hoy guardan la hora de creación/edición. Al pasar a DateOnly se corta la hora; el día queda tal como está guardado.
+- **Conversión de datos existentes**: no se convierte zona horaria. Se aplica `substr(fecha, 1, 10)`; una transacción nocturna puede quedar con el día UTC.
+- **Datos ya corridos**: no se auditan ni corrigen. Quedan como están.
+- **Backup y rollback**: no se hacen. Decisión explícita: no hay producción.
+- **Validadores de fecha futura**: se mantiene el criterio existente de compras (`DateOnly.FromDateTime(DateTime.UtcNow)`), con la ventana conocida de 21:00–23:59 ART.
 - **Orden intra-día**: ya existe desempate por `CreatedAt`; verificar todas las consultas que ordenan por fecha.
 
 ## 9. Verificación
@@ -243,15 +266,12 @@ Go/no-go: después de la fase 2.
 - Tests de round-trip de DateOnly.
 - `pnpm run build` y eslint.
 - Backend: `dotnet build` y `dotnet test`.
+- La migración y la limpieza de datos las aplica el usuario; el agente no ejecuta comandos sobre la base.
 - QA manual: crear y editar una transacción, una transferencia, una compra, una suscripción y un pago; verificar el día mostrado en las listas.
 
 ## 10. Preguntas abiertas
 
-- ¿Se confirma `DateOnly` para `Transaction.EffectiveDate` y `Transfer.EffectiveDate`?
-- ¿Cómo se migran los registros existentes que ya tienen el día corrido?
-- ¿La validación de "no futura" se hace contra el día UTC o contra el día local del usuario?
-- ¿`Payment.EffectiveDate` se expone como DateOnly y la `Transaction` asociada mantiene un instante para auditoría, o también pasa a DateOnly?
-- ¿Se adopta Temporal o se mantiene el adaptador sobre `Date`?
+- ¿Se adopta Temporal o se mantiene el adaptador sobre `Date`? (Fase 3)
 
 ## 11. Referencias
 

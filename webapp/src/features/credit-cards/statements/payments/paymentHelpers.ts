@@ -2,7 +2,7 @@ import type {
   CreditCardStatementDetailDTO,
   CreditCardStatementPaymentDTO,
 } from "@/api/services/credit-cards/creditCardTypes";
-import { formatDateToISO } from "@/utils/dateHelpers";
+import { dateOnlyFromDateTime, todayDateOnly } from "@/utils/dateHelpers";
 import type { DraftPayment, StatementDetailItem } from "./paymentTypes";
 
 export function isPaymentComplete(payment: DraftPayment) {
@@ -26,7 +26,7 @@ export function createDraftPayments(
       id: payment?.id ?? null,
       accountId: payment?.account.id,
       amount: payment?.amount,
-      effectiveDate: payment?.effectiveDate.slice(0, 10) ?? getTodayDate(),
+      effectiveDate: payment ? dateOnlyFromDateTime(payment.effectiveDate) : todayDateOnly(),
       coveredCurrencyCode: summary.currencyCode,
       includedAmount: summary.includedAmount,
     };
@@ -60,8 +60,4 @@ function getInstallmentDate(effectiveDate: string, installmentNumber: number) {
   const date = new Date(`${effectiveDate}T00:00:00Z`);
   date.setUTCMonth(date.getUTCMonth() + installmentNumber - 1);
   return date.toISOString().slice(0, 10);
-}
-
-export function getTodayDate() {
-  return formatDateToISO(new Date());
 }

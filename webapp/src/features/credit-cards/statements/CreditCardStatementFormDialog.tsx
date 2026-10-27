@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { formatCurrency } from "@/utils/formatters";
-import { formatDateOnly, formatDateToISO } from "@/utils/dateHelpers";
+import { dateOnlyFromDateTime, formatDateOnlyLabel, toDateOnly } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 import type { ApiError } from "@/api/types";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
@@ -55,7 +55,7 @@ function getCreateValues(): CreditCardStatementFormValues {
   const now = new Date();
   return {
     description: "",
-    closingDate: formatDateToISO(now),
+    closingDate: toDateOnly(now),
     dueDate: getDefaultDueDate(now),
     selectedItemsCount: 0,
   };
@@ -79,15 +79,17 @@ export function CreditCardStatementFormDialog({
     values: statement
       ? {
           description: statement.description,
-          closingDate: statement.closingDate.slice(0, 10),
-          dueDate: statement.dueDate.slice(0, 10),
+          closingDate: dateOnlyFromDateTime(statement.closingDate),
+          dueDate: dateOnlyFromDateTime(statement.dueDate),
           selectedItemsCount: 0,
         }
       : getCreateValues(),
   });
 
   const closingDate = form.watch("closingDate");
-  const persistedClosingDate = detailQuery.data?.closingDate.slice(0, 10);
+  const persistedClosingDate = detailQuery.data
+    ? dateOnlyFromDateTime(detailQuery.data.closingDate)
+    : undefined;
   const hasEditedClosingDate = Boolean(form.formState.dirtyFields.closingDate);
   const suggestionClosingDate =
     isEdit && !hasEditedClosingDate ? (persistedClosingDate ?? closingDate) : closingDate;
@@ -469,7 +471,7 @@ function InstallmentRow({
         <span className="block truncate text-sm text-foreground">{item.purchase.description}</span>
         <span className="text-xs text-text-quaternary">
           Cuota {item.installmentNumber} · {item.purchase.category.name} ·{" "}
-          {formatDateOnly(item.purchase.effectiveDate)}
+          {formatDateOnlyLabel(item.purchase.effectiveDate)}
         </span>
       </span>
       <span className="text-sm font-medium text-foreground">
@@ -512,7 +514,7 @@ function ChargeRow({
         <p className="truncate text-sm text-foreground">{item.subscription.description}</p>
         <p className="text-xs text-text-quaternary">
           Cargo {item.chargeNumber} · {item.subscription.category.name} ·{" "}
-          {formatDateOnly(item.subscription.effectiveDate)}
+          {formatDateOnlyLabel(item.subscription.effectiveDate)}
         </p>
       </div>
       <Input
@@ -566,5 +568,5 @@ function toggleSetValue<T>(current: Set<T>, value: T) {
 function getDefaultDueDate(from = new Date()): string {
   const date = new Date(from);
   date.setDate(date.getDate() + 15);
-  return formatDateToISO(date);
+  return toDateOnly(date);
 }

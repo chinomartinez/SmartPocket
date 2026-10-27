@@ -41,7 +41,7 @@ import {
   type CreditCardSubscriptionActivityFormValues,
 } from "./creditCardActivitySchema";
 import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
-import { formatDateToISO } from "@/utils/dateHelpers";
+import { toDateOnly } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface CreditCardSubscriptionFormDialogProps {
@@ -56,7 +56,7 @@ function getCreateValues(): CreditCardSubscriptionActivityFormValues {
   return {
     categoryId: 0,
     description: "",
-    effectiveDate: formatDateToISO(new Date()),
+    effectiveDate: toDateOnly(new Date()),
     currencyCode: "ARS",
     amount: 0,
   };

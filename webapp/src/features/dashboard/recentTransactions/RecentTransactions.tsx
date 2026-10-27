@@ -3,6 +3,7 @@ import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { useRecentTransactions } from "@/api/services/transactions/useTransactions";
 import { TransactionFormModal } from "@/features/transactions/TransactionFormModal";
+import { parseInstant } from "@/utils/dateHelpers";
 import { formatRelativeTime, formatCurrency } from "@/utils/formatters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/router/routes";
@@ -111,7 +112,7 @@ export default function RecentTransactions({ accountId }: RecentTransactionsProp
                         {transaction.category.name} · {transaction.description || ""}
                       </p>
                       <p className="truncate text-xs text-text-quaternary">
-                        {formatRelativeTime(new Date(transaction.effectiveDate))} ·{" "}
+                        {formatRelativeTime(parseInstant(transaction.effectiveDate))} ·{" "}
                         {transaction.account.name}
                       </p>
                     </div>

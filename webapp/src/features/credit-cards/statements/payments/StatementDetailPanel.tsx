@@ -1,4 +1,4 @@
-import { formatDateOnly } from "@/utils/dateHelpers";
+import { formatDateOnlyLabel } from "@/utils/dateHelpers";
 import { formatCurrency } from "@/utils/formatters";
 import type { StatementDetailItem } from "./paymentTypes";
 
@@ -30,7 +30,7 @@ export function StatementDetailPanel({ items }: { items: StatementDetailItem[] }
                 <p className="truncate text-sm font-medium text-foreground">{item.description}</p>
                 <p className="truncate text-xs text-text-quaternary">
                   {item.typeLabel} ·{" "}
-                  {formatDateOnly(item.effectiveDate, { day: "2-digit", month: "short" })}
+                  {formatDateOnlyLabel(item.effectiveDate, { day: "2-digit", month: "short" })}
                 </p>
               </div>
               <div className="shrink-0 text-right">

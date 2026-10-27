@@ -20,10 +20,15 @@ import {
   useUpdateCreditCardStatementPayments,
 } from "@/api/services/credit-cards/useCreditCards";
 import type { ApiError } from "@/api/types";
-import { formatDateOnly } from "@/utils/dateHelpers";
+import {
+  compareDateOnly,
+  dateOnlyFromDateTime,
+  formatDateOnlyLabel,
+  todayDateOnly,
+} from "@/utils/dateHelpers";
 import { PaymentDraftsSection } from "./PaymentDraftsSection";
 import { StatementDetailPanel } from "./StatementDetailPanel";
-import { createDraftPayments, getStatementDetailItems, getTodayDate } from "./paymentHelpers";
+import { createDraftPayments, getStatementDetailItems } from "./paymentHelpers";
 import type { DraftPayment } from "./paymentTypes";
 
 interface CreditCardStatementPaymentsDialogProps {
@@ -136,11 +141,11 @@ export function CreditCardStatementPaymentsDialog({
       return;
     }
 
-    const today = getTodayDate();
+    const today = todayDateOnly();
     const invalidDate = filledPayments.find(
       (payment) =>
-        payment.effectiveDate <= statement.closingDate.slice(0, 10) ||
-        payment.effectiveDate > today,
+        compareDateOnly(payment.effectiveDate, dateOnlyFromDateTime(statement.closingDate)) <= 0 ||
+        compareDateOnly(payment.effectiveDate, today) > 0,
     );
 
     if (invalidDate) {
@@ -193,7 +198,7 @@ export function CreditCardStatementPaymentsDialog({
                 </Badge>
                 <span className="inline-flex items-center gap-1.5 text-xs text-text-quaternary">
                   <CalendarDays className="size-3.5 shrink-0" />
-                  Vence {formatDateOnly(statement.dueDate, { day: "2-digit", month: "short" })}
+                  Vence {formatDateOnlyLabel(statement.dueDate, { day: "2-digit", month: "short" })}
                 </span>
               </div>
             )}

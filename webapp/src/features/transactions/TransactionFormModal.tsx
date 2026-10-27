@@ -48,7 +48,7 @@ import { ErrorAlert } from "@/components/ErrorAlert";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { MiniCalculator } from "./MiniCalculator";
 import { cn } from "@/utils/utils";
-import { AddCurrentTimeToDate, formatDateToISO } from "@/utils/dateHelpers";
+import { dateOnlyFromInstant, toDateOnly, withCurrentTime } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface TransactionFormModalProps {
@@ -63,7 +63,7 @@ function getCreateValues(principalAccountId?: number): TransactionFormValues {
     accountId: principalAccountId ?? 0,
     categoryId: 0,
     amount: 0,
-    effectiveDate: formatDateToISO(new Date()),
+    effectiveDate: toDateOnly(new Date()),
     description: "",
     tags: [],
   };
@@ -101,7 +101,7 @@ export function TransactionFormModal({
             accountId: transaction.accountId,
             categoryId: transaction.categoryId,
             amount: transaction.accountMoney.amount,
-            effectiveDate: formatDateToISO(new Date(transaction.effectiveDate)),
+            effectiveDate: dateOnlyFromInstant(transaction.effectiveDate),
             description: transaction.description || "",
             tags: [],
           }
@@ -164,7 +164,7 @@ export function TransactionFormModal({
       accountId: data.accountId,
       categoryId: data.categoryId,
       amount: data.amount,
-      effectiveDate: AddCurrentTimeToDate(data.effectiveDate),
+      effectiveDate: withCurrentTime(data.effectiveDate),
       description: data.description || undefined,
       isIncome: data.isIncome,
     };

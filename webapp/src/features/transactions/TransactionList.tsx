@@ -6,7 +6,7 @@
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { formatSignedCurrency } from "@/utils/formatters";
-import { formatDateLocal } from "@/utils/dateHelpers";
+import { compareInstants, formatInstantLabel } from "@/utils/dateHelpers";
 import type { TransactionListItemDTO } from "@/api/services/transactions/transactionTypes";
 import type { ApiError } from "@/api/types";
 
@@ -38,7 +38,7 @@ function groupTransactionsByDate(transactions: TransactionListItemDTO[]): Transa
   const grouped = transactions.reduce(
     (acc, tx) => {
       // Formatear la fecha para usarla como clave de agrupación
-      const formattedDate = formatDateLocal(tx.effectiveDate);
+      const formattedDate = formatInstantLabel(tx.effectiveDate);
 
       if (!acc[formattedDate]) {
         acc[formattedDate] = [];
@@ -54,9 +54,7 @@ function groupTransactionsByDate(transactions: TransactionListItemDTO[]): Transa
     .map(([date, txs]) => ({ date, transactions: txs }))
     .sort((a, b) => {
       // Comparar las fechas del primer elemento de cada grupo
-      const dateA = new Date(a.transactions[0].effectiveDate);
-      const dateB = new Date(b.transactions[0].effectiveDate);
-      return dateB.getTime() - dateA.getTime(); // Descendente
+      return compareInstants(b.transactions[0].effectiveDate, a.transactions[0].effectiveDate);
     });
 }
 

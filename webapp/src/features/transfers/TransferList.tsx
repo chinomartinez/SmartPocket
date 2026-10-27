@@ -6,7 +6,7 @@
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { formatCurrency } from "@/utils/formatters";
-import { formatDateLocal } from "@/utils/dateHelpers";
+import { compareInstants, formatInstantLabel } from "@/utils/dateHelpers";
 import { ArrowRight } from "lucide-react";
 import type { TransferListItemDTO } from "@/api/services/transfers/transferTypes";
 import type { ApiError } from "@/api/types";
@@ -38,7 +38,7 @@ function groupTransfersByDate(transfers: TransferListItemDTO[]): TransferGroup[]
   const grouped = transfers.reduce(
     (acc, transfer) => {
       // Formatear la fecha para usarla como clave de agrupación
-      const formattedDate = formatDateLocal(transfer.effectiveDate);
+      const formattedDate = formatInstantLabel(transfer.effectiveDate);
 
       if (!acc[formattedDate]) {
         acc[formattedDate] = [];
@@ -54,9 +54,7 @@ function groupTransfersByDate(transfers: TransferListItemDTO[]): TransferGroup[]
     .map(([date, txs]) => ({ date, transfers: txs }))
     .sort((a, b) => {
       // Comparar las fechas del primer elemento de cada grupo
-      const dateA = new Date(a.transfers[0].effectiveDate);
-      const dateB = new Date(b.transfers[0].effectiveDate);
-      return dateB.getTime() - dateA.getTime(); // Descendente
+      return compareInstants(b.transfers[0].effectiveDate, a.transfers[0].effectiveDate);
     });
 }
 

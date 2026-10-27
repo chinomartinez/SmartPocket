@@ -1,23 +1,29 @@
 /**
  * Date Helpers
- * Utilidades para manejo de fechas date-only y timestamps (local/UTC)
+ * Adaptador único para fechas de calendario (date-only) e instantes (local/UTC).
  */
 
 export interface DateRange {
-  from: string; // ISO 8601 date string (YYYY-MM-DD)
-  to: string; // ISO 8601 date string (YYYY-MM-DD)
+  from: string; // YYYY-MM-DD (DateOnly)
+  to: string; // YYYY-MM-DD (DateOnly)
 }
 
+const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 /**
- * Formatea una fecha ISO 8601 UTC a string local legible
- * @param isoString - Fecha en formato ISO 8601 (UTC)
+ * Formatea un instante ISO 8601 como string local legible.
+ * @param isoString - Instante en formato ISO 8601 (UTC u offset)
  * @param options - Opciones de formato Intl.DateTimeFormat
  * @returns String formateado en zona horaria local
  * @example
- * formatDateLocal('2024-01-15T10:30:00Z') // "15/1/2024"
- * formatDateLocal('2024-01-15T10:30:00Z', { dateStyle: 'long' }) // "15 de enero de 2024"
+ * formatInstantLabel('2024-01-15T10:30:00Z') // "15/1/2024"
+ * formatInstantLabel('2024-01-15T10:30:00Z', { dateStyle: 'long' }) // "15 de enero de 2024"
  */
-export function formatDateLocal(isoString: string, options?: Intl.DateTimeFormatOptions): string {
+export function formatInstantLabel(
+  isoString: string,
+  options?: Intl.DateTimeFormatOptions,
+): string {
   if (!isoString) return "";
 
   const date = new Date(isoString);
@@ -42,7 +48,10 @@ export function formatDateLocal(isoString: string, options?: Intl.DateTimeFormat
 /**
  * Formatea una fecha sin hora (YYYY-MM-DD) sin convertirla entre zonas horarias.
  */
-export function formatDateOnly(dateString: string, options?: Intl.DateTimeFormatOptions): string {
+export function formatDateOnlyLabel(
+  dateString: string,
+  options?: Intl.DateTimeFormatOptions,
+): string {
   if (!dateString) return "";
 
   const [year, month, day] = dateString.slice(0, 10).split("-").map(Number);
@@ -50,11 +59,14 @@ export function formatDateOnly(dateString: string, options?: Intl.DateTimeFormat
 
   if (Number.isNaN(date.getTime())) return "";
 
-  return date.toLocaleDateString("es-AR", options || {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  return date.toLocaleDateString(
+    "es-AR",
+    options || {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    },
+  );
 }
 
 /**
@@ -62,7 +74,7 @@ export function formatDateOnly(dateString: string, options?: Intl.DateTimeFormat
  * @param date Fecha a formatear
  * @returns Fecha local en formato YYYY-MM-DD, o "" si la fecha es inválida
  */
-export function formatDateToISO(date: Date): string {
+export function toDateOnly(date: Date): string {
   if (Number.isNaN(date.getTime())) return "";
 
   const year = date.getFullYear();
@@ -72,13 +84,82 @@ export function formatDateToISO(date: Date): string {
 }
 
 /**
+ * Devuelve la fecha local de hoy como YYYY-MM-DD.
+ */
+export function todayDateOnly(): string {
+  return toDateOnly(new Date());
+}
+
+/**
+ * Extrae el día de calendario de un DateTime serializado por el backend.
+ * Puente temporal mientras los contratos de resúmenes y pagos sigan en DateTime.
+ * @param value - DateTime ISO 8601 (por ejemplo "2026-10-21T00:00:00Z")
+ * @returns El día en formato YYYY-MM-DD, o "" si no es válido
+ */
+export function dateOnlyFromDateTime(value: string): string {
+  if (!value) return "";
+
+  const dateOnly = value.slice(0, 10);
+  return DATE_ONLY_PATTERN.test(dateOnly) ? dateOnly : "";
+}
+
+/**
+ * Convierte un instante ISO 8601 al día de calendario local (YYYY-MM-DD).
+ * Puente temporal mientras Transaction/Transfer sigan enviando DateTime.
+ */
+export function dateOnlyFromInstant(instant: string): string {
+  return toDateOnly(new Date(instant));
+}
+
+/**
+ * Compara dos fechas date-only (YYYY-MM-DD).
+ * @returns -1 si a < b, 1 si a > b, 0 si son iguales
+ */
+export function compareDateOnly(a: string, b: string): number {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+}
+
+/**
+ * Compara dos instantes ISO 8601.
+ * @returns -1 si a < b, 1 si a > b, 0 si son iguales o alguno es inválido
+ */
+export function compareInstants(a: string, b: string): number {
+  const aTime = Date.parse(a);
+  const bTime = Date.parse(b);
+
+  if (Number.isNaN(aTime) || Number.isNaN(bTime)) return 0;
+  if (aTime === bTime) return 0;
+  return aTime < bTime ? -1 : 1;
+}
+
+/**
+ * Parsea un instante ISO 8601. Reservado para timestamps técnicos y de auditoría.
+ */
+export function parseInstant(instant: string): Date {
+  return new Date(instant);
+}
+
+/**
+ * Cantidad de días de calendario entre dos fechas date-only (to - from).
+ * @returns Días de diferencia, o NaN si alguna fecha es inválida
+ */
+export function daysBetweenDateOnly(from: string, to: string): number {
+  const fromMs = dateOnlyToUtcMs(from);
+  const toMs = dateOnlyToUtcMs(to);
+
+  if (fromMs === null || toMs === null) return Number.NaN;
+  return Math.round((toMs - fromMs) / MS_PER_DAY);
+}
+
+/**
  * Obtiene el rango de fechas para el día actual
  * @returns DateRange con from y to del día actual
  */
 export function getTodayRange(): DateRange {
   const today = new Date();
-  const from = formatDateToISO(today);
-  const to = formatDateToISO(today);
+  const from = toDateOnly(today);
+  const to = toDateOnly(today);
   return { from, to };
 }
 
@@ -100,8 +181,8 @@ export function getWeekRange(): DateRange {
   lastDay.setDate(firstDay.getDate() + 6);
 
   return {
-    from: formatDateToISO(firstDay),
-    to: formatDateToISO(lastDay),
+    from: toDateOnly(firstDay),
+    to: toDateOnly(lastDay),
   };
 }
 
@@ -121,8 +202,8 @@ export function getMonthRange(): DateRange {
   const lastDay = new Date(year, month + 1, 0);
 
   return {
-    from: formatDateToISO(firstDay),
-    to: formatDateToISO(lastDay),
+    from: toDateOnly(firstDay),
+    to: toDateOnly(lastDay),
   };
 }
 
@@ -134,8 +215,8 @@ export function getCurrentMonthToDateRange(): DateRange {
   const today = new Date();
 
   return {
-    from: formatDateToISO(new Date(today.getFullYear(), today.getMonth(), 1)),
-    to: formatDateToISO(today),
+    from: toDateOnly(new Date(today.getFullYear(), today.getMonth(), 1)),
+    to: toDateOnly(today),
   };
 }
 
@@ -154,8 +235,8 @@ export function getYearRange(): DateRange {
   const lastDay = new Date(year, 11, 31);
 
   return {
-    from: formatDateToISO(firstDay),
-    to: formatDateToISO(lastDay),
+    from: toDateOnly(firstDay),
+    to: toDateOnly(lastDay),
   };
 }
 
@@ -188,7 +269,11 @@ export function getPeriodRange(
   }
 }
 
-export function AddCurrentTimeToDate(effectiveDate: string): string {
+/**
+ * Convierte una fecha date-only en un instante ISO con la hora local actual.
+ * Puente temporal mientras Transaction/Transfer sigan enviando DateTime.
+ */
+export function withCurrentTime(effectiveDate: string): string {
   const currentTime = new Date();
 
   // Sin la "Z" el string fecha+hora se interpreta como hora local. Un string
@@ -202,4 +287,11 @@ export function AddCurrentTimeToDate(effectiveDate: string): string {
   );
 
   return date.toISOString();
+}
+
+function dateOnlyToUtcMs(value: string): number | null {
+  if (!DATE_ONLY_PATTERN.test(value.slice(0, 10))) return null;
+
+  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
+  return Date.UTC(year, month - 1, day);
 }

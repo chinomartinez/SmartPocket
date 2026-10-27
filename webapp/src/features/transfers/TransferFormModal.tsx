@@ -45,7 +45,7 @@ import { Calendar, Trash2, ArrowRight } from "lucide-react";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
-import { AddCurrentTimeToDate, formatDateToISO } from "@/utils/dateHelpers";
+import { dateOnlyFromInstant, toDateOnly, withCurrentTime } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface TransferFormModalProps {
@@ -59,7 +59,7 @@ function getCreateValues(principalAccountId?: number): TransferFormValues {
     originAccountId: principalAccountId ?? 0,
     destinationAccountId: 0,
     amount: 0,
-    effectiveDate: formatDateToISO(new Date()),
+    effectiveDate: toDateOnly(new Date()),
     description: "",
   };
 }
@@ -91,7 +91,7 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
             originAccountId: transfer.originAccount.id,
             destinationAccountId: transfer.destinationAccount.id,
             amount: transfer.amount,
-            effectiveDate: formatDateToISO(new Date(transfer.effectiveDate)),
+            effectiveDate: dateOnlyFromInstant(transfer.effectiveDate),
             description: transfer.description || "",
           }
         : getCreateValues(principalAccountId),
@@ -133,7 +133,7 @@ export function TransferFormModal({ transferId, open, onOpenChange }: TransferFo
       originAccountId: data.originAccountId,
       destinationAccountId: data.destinationAccountId,
       amount: data.amount,
-      effectiveDate: AddCurrentTimeToDate(data.effectiveDate),
+      effectiveDate: withCurrentTime(data.effectiveDate),
       description: data.description || undefined,
     };
 

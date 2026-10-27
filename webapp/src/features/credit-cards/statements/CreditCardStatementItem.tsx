@@ -2,7 +2,7 @@ import { CalendarDays, Trash2, WalletCards } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { CreditCardStatementListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
-import { formatDateOnly } from "@/utils/dateHelpers";
+import { formatDateOnlyLabel } from "@/utils/dateHelpers";
 
 interface CreditCardStatementItemProps {
   statement: CreditCardStatementListItemDTO;
@@ -35,12 +35,12 @@ export function CreditCardStatementItem({
     Paid: "Pagado",
   }[statement.status];
 
-  const formatClosingDate = formatDateOnly(statement.closingDate, {
+  const formatClosingDate = formatDateOnlyLabel(statement.closingDate, {
     day: "2-digit",
     month: "short",
   });
 
-  const formatDueDate = formatDateOnly(statement.dueDate, {
+  const formatDueDate = formatDateOnlyLabel(statement.dueDate, {
     day: "2-digit",
     month: "short",
   });

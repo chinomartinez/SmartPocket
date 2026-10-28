@@ -37,7 +37,7 @@ Ya corregido:
 - `parseDateFromISO` eliminado por no tener usos.
 - Tests de regresión en `dateHelpers.test.ts`, `dateSchema.test.ts`, `paymentHelpers.test.ts` y `formatters.test.ts`.
 
-Pendiente: aplicar la migración `20261028011931_Phase2_DateOnlyBusinessDates` y el SQL de limpieza de la Fase 2. El código ya está implementado; ver sección 7.
+Fase 2 cerrada: migración `20261028011931_Phase2_DateOnlyBusinessDates` aplicada y verificada.
 
 ## 3. Modelo conceptual
 
@@ -79,9 +79,9 @@ Pendiente: aplicar la migración `20261028011931_Phase2_DateOnlyBusinessDates` y
 | Timestamps de logs (`errorLogger`) | `Instant` | `Instant` | Técnicos; no cambia |
 | `DayRangeDTO` (cierre/vencimiento habitual) | `int` | `int` | No es fecha |
 
-## 5. Hallazgos pendientes
+## 5. Hallazgos resueltos
 
-Los hallazgos de frontend de las fases 0 y 1 están corregidos y se detallan en la sección 2. El cambio de contrato del backend de la Fase 2 también está implementado:
+Los hallazgos de frontend de las fases 0 y 1 están corregidos y se detallan en la sección 2. El cambio de contrato del backend de la Fase 2 también está implementado y aplicado:
 
 | Archivo | Problema | Impacto | Fase |
 | --- | --- | --- | --- |
@@ -174,11 +174,11 @@ Criterios de aceptación:
 - Tests de DateOnly e Instant con TZ fijada (ART) y casos a las 22:30.
 - Sin cambios de comportamiento visibles.
 
-### Fase 2 - Contratos del backend a DateOnly
+### Fase 2 - Contratos del backend a DateOnly (completada)
 
 Objetivo: eliminar las asunciones "este `DateTime` en realidad es una fecha".
 
-Estado: implementada en código. La migración y la limpieza de datos quedan pendientes de aplicar por el usuario.
+Estado: completada. Migración aplicada y verificada por el usuario.
 
 Alcance confirmado:
 
@@ -233,27 +233,29 @@ Criterios de aceptación:
 - No queda ningún `dateOnlyFromDateTime`, `dateOnlyFromInstant` ni `withCurrentTime` en el frontend.
 - Los formularios no agregan hora.
 - Tests backend de serialización y validadores.
-- La migración queda creada en el repo, sin aplicarse desde el agente.
+- La migración quedó creada por el agente y aplicada por el usuario.
 
-### Fase 3 - Temporal (opcional)
+### Fase 3 - Temporal (opcional, no-go)
 
-Objetivo: reemplazar la implementación de `Date` por `PlainDate` / `Instant` sin tocar las features.
+Estado: no-go por ahora. Decisión posterior a la Fase 2: se mantiene el adaptador actual sobre `Date` y strings `DateOnly`. No se adopta Temporal ni se agrega polyfill.
+
+Objetivo (si se reabre): reemplazar la implementación de `Date` por `PlainDate` / `Instant` sin tocar las features.
 
 - Adoptar `@js-temporal/polyfill` (o nativo si el soporte de navegadores lo permite).
 - Migrar solo la implementación de `dateHelpers`.
 - Mantener la API pública de la fase 1.
 - Medir impacto en bundle y confirmar soporte.
 
-Go/no-go: después de la fase 2.
+Go/no-go: cerrado. Se reabre solo si aparece un caso que requiera aritmética de fechas más compleja o zonas horarias.
 
 ## 8. Riesgos y migración de datos
 
-- **Instantes con hora**: `Transaction.EffectiveDate` y `Transfer.EffectiveDate` hoy guardan la hora de creación/edición. Al pasar a DateOnly se corta la hora; el día queda tal como está guardado.
+- **Instantes con hora**: `Transaction.EffectiveDate` y `Transfer.EffectiveDate` guardaban la hora de creación/edición. Al pasar a DateOnly se cortó la hora; el día quedó tal como estaba guardado.
 - **Conversión de datos existentes**: no se convierte zona horaria. Se aplica `substr(fecha, 1, 10)`; una transacción nocturna puede quedar con el día UTC.
 - **Datos ya corridos**: no se auditan ni corrigen. Quedan como están.
 - **Backup y rollback**: no se hacen. Decisión explícita: no hay producción.
 - **Validadores de fecha futura**: se mantiene el criterio existente de compras (`DateOnly.FromDateTime(DateTime.UtcNow)`), con la ventana conocida de 21:00–23:59 ART.
-- **Orden intra-día**: ya existe desempate por `CreatedAt`; verificar todas las consultas que ordenan por fecha.
+- **Orden intra-día**: se verificó el desempate por `CreatedAt` en las consultas que ordenan por fecha.
 
 ## 9. Verificación
 
@@ -261,12 +263,12 @@ Go/no-go: después de la fase 2.
 - Tests de round-trip de DateOnly.
 - `pnpm run build` y eslint.
 - Backend: `dotnet build` y `dotnet test`.
-- La migración y la limpieza de datos las aplica el usuario; el agente no ejecuta comandos sobre la base.
+- La migración y la limpieza de datos las aplicó el usuario; el agente no ejecutó comandos sobre la base.
 - QA manual: crear y editar una transacción, una transferencia, una compra, una suscripción y un pago; verificar el día mostrado en las listas.
 
 ## 10. Preguntas abiertas
 
-- ¿Se adopta Temporal o se mantiene el adaptador sobre `Date`? (Fase 3)
+Ninguna. La adopción de Temporal quedó cerrada como no-go en la Fase 3.
 
 ## 11. Referencias
 

@@ -10,8 +10,8 @@ namespace SmartPocket.Domain.CreditCards
 
         public string Description { get; private set; } = string.Empty;
 
-        public DateTime ClosingDate { get; private set; }
-        public DateTime DueDate { get; private set; }
+        public DateOnly ClosingDate { get; private set; }
+        public DateOnly DueDate { get; private set; }
 
         public CreditCardStatementStatus Status { get; private set; }
 
@@ -27,7 +27,7 @@ namespace SmartPocket.Domain.CreditCards
 
         private CreditCardStatement() { }
 
-        public CreditCardStatement(int creditCardId, string description, DateTime closingDate, DateTime dueDate)
+        public CreditCardStatement(int creditCardId, string description, DateOnly closingDate, DateOnly dueDate)
         {
             CreditCardId = creditCardId.GetIfNotNegativeOrZero(nameof(creditCardId));
             Description = description;
@@ -36,7 +36,7 @@ namespace SmartPocket.Domain.CreditCards
             Status = CreditCardStatementStatus.Closed;
         }
 
-        public void Update(string description, DateTime closingDate, DateTime dueDate)
+        public void Update(string description, DateOnly closingDate, DateOnly dueDate)
         {
             Description = description;
             ClosingDate = closingDate;

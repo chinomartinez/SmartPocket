@@ -20,12 +20,7 @@ import {
   useUpdateCreditCardStatementPayments,
 } from "@/api/services/credit-cards/useCreditCards";
 import type { ApiError } from "@/api/types";
-import {
-  compareDateOnly,
-  dateOnlyFromDateTime,
-  formatDateOnlyLabel,
-  todayDateOnly,
-} from "@/utils/dateHelpers";
+import { compareDateOnly, formatDateOnlyLabel, todayDateOnly } from "@/utils/dateHelpers";
 import { PaymentDraftsSection } from "./PaymentDraftsSection";
 import { StatementDetailPanel } from "./StatementDetailPanel";
 import { createDraftPayments, getStatementDetailItems } from "./paymentHelpers";
@@ -144,7 +139,7 @@ export function CreditCardStatementPaymentsDialog({
     const today = todayDateOnly();
     const invalidDate = filledPayments.find(
       (payment) =>
-        compareDateOnly(payment.effectiveDate, dateOnlyFromDateTime(statement.closingDate)) <= 0 ||
+        compareDateOnly(payment.effectiveDate, statement.closingDate) <= 0 ||
         compareDateOnly(payment.effectiveDate, today) > 0,
     );
 

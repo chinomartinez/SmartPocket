@@ -22,6 +22,8 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Get
             return _smartPocketContext.Query<CreditCardStatementPayment>()
                 .Where(x => x.CreditCardStatementId == statementId)
                 .OrderBy(x => x.Transaction.EffectiveDate)
+                    .ThenBy(x => x.Transaction.CreatedAt)
+                    .ThenBy(x => x.CoveredCurrencyCode)
                 .Select(x => new CreditCardStatementPaymentDTO
                 {
                     Id = x.Id,

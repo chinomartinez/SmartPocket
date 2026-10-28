@@ -11,7 +11,7 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Bulk
         public int? Id { get; set; }
         public int AccountId { get; set; }
         public decimal Amount { get; set; }
-        public DateTime EffectiveDate { get; set; }
+        public DateOnly EffectiveDate { get; set; }
         public string CoveredCurrencyCode { get; set; } = string.Empty;
     }
 }

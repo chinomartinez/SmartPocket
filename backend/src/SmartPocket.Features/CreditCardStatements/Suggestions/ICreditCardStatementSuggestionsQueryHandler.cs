@@ -4,7 +4,7 @@ namespace SmartPocket.Features.CreditCardStatements.Suggestions
     {
         Task<CreditCardStatementSuggestionsDTO> Get(
             int creditCardId,
-            DateTime closingDate,
+            DateOnly closingDate,
             CancellationToken cancellation);
     }
 }

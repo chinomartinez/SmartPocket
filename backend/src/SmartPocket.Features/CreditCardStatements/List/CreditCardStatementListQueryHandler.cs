@@ -23,6 +23,9 @@ namespace SmartPocket.Features.CreditCardStatements.List
         {
             var statements = _smartPocketContext.Query<CreditCardStatement>()
                 .Where(x => x.CreditCardId == request.CreditCardId)
+                .OrderByDescending(x => x.ClosingDate)
+                    .ThenByDescending(x => x.CreatedAt)
+                    .ThenByDescending(x => x.Id)
                 .Select(x => new CreditCardStatementListItemDTO
                 {
                     Id = x.Id,
@@ -33,9 +36,7 @@ namespace SmartPocket.Features.CreditCardStatements.List
                     Status = x.Status.ToString(),
                     InstallmentsCount = x.Installments.Count,
                     ChargesCount = x.SubscriptionCharges.Count
-                })
-                .OrderByDescending(x => x.ClosingDate)
-                .ThenByDescending(x => x.Id);
+                });
 
             var response = await statements.ToPagedListResponse(request, cancellation);
             await PopulateTotals(response.Data, cancellation);

@@ -8,7 +8,7 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Get
         public int TransactionId { get; set; }
         public CreditCardStatementPaymentAccountDTO Account { get; set; } = default!;
         public decimal Amount { get; set; }
-        public DateTime EffectiveDate { get; set; }
+        public DateOnly EffectiveDate { get; set; }
         public string CoveredCurrencyCode { get; set; } = string.Empty;
     }
 

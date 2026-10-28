@@ -15,10 +15,10 @@ namespace SmartPocket.Features.CreditCardStatements.Suggestions
 
         public async Task<CreditCardStatementSuggestionsDTO> Get(
             int creditCardId,
-            DateTime closingDate,
+            DateOnly closingDate,
             CancellationToken cancellation)
         {
-            var cutoff = DateOnly.FromDateTime(closingDate);
+            var cutoff = closingDate;
             var suggestedInstallments = await _smartPocketContext.Query<CreditCardPurchaseInstallment>()
                 .Where(x => x.CreditCardPurchase.CreditCardId == creditCardId)
                 .Where(x => x.CreditCardStatementId == null)

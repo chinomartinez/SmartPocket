@@ -26,7 +26,7 @@ namespace SmartPocket.Domain.Transactions
             private set { }
         }
 
-        public DateTime EffectiveDate { get; private set; }
+        public DateOnly EffectiveDate { get; private set; }
         public string? Description { get; private set; }
         public bool IsIncome { get; private set; }
 
@@ -68,7 +68,7 @@ namespace SmartPocket.Domain.Transactions
         public void Update(
             int accountId,
             decimal amount,
-            DateTime effectiveDate,
+            DateOnly effectiveDate,
             bool isIncome,
             string? description,
             int? categoryId)
@@ -100,7 +100,7 @@ namespace SmartPocket.Domain.Transactions
 
             AccountId = accountId;
             Amount = amount;
-            EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
+            EffectiveDate = effectiveDate;
             IsIncome = isIncome;
             Description = description;
             CategoryId = categoryId;
@@ -129,7 +129,7 @@ namespace SmartPocket.Domain.Transactions
             {
                 AccountId = accountId,
                 Amount = absoluteAmount,
-                EffectiveDate = DateTime.UtcNow,
+                EffectiveDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 IsIncome = amount >= 0,
                 Description = description,
                 TransactionSourceId = TransactionSourceType.SystemAdjustment
@@ -141,28 +141,20 @@ namespace SmartPocket.Domain.Transactions
         public static Transaction CreateAsTransfer(
             int accountId,
             decimal amount,
-            DateTime effectiveDate,
+            DateOnly effectiveDate,
             bool isIncome,
             string? description)
         {
             accountId.ThrowIsNegativeOrZero(nameof(accountId));
             amount.ThrowIsNegativeOrZero(nameof(amount));
 
-            if (effectiveDate == default)
-            {
-                throw new ArgumentException("La fecha efectiva debe ser válida.", nameof(effectiveDate));
-            }
-
-            if (effectiveDate > DateTime.UtcNow)
-            {
-                throw new ArgumentException("La fecha efectiva no puede ser futura.", nameof(effectiveDate));
-            }
+            ValditeEffectiveDate(effectiveDate);
 
             var transferTransaction = new Transaction
             {
                 AccountId = accountId,
                 Amount = amount,
-                EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc),
+                EffectiveDate = effectiveDate,
                 IsIncome = isIncome,
                 Description = description,
                 TransactionSourceId = TransactionSourceType.Transfer
@@ -175,7 +167,7 @@ namespace SmartPocket.Domain.Transactions
             int accountId,
             int categoryId,
             decimal amount,
-            DateTime effectiveDate,
+            DateOnly effectiveDate,
             bool isIncome,
             string? description)
         {
@@ -189,7 +181,7 @@ namespace SmartPocket.Domain.Transactions
             {
                 AccountId = accountId,
                 Amount = amount,
-                EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc),
+                EffectiveDate = effectiveDate,
                 IsIncome = isIncome,
                 Description = description,
                 CategoryId = categoryId,
@@ -202,7 +194,7 @@ namespace SmartPocket.Domain.Transactions
         public static Transaction CreateAsCreditCardStatementPayment(
             int accountId,
             decimal amount,
-            DateTime effectiveDate)
+            DateOnly effectiveDate)
         {
             accountId.ThrowIsNegativeOrZero(nameof(accountId));
             amount.ThrowIsNegativeOrZero(nameof(amount));
@@ -213,7 +205,7 @@ namespace SmartPocket.Domain.Transactions
             {
                 AccountId = accountId,
                 Amount = amount,
-                EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc),
+                EffectiveDate = effectiveDate,
                 Description = null,
                 IsIncome = false,
                 CategoryId = null,
@@ -223,14 +215,14 @@ namespace SmartPocket.Domain.Transactions
             return paymentTransaction;
         }
 
-        private static void ValditeEffectiveDate(DateTime effectiveDate)
+        private static void ValditeEffectiveDate(DateOnly effectiveDate)
         {
             if (effectiveDate == default)
             {
                 throw new ArgumentException("La fecha efectiva debe ser válida.", nameof(effectiveDate));
             }
 
-            if (effectiveDate > DateTime.UtcNow)
+            if (effectiveDate > DateOnly.FromDateTime(DateTime.UtcNow))
             {
                 throw new ArgumentException("La fecha efectiva no puede ser futura.", nameof(effectiveDate));
             }

@@ -2,51 +2,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   compareDateOnly,
   compareInstants,
-  dateOnlyFromInstant,
-  dateOnlyFromDateTime,
   daysBetweenDateOnly,
   formatDateOnlyLabel,
+  formatRelativeDateOnly,
   isValidDateOnly,
   parseInstant,
   toDateOnly,
   toDateOnlyUtc,
   todayDateOnly,
-  withCurrentTime,
 } from "./dateHelpers";
 
 // En CI (Linux/macOS) fuerza ART para que el test detecte corrimientos de día.
 // En Windows Node no aplica cambios de TZ en runtime, pero el round-trip con
 // fechas locales sigue validando el comportamiento.
 process.env.TZ = "America/Argentina/Buenos_Aires";
-
-describe("withCurrentTime", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("conserva el día local elegido y le aplica la hora actual", () => {
-    vi.setSystemTime(new Date(2026, 9, 21, 14, 0, 0));
-
-    const result = withCurrentTime("2026-10-21");
-
-    expect(toDateOnly(new Date(result))).toBe("2026-10-21");
-    expect(new Date(result).getHours()).toBe(14);
-  });
-
-  it("conserva el día local cuando la hora cae en el día UTC siguiente", () => {
-    vi.setSystemTime(new Date(2026, 9, 21, 22, 30, 0));
-
-    const result = withCurrentTime("2026-10-21");
-
-    expect(toDateOnly(new Date(result))).toBe("2026-10-21");
-    expect(new Date(result).getHours()).toBe(22);
-    expect(new Date(result).getMinutes()).toBe(30);
-  });
-});
 
 describe("toDateOnly", () => {
   it("devuelve la fecha local en formato YYYY-MM-DD", () => {
@@ -71,29 +40,6 @@ describe("todayDateOnly", () => {
     vi.setSystemTime(new Date(2026, 9, 21, 22, 30, 0));
 
     expect(todayDateOnly()).toBe("2026-10-21");
-  });
-});
-
-describe("dateOnlyFromDateTime", () => {
-  it("extrae el día de un DateTime del backend", () => {
-    expect(dateOnlyFromDateTime("2026-10-21T00:00:00Z")).toBe("2026-10-21");
-  });
-
-  it("devuelve vacío para valores vacíos o inválidos", () => {
-    expect(dateOnlyFromDateTime("")).toBe("");
-    expect(dateOnlyFromDateTime("sin-fecha")).toBe("");
-  });
-});
-
-describe("dateOnlyFromInstant", () => {
-  it("convierte un instante al día local, incluso a las 22:30", () => {
-    const instant = new Date(2026, 9, 21, 22, 30).toISOString();
-
-    expect(dateOnlyFromInstant(instant)).toBe("2026-10-21");
-  });
-
-  it("devuelve vacío para un instante inválido", () => {
-    expect(dateOnlyFromInstant("sin-fecha")).toBe("");
   });
 });
 
@@ -168,5 +114,39 @@ describe("formatDateOnlyLabel", () => {
 
   it("devuelve vacío para una fecha inválida", () => {
     expect(formatDateOnlyLabel("")).toBe("");
+  });
+});
+
+describe("formatRelativeDateOnly", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 9, 21, 22, 30, 0));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('devuelve "Hoy" para la fecha local actual', () => {
+    expect(formatRelativeDateOnly("2026-10-21")).toBe("Hoy");
+  });
+
+  it('devuelve "Ayer" para el día anterior', () => {
+    expect(formatRelativeDateOnly("2026-10-20")).toBe("Ayer");
+  });
+
+  it("devuelve días para la última semana", () => {
+    expect(formatRelativeDateOnly("2026-10-18")).toBe("Hace 3d");
+  });
+
+  it("devuelve la fecha corta para más de una semana", () => {
+    expect(formatRelativeDateOnly("2026-10-13")).toBe(
+      formatDateOnlyLabel("2026-10-13", { day: "numeric", month: "short" }),
+    );
+  });
+
+  it("devuelve vacío para una fecha inválida", () => {
+    expect(formatRelativeDateOnly("sin-fecha")).toBe("");
+    expect(formatRelativeDateOnly("")).toBe("");
   });
 });

@@ -7,7 +7,7 @@
 
         public decimal Amount { get; set; }
 
-        public DateTime EffectiveDate { get; set; }
+        public DateOnly EffectiveDate { get; set; }
         public string? Description { get; set; }
         public bool IsIncome { get; set; }
     }

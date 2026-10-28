@@ -6,9 +6,9 @@
 
         public string Description { get; set; } = default!;
 
-        public DateTime ClosingDate { get; set; }
+        public DateOnly ClosingDate { get; set; }
 
-        public DateTime DueDate { get; set; }
+        public DateOnly DueDate { get; set; }
 
         public int[] InstallmentIds { get; set; } = default!;
 

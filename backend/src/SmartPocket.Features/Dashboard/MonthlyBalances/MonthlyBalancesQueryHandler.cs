@@ -16,7 +16,7 @@ namespace SmartPocket.Features.Dashboard.MonthlyBalance
 
         public async Task<MonthlyBalanceDTO> Get(int accountId, CancellationToken cancellation)
         {
-            var currentDate = DateTime.UtcNow;
+            var currentDate = DateTime.UtcNow.Date;
             var currentMonth = currentDate.Month;
             var currentYear = currentDate.Year;
 

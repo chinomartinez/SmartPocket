@@ -41,7 +41,7 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Bulk
             RuleFor(x => x.EffectiveDate)
                 .Must(x => x != default)
                 .WithMessage("La fecha efectiva es obligatoria.")
-                .Must(x => x <= DateTime.UtcNow)
+                .Must(x => x <= DateOnly.FromDateTime(DateTime.UtcNow))
                 .WithMessage("La fecha efectiva no puede ser futura.");
 
             RuleFor(x => x.CoveredCurrencyCode)

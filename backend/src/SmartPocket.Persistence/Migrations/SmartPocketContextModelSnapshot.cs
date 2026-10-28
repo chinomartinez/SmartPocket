@@ -244,7 +244,7 @@ namespace SmartPocket.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ClosingDate")
+                    b.Property<DateOnly>("ClosingDate")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
@@ -260,7 +260,7 @@ namespace SmartPocket.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DueDate")
+                    b.Property<DateOnly>("DueDate")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
@@ -516,7 +516,7 @@ namespace SmartPocket.Persistence.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("EffectiveDate")
+                    b.Property<DateOnly>("EffectiveDate")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
@@ -622,7 +622,7 @@ namespace SmartPocket.Persistence.Migrations
                     b.Property<int>("DestinationTransactionId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("EffectiveDate")
+                    b.Property<DateOnly>("EffectiveDate")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")

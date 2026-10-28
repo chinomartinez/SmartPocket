@@ -19,6 +19,7 @@ namespace SmartPocket.Features.Transfers.List
             var transfers = await _smartPocketContext.Query<Transfer>()
                 .Where(t => t.EffectiveDate >= request.From && t.EffectiveDate <= request.To)
                 .OrderByDescending(t => t.EffectiveDate)
+                .ThenByDescending(t => t.CreatedAt)
                 .ThenByDescending(t => t.Id)
                 .Select(t => new TransferListItemDTO
                 {

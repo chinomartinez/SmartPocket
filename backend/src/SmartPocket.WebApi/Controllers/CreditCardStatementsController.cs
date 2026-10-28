@@ -49,7 +49,7 @@ namespace SmartPocket.WebApi.Controllers
         public async Task<CreditCardStatementSuggestionsDTO> Suggestions(
             [FromServices] ICreditCardStatementSuggestionsQueryHandler handler,
             [FromRoute] int creditCardId,
-            [FromQuery] DateTime closingDate,
+            [FromQuery] DateOnly closingDate,
             CancellationToken cancellation)
         {
             return await handler.Get(creditCardId, closingDate, cancellation);
@@ -125,9 +125,9 @@ namespace SmartPocket.WebApi.Controllers
 
             public string Description { get; set; } = default!;
 
-            public DateTime ClosingDate { get; set; }
+            public DateOnly ClosingDate { get; set; }
 
-            public DateTime DueDate { get; set; }
+            public DateOnly DueDate { get; set; }
 
             public int[] InstallmentIds { get; set; } = default!;
 

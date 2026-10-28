@@ -32,9 +32,9 @@ namespace SmartPocket.Features.Transfers.Update
             RuleFor(x => x.EffectiveDate)
                 .CascadeStop()
                 .NotEmpty()
-                .GreaterThan(DateTime.MinValue)
+                .GreaterThan(DateOnly.MinValue)
                 .WithMessage("La fecha efectiva debe ser una fecha válida.")
-                .LessThanOrEqualTo(DateTime.UtcNow)
+                .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
                 .WithMessage("La fecha efectiva no puede ser en el futuro.");
         }
     }

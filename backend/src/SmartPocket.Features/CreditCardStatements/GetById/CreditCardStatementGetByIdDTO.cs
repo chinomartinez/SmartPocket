@@ -7,8 +7,8 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
         public int Id { get; set; }
         public int CreditCardId { get; set; }
         public string Description { get; set; } = string.Empty;
-        public DateTime ClosingDate { get; set; }
-        public DateTime DueDate { get; set; }
+        public DateOnly ClosingDate { get; set; }
+        public DateOnly DueDate { get; set; }
         public string Status { get; set; } = string.Empty;
         public int InstallmentsCount { get; set; }
         public int ChargesCount { get; set; }

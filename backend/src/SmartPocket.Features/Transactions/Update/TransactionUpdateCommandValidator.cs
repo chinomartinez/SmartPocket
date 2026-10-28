@@ -32,9 +32,9 @@ namespace SmartPocket.Features.Transactions.Update
 
             RuleFor(x => x.EffectiveDate)
                 .NotEmpty()
-                .GreaterThan(DateTime.MinValue)
+                .GreaterThan(DateOnly.MinValue)
                     .WithMessage("{EffectiveDate} debe ser una fecha válida y mayor que la fecha mínima.")
-                .LessThanOrEqualTo(DateTime.UtcNow)
+                .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
                     .WithMessage("{EffectiveDate} no puede ser una fecha futura.");
 
             RuleFor(x => x.Description)

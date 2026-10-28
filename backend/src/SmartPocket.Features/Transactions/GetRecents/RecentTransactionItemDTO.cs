@@ -11,7 +11,7 @@ namespace SmartPocket.Features.Transactions.GetRecents
 
         public string? Description { get; set; } = default!;
 
-        public DateTime EffectiveDate { get; set; }
+        public DateOnly EffectiveDate { get; set; }
 
         public bool IsIncome { get; set; }
 

@@ -10,10 +10,10 @@ namespace SmartPocket.Domain.Transfers
             // PARA EF Core
         }
 
-        public Transfer(int originAccountId, int destinationAccountId, decimal amount, DateTime effectiveDate,
+        public Transfer(int originAccountId, int destinationAccountId, decimal amount, DateOnly effectiveDate,
             string? description = null)
         {
-            EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
+            EffectiveDate = effectiveDate;
             Description = description;
 
             OriginTransaction = Transaction.CreateAsTransfer(
@@ -39,11 +39,11 @@ namespace SmartPocket.Domain.Transfers
         public Transaction DestinationTransaction { get; private set; } = default!;
         public int DestinationTransactionId { get; private set; }
 
-        public DateTime EffectiveDate { get; private set; }
+        public DateOnly EffectiveDate { get; private set; }
 
         public string? Description { get; set; }
 
-        public void Update(int originAccountId, int destinationAccountId, decimal amount, DateTime effectiveDate,
+        public void Update(int originAccountId, int destinationAccountId, decimal amount, DateOnly effectiveDate,
             string? description = null)
         {
             if (OriginTransaction is null || DestinationTransaction is null)
@@ -52,7 +52,7 @@ namespace SmartPocket.Domain.Transfers
                 throw new InvalidOperationException(error);
             }
 
-            EffectiveDate = DateTime.SpecifyKind(effectiveDate, DateTimeKind.Utc);
+            EffectiveDate = effectiveDate;
             Description = description;
 
             OriginTransaction.Update(

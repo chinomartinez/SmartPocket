@@ -2,7 +2,7 @@ import type {
   CreditCardStatementDetailDTO,
   CreditCardStatementPaymentDTO,
 } from "@/api/services/credit-cards/creditCardTypes";
-import { dateOnlyFromDateTime, toDateOnlyUtc, todayDateOnly } from "@/utils/dateHelpers";
+import { toDateOnlyUtc, todayDateOnly } from "@/utils/dateHelpers";
 import type { DraftPayment, StatementDetailItem } from "./paymentTypes";
 
 export function isPaymentComplete(payment: DraftPayment) {
@@ -26,7 +26,7 @@ export function createDraftPayments(
       id: payment?.id ?? null,
       accountId: payment?.account.id,
       amount: payment?.amount,
-      effectiveDate: payment ? dateOnlyFromDateTime(payment.effectiveDate) : todayDateOnly(),
+      effectiveDate: payment ? payment.effectiveDate : todayDateOnly(),
       coveredCurrencyCode: summary.currencyCode,
       includedAmount: summary.includedAmount,
     };

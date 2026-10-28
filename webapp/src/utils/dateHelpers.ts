@@ -104,24 +104,18 @@ export function todayDateOnly(): string {
 }
 
 /**
- * Extrae el día de calendario de un DateTime serializado por el backend.
- * Puente temporal mientras los contratos de resúmenes y pagos sigan en DateTime.
- * @param value - DateTime ISO 8601 (por ejemplo "2026-10-21T00:00:00Z")
- * @returns El día en formato YYYY-MM-DD, o "" si no es válido
+ * Formatea la fecha de calendario de forma relativa: "Hoy", "Ayer",
+ * "Hace Nd" para la última semana y la fecha corta para el resto.
  */
-export function dateOnlyFromDateTime(value: string): string {
-  if (!value) return "";
+export function formatRelativeDateOnly(dateOnly: string): string {
+  const days = daysBetweenDateOnly(dateOnly, todayDateOnly());
 
-  const dateOnly = value.slice(0, 10);
-  return DATE_ONLY_PATTERN.test(dateOnly) ? dateOnly : "";
-}
+  if (Number.isNaN(days)) return "";
+  if (days === 0) return "Hoy";
+  if (days === 1) return "Ayer";
+  if (days > 1 && days < 7) return `Hace ${days}d`;
 
-/**
- * Convierte un instante ISO 8601 al día de calendario local (YYYY-MM-DD).
- * Puente temporal mientras Transaction/Transfer sigan enviando DateTime.
- */
-export function dateOnlyFromInstant(instant: string): string {
-  return toDateOnly(new Date(instant));
+  return formatDateOnlyLabel(dateOnly, { day: "numeric", month: "short" });
 }
 
 /**
@@ -294,26 +288,6 @@ export function getPeriodRange(
     default:
       return getMonthRange(); // Default: mes actual
   }
-}
-
-/**
- * Convierte una fecha date-only en un instante ISO con la hora local actual.
- * Puente temporal mientras Transaction/Transfer sigan enviando DateTime.
- */
-export function withCurrentTime(effectiveDate: string): string {
-  const currentTime = new Date();
-
-  // Sin la "Z" el string fecha+hora se interpreta como hora local. Un string
-  // solo fecha se interpretaría como UTC y correría el día en offsets negativos.
-  const date = new Date(`${effectiveDate.slice(0, 10)}T00:00:00`);
-  date.setHours(
-    currentTime.getHours(),
-    currentTime.getMinutes(),
-    currentTime.getSeconds(),
-    currentTime.getMilliseconds(),
-  );
-
-  return date.toISOString();
 }
 
 function dateOnlyToUtcMs(value: string): number | null {

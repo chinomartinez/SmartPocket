@@ -72,7 +72,7 @@ export interface TransactionGetByIdDTO {
   id: number;
   description?: string;
   accountMoney: MoneyDTO;
-  effectiveDate: string; // ISO 8601 date string
+  effectiveDate: string; // YYYY-MM-DD (DateOnly)
   accountId: number;
   categoryId: number;
   isIncome: boolean;
@@ -87,7 +87,7 @@ export interface RecentTransactionItemDTO {
   account: AccountRecentTransactionItemDTO;
   category: CategoryRecentTransactionItemDTO;
   description?: string;
-  effectiveDate: string; // ISO 8601 date string
+  effectiveDate: string; // YYYY-MM-DD (DateOnly)
   isIncome: boolean;
   money: MoneyDTO;
 }
@@ -101,7 +101,7 @@ export interface TransactionListItemDTO {
   account: AccountTransactionListItemDTO;
   category: CategoryTransactionListItemDTO;
   description?: string;
-  effectiveDate: string; // ISO 8601 date string
+  effectiveDate: string; // YYYY-MM-DD (DateOnly)
   isIncome: boolean;
   money: MoneyDTO;
 }
@@ -113,8 +113,8 @@ export interface TransactionListItemDTO {
 export interface TransactionListRequest {
   accountId: number;
   isIncome: boolean;
-  from: string; // ISO 8601 date string
-  to: string; // ISO 8601 date string
+  from: string; // YYYY-MM-DD (DateOnly)
+  to: string; // YYYY-MM-DD (DateOnly)
   search?: string;
 }
 
@@ -130,7 +130,7 @@ export interface TransactionCreateCommand {
   accountId: number;
   categoryId: number;
   amount: number;
-  effectiveDate: string; // ISO 8601 date string
+  effectiveDate: string; // YYYY-MM-DD (DateOnly)
   description?: string;
   isIncome: boolean;
 }

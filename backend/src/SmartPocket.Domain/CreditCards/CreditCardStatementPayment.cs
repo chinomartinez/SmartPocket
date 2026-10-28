@@ -23,7 +23,7 @@ namespace SmartPocket.Domain.CreditCards
             int creditCardStatementId,
             int accountId,
             decimal amount,
-            DateTime effectiveDate,
+            DateOnly effectiveDate,
             string coveredCurrencyCode)
         {
             CreditCardStatementId = creditCardStatementId.GetIfNotNegativeOrZero(nameof(creditCardStatementId));
@@ -38,7 +38,7 @@ namespace SmartPocket.Domain.CreditCards
         public void Update(
             int accountId,
             decimal amount,
-            DateTime effectiveDate,
+            DateOnly effectiveDate,
             string coveredCurrencyCode)
         {
             if (Transaction is null)

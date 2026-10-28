@@ -33,7 +33,7 @@ export interface TransferGetByIdDTO {
   originAccount: TransferAccountDTO;
   destinationAccount: TransferAccountDTO;
   amount: number;
-  effectiveDate: string; // ISO 8601 date string
+  effectiveDate: string; // YYYY-MM-DD (DateOnly)
   description?: string;
 }
 
@@ -46,7 +46,7 @@ export interface TransferListItemDTO {
   originAccount: TransferAccountDTO;
   destinationAccount: TransferAccountDTO;
   amount: number;
-  effectiveDate: string; // ISO 8601 date string
+  effectiveDate: string; // YYYY-MM-DD (DateOnly)
   description?: string;
 }
 
@@ -55,8 +55,8 @@ export interface TransferListItemDTO {
  * Alineado con TransferListRequest.cs del backend
  */
 export interface TransferListRequest {
-  from: string; // ISO 8601 date string
-  to: string; // ISO 8601 date string
+  from: string; // YYYY-MM-DD (DateOnly)
+  to: string; // YYYY-MM-DD (DateOnly)
 }
 
 // ============================================================================
@@ -72,7 +72,7 @@ export interface TransferCreateCommand {
   description?: string;
   originAccountId: number;
   destinationAccountId: number;
-  effectiveDate: string; // ISO 8601 date string
+  effectiveDate: string; // YYYY-MM-DD (DateOnly)
 }
 
 /**

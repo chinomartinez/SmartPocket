@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { formatCurrency } from "@/utils/formatters";
-import { dateOnlyFromDateTime, formatDateOnlyLabel, toDateOnly } from "@/utils/dateHelpers";
+import { formatDateOnlyLabel, toDateOnly } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 import type { ApiError } from "@/api/types";
 import { useFormErrorHandler } from "@/hooks/useFormErrorHandler";
@@ -79,17 +79,15 @@ export function CreditCardStatementFormDialog({
     values: statement
       ? {
           description: statement.description,
-          closingDate: dateOnlyFromDateTime(statement.closingDate),
-          dueDate: dateOnlyFromDateTime(statement.dueDate),
+          closingDate: statement.closingDate,
+          dueDate: statement.dueDate,
           selectedItemsCount: 0,
         }
       : getCreateValues(),
   });
 
   const closingDate = form.watch("closingDate");
-  const persistedClosingDate = detailQuery.data
-    ? dateOnlyFromDateTime(detailQuery.data.closingDate)
-    : undefined;
+  const persistedClosingDate = detailQuery.data?.closingDate;
   const hasEditedClosingDate = Boolean(form.formState.dirtyFields.closingDate);
   const suggestionClosingDate =
     isEdit && !hasEditedClosingDate ? (persistedClosingDate ?? closingDate) : closingDate;

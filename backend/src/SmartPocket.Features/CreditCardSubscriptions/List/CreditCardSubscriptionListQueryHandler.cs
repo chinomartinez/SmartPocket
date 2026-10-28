@@ -31,6 +31,7 @@ namespace SmartPocket.Features.CreditCardSubscriptions.List
 
             return query
                 .OrderByDescending(x => x.EffectiveDate)
+                    .ThenByDescending(x => x.CreatedAt)
                     .ThenBy(x => x.CurrencyCode)
                     .ThenBy(x => x.InitialAmount)
                 .Select(x => new CreditCardSubscriptionListItemDTO

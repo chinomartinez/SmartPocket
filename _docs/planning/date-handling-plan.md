@@ -27,7 +27,8 @@ Ya corregido:
 - Los formularios con fecha por defecto (compra, suscripción, resumen, transacción y transferencia) calculan ese valor con una factory `getCreateValues()` usada tanto en `values` como en `form.reset`. Así el default se recalcula al abrir y al reabrir el formulario, aunque la app cruce medianoche.
 - `CreditCardPurchaseFormDialog`, `CreditCardSubscriptionFormDialog` y `CreditCardStatementFormDialog` ya no usan `toISOString().slice(0, 10)`; el cierre se calcula con `toDateOnly(new Date())`.
 - `getDefaultDueDate` suma 15 días sobre el calendario local y formatea con `toDateOnly`, calculando cierre y vencimiento desde el mismo instante.
-- `dateHelpers` expone la API centralizada: `toDateOnly`, `toDateOnlyUtc`, `todayDateOnly`, `dateOnlyFromDateTime`, `dateOnlyFromInstant`, `compareDateOnly`, `compareInstants`, `parseInstant`, `daysBetweenDateOnly`, `isValidDateOnly`, `formatDateOnlyLabel`, `formatInstantLabel` y `withCurrentTime`.
+- `dateHelpers` expone la API centralizada: `toDateOnly`, `toDateOnlyUtc`, `todayDateOnly`, `compareDateOnly`, `compareInstants`, `parseInstant`, `daysBetweenDateOnly`, `isValidDateOnly`, `formatDateOnlyLabel`, `formatRelativeDateOnly`, `formatInstantLabel`.
+- `dateOnlyFromDateTime`, `dateOnlyFromInstant` y `withCurrentTime` se eliminaron en la Fase 2.
 - Ninguna feature usa `toISOString`, `.slice(0, 10)`, `.split("T")` ni `new Date("...")`; la regla ESLint `no-restricted-syntax` lo bloquea en `src/features/**`.
 - La validación Zod de fechas usa `dateOnlySchema` (rechaza timestamps y fechas inexistentes) en transacciones, transferencias, compras, suscripciones y resúmenes.
 - `getInstallmentDate` está documentado y testeado como espejo del `AddMonths` de EF Core/SQLite, incluido el overflow de fin de mes.
@@ -35,7 +36,7 @@ Ya corregido:
 - `parseDateFromISO` eliminado por no tener usos.
 - Tests de regresión en `dateHelpers.test.ts`, `dateSchema.test.ts`, `paymentHelpers.test.ts` y `formatters.test.ts`.
 
-Pendiente: Fase 2 (secciones 5 y 7).
+Pendiente: aplicar la migración `20261028011931_Phase2_DateOnlyBusinessDates` y el SQL de limpieza de la Fase 2. El código ya está implementado; ver sección 7.
 
 ## 3. Modelo conceptual
 
@@ -68,18 +69,18 @@ Pendiente: Fase 2 (secciones 5 y 7).
 | --- | --- | --- | --- |
 | `CreditCardPurchase.EffectiveDate` | `DateOnly` | `DateOnly` | Ya correcto |
 | `CreditCardSubscription.EffectiveDate` | `DateOnly` | `DateOnly` | Ya correcto |
-| `CreditCardStatement.ClosingDate` | `DateTime` | `DateOnly` | Hoy el frontend usa `dateOnlyFromDateTime` (puente) |
-| `CreditCardStatement.DueDate` | `DateTime` | `DateOnly` | Ídem |
-| `CreditCardStatementPayment.EffectiveDate` | `DateTime` | `DateOnly` | No tiene columna propia: usa `Transaction.EffectiveDate` |
-| `Transaction.EffectiveDate` | `DateTime` | `DateOnly` | Confirmado para la Fase 2; hoy se agrega la hora actual |
-| `Transfer.EffectiveDate` | `DateTime` | `DateOnly` | Confirmado para la Fase 2 |
+| `CreditCardStatement.ClosingDate` | `DateOnly` | `DateOnly` | El frontend usa el string directo |
+| `CreditCardStatement.DueDate` | `DateOnly` | `DateOnly` | Ídem |
+| `CreditCardStatementPayment.EffectiveDate` | `DateOnly` | `DateOnly` | No tiene columna propia: usa `Transaction.EffectiveDate` |
+| `Transaction.EffectiveDate` | `DateOnly` | `DateOnly` | El frontend envía el DateOnly directo |
+| `Transfer.EffectiveDate` | `DateOnly` | `DateOnly` | Ídem |
 | `CreatedAt` / `LastModifiedAt` | `DateTime` | `DateTime` UTC | Auditoría; no cambia |
 | Timestamps de logs (`errorLogger`) | `Instant` | `Instant` | Técnicos; no cambia |
 | `DayRangeDTO` (cierre/vencimiento habitual) | `int` | `int` | No es fecha |
 
 ## 5. Hallazgos pendientes
 
-Los hallazgos de frontend de las fases 0 y 1 están corregidos y se detallan en la sección 2. Queda pendiente el cambio de contrato del backend:
+Los hallazgos de frontend de las fases 0 y 1 están corregidos y se detallan en la sección 2. El cambio de contrato del backend de la Fase 2 también está implementado:
 
 | Archivo | Problema | Impacto | Fase |
 | --- | --- | --- | --- |
@@ -139,22 +140,18 @@ todayDateOnly(): string;
 toDateOnly(date: Date): string;
 toDateOnlyUtc(date: Date): string;
 formatDateOnlyLabel(value: string, options?: Intl.DateTimeFormatOptions): string;
+formatRelativeDateOnly(value: string): string; // Agregado en Fase 2
 compareDateOnly(a: string, b: string): number;
 daysBetweenDateOnly(from: string, to: string): number;
 isValidDateOnly(value: string): boolean;
-
-// Puente mientras el backend siga mandando DateTime para campos de calendario
-dateOnlyFromDateTime(value: string): string;
-dateOnlyFromInstant(instant: string): string;
 
 // Instant / auditoría
 formatInstantLabel(instant: string, options?: Intl.DateTimeFormatOptions): string;
 compareInstants(a: string, b: string): number;
 parseInstant(instant: string): Date;
-
-// Puente temporal: Transaction/Transfer todavía envían DateTime (se elimina en Fase 2)
-withCurrentTime(dateOnly: string): string;
 ```
+
+Los puentes de la Fase 1 (`dateOnlyFromDateTime`, `dateOnlyFromInstant` y `withCurrentTime`) se eliminaron en la Fase 2.
 
 Tareas:
 
@@ -185,7 +182,7 @@ Criterios de aceptación:
 
 Objetivo: eliminar las asunciones "este `DateTime` en realidad es una fecha".
 
-Estado: pendiente de implementación.
+Estado: implementada en código. La migración y la limpieza de datos quedan pendientes de aplicar por el usuario.
 
 Alcance confirmado:
 
@@ -209,6 +206,8 @@ UPDATE CreditCardStatement SET ClosingDate = substr(ClosingDate, 1, 10), DueDate
 UPDATE Transactions SET EffectiveDate = substr(EffectiveDate, 1, 10);
 UPDATE Transfers SET EffectiveDate = substr(EffectiveDate, 1, 10);
 ```
+
+La migración `20261028011931_Phase2_DateOnlyBusinessDates` incluye esos tres `UPDATE` al inicio del `Up()`. EF no genera cambios de esquema porque `DateOnly` y `DateTime` se guardan como `TEXT` en SQLite.
 
 Reglas de ejecución:
 

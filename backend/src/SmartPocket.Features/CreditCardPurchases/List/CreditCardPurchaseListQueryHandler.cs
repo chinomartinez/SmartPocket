@@ -32,6 +32,7 @@ namespace SmartPocket.Features.CreditCardPurchases.List
 
             return query
                 .OrderByDescending(x => x.EffectiveDate)
+                    .ThenByDescending(x => x.CreatedAt)
                     .ThenBy(x => x.CurrencyCode)
                     .ThenBy(x => x.TotalAmount)
                 .Select(x => new CreditCardPurchaseListItemDTO

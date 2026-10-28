@@ -10,6 +10,6 @@
 
         public int DestinationAccountId { get; set; }
 
-        public DateTime EffectiveDate { get; set; }
+        public DateOnly EffectiveDate { get; set; }
     }
 }

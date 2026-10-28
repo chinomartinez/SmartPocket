@@ -27,8 +27,9 @@ Ya corregido:
 - Los formularios con fecha por defecto (compra, suscripción, resumen, transacción y transferencia) calculan ese valor con una factory `getCreateValues()` usada tanto en `values` como en `form.reset`. Así el default se recalcula al abrir y al reabrir el formulario, aunque la app cruce medianoche.
 - `CreditCardPurchaseFormDialog`, `CreditCardSubscriptionFormDialog` y `CreditCardStatementFormDialog` ya no usan `toISOString().slice(0, 10)`; el cierre se calcula con `toDateOnly(new Date())`.
 - `getDefaultDueDate` suma 15 días sobre el calendario local y formatea con `toDateOnly`, calculando cierre y vencimiento desde el mismo instante.
-- `dateHelpers` expone la API centralizada: `toDateOnly`, `toDateOnlyUtc`, `todayDateOnly`, `compareDateOnly`, `compareInstants`, `parseInstant`, `daysBetweenDateOnly`, `isValidDateOnly`, `formatDateOnlyLabel`, `formatRelativeDateOnly`, `formatInstantLabel`.
-- `dateOnlyFromDateTime`, `dateOnlyFromInstant` y `withCurrentTime` se eliminaron en la Fase 2.
+- `dateHelpers` expone la API centralizada: `toDateOnly`, `toDateOnlyUtc`, `todayDateOnly`, `compareDateOnly`, `daysBetweenDateOnly`, `isValidDateOnly`, `formatDateOnlyLabel` y `formatRelativeDateOnly`.
+- `dateOnlyFromDateTime`, `dateOnlyFromInstant` y `withCurrentTime` se eliminaron en la Fase 2. `formatInstantLabel`, `compareInstants` y `parseInstant` se eliminaron por no tener usos.
+- `formatRelativeTime` se eliminó de `utils/formatters.ts` porque `RecentTransactions` pasó a `formatRelativeDateOnly`.
 - Ninguna feature usa `toISOString`, `.slice(0, 10)`, `.split("T")` ni `new Date("...")`; la regla ESLint `no-restricted-syntax` lo bloquea en `src/features/**`.
 - La validación Zod de fechas usa `dateOnlySchema` (rechaza timestamps y fechas inexistentes) en transacciones, transferencias, compras, suscripciones y resúmenes.
 - `getInstallmentDate` está documentado y testeado como espejo del `AddMonths` de EF Core/SQLite, incluido el overflow de fin de mes.
@@ -144,19 +145,14 @@ formatRelativeDateOnly(value: string): string; // Agregado en Fase 2
 compareDateOnly(a: string, b: string): number;
 daysBetweenDateOnly(from: string, to: string): number;
 isValidDateOnly(value: string): boolean;
-
-// Instant / auditoría
-formatInstantLabel(instant: string, options?: Intl.DateTimeFormatOptions): string;
-compareInstants(a: string, b: string): number;
-parseInstant(instant: string): Date;
 ```
 
-Los puentes de la Fase 1 (`dateOnlyFromDateTime`, `dateOnlyFromInstant` y `withCurrentTime`) se eliminaron en la Fase 2.
+Los puentes de la Fase 1 (`dateOnlyFromDateTime`, `dateOnlyFromInstant` y `withCurrentTime`) se eliminaron en la Fase 2. Las funciones de Instant (`formatInstantLabel`, `compareInstants` y `parseInstant`) se eliminaron por no tener usos.
 
 Tareas:
 
 - Renombrar `formatDateToISO` → `toDateOnly`.
-- Renombrar `formatDateLocal` → `formatInstantLabel`.
+- Renombrar `formatDateLocal` → `formatInstantLabel` (luego eliminado por no tener usos).
 - Renombrar `formatDateOnly` → `formatDateOnlyLabel`.
 - Renombrar `AddCurrentTimeToDate` → `withCurrentTime` (temporal hasta la Fase 2).
 - Reemplazar los `.slice(0, 10)` de statements y payments por `dateOnlyFromDateTime`.

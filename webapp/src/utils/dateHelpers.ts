@@ -1,6 +1,6 @@
 /**
  * Date Helpers
- * Adaptador único para fechas de calendario (date-only) e instantes (local/UTC).
+ * Adaptador único para fechas de calendario (date-only).
  */
 
 export interface DateRange {
@@ -10,40 +10,6 @@ export interface DateRange {
 
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-/**
- * Formatea un instante ISO 8601 como string local legible.
- * @param isoString - Instante en formato ISO 8601 (UTC u offset)
- * @param options - Opciones de formato Intl.DateTimeFormat
- * @returns String formateado en zona horaria local
- * @example
- * formatInstantLabel('2024-01-15T10:30:00Z') // "15/1/2024"
- * formatInstantLabel('2024-01-15T10:30:00Z', { dateStyle: 'long' }) // "15 de enero de 2024"
- */
-export function formatInstantLabel(
-  isoString: string,
-  options?: Intl.DateTimeFormatOptions,
-): string {
-  if (!isoString) return "";
-
-  const date = new Date(isoString);
-
-  // Validar fecha válida
-  if (isNaN(date.getTime())) {
-    console.error(`Invalid date string: ${isoString}`);
-    return "";
-  }
-
-  // Opciones por defecto: formato corto
-  const defaultOptions: Intl.DateTimeFormatOptions = {
-    day: "numeric",
-    month: "numeric",
-    year: "numeric",
-  };
-
-  // undefined = usar locale del navegador automáticamente
-  return date.toLocaleDateString(undefined, options || defaultOptions);
-}
 
 /**
  * Formatea una fecha sin hora (YYYY-MM-DD) sin convertirla entre zonas horarias.
@@ -139,26 +105,6 @@ export function isValidDateOnly(value: string): boolean {
 export function compareDateOnly(a: string, b: string): number {
   if (a === b) return 0;
   return a < b ? -1 : 1;
-}
-
-/**
- * Compara dos instantes ISO 8601.
- * @returns -1 si a < b, 1 si a > b, 0 si son iguales o alguno es inválido
- */
-export function compareInstants(a: string, b: string): number {
-  const aTime = Date.parse(a);
-  const bTime = Date.parse(b);
-
-  if (Number.isNaN(aTime) || Number.isNaN(bTime)) return 0;
-  if (aTime === bTime) return 0;
-  return aTime < bTime ? -1 : 1;
-}
-
-/**
- * Parsea un instante ISO 8601. Reservado para timestamps técnicos y de auditoría.
- */
-export function parseInstant(instant: string): Date {
-  return new Date(instant);
 }
 
 /**

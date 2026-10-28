@@ -33,11 +33,11 @@ export default tseslint.config([
         {
           selector:
             "CallExpression[callee.property.name='slice'][arguments.0.value=0][arguments.1.value=10]",
-          message: 'Usá dateOnlyFromDateTime() o toDateOnly() de @/utils/dateHelpers.',
+          message: 'Usá toDateOnly() o formatDateOnlyLabel() de @/utils/dateHelpers.',
         },
         {
           selector: "CallExpression[callee.property.name='split'][arguments.0.value='T']",
-          message: 'Usá dateOnlyFromDateTime() de @/utils/dateHelpers.',
+          message: 'Usá los helpers date-only de @/utils/dateHelpers.',
         },
         {
           selector: "NewExpression[callee.name='Date'][arguments.0.type='Literal']",

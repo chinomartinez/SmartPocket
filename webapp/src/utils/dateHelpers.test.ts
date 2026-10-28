@@ -1,12 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   compareDateOnly,
-  compareInstants,
   daysBetweenDateOnly,
   formatDateOnlyLabel,
   formatRelativeDateOnly,
   isValidDateOnly,
-  parseInstant,
   toDateOnly,
   toDateOnlyUtc,
   todayDateOnly,
@@ -72,24 +70,6 @@ describe("compareDateOnly", () => {
     expect(compareDateOnly("2026-10-21", "2026-10-22")).toBe(-1);
     expect(compareDateOnly("2026-10-22", "2026-10-21")).toBe(1);
     expect(compareDateOnly("2026-10-21", "2026-10-21")).toBe(0);
-  });
-});
-
-describe("compareInstants", () => {
-  it("ordena instantes", () => {
-    expect(compareInstants("2026-10-21T10:00:00Z", "2026-10-21T11:00:00Z")).toBe(-1);
-    expect(compareInstants("2026-10-21T11:00:00Z", "2026-10-21T10:00:00Z")).toBe(1);
-    expect(compareInstants("2026-10-21T10:00:00Z", "2026-10-21T10:00:00Z")).toBe(0);
-  });
-
-  it("devuelve 0 si algún instante es inválido", () => {
-    expect(compareInstants("no-es-fecha", "2026-10-21T10:00:00Z")).toBe(0);
-  });
-});
-
-describe("parseInstant", () => {
-  it("parsea un timestamp ISO 8601", () => {
-    expect(parseInstant("2026-10-21T10:30:00Z").toISOString()).toBe("2026-10-21T10:30:00.000Z");
   });
 });
 

@@ -45,7 +45,7 @@ import { Calendar, Trash2, ArrowRight } from "lucide-react";
 import { IconBox } from "@/components/iconBoxes/IconBox";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
-import { toDateOnly } from "@/utils/dateHelpers";
+import { todayDateOnly } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface TransferFormModalProps {
@@ -59,7 +59,7 @@ function getCreateValues(principalAccountId?: number): TransferFormValues {
     originAccountId: principalAccountId ?? 0,
     destinationAccountId: 0,
     amount: 0,
-    effectiveDate: toDateOnly(new Date()),
+    effectiveDate: todayDateOnly(),
     description: "",
   };
 }

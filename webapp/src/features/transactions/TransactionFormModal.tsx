@@ -48,7 +48,7 @@ import { ErrorAlert } from "@/components/ErrorAlert";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { MiniCalculator } from "./MiniCalculator";
 import { cn } from "@/utils/utils";
-import { toDateOnly } from "@/utils/dateHelpers";
+import { todayDateOnly } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface TransactionFormModalProps {
@@ -63,7 +63,7 @@ function getCreateValues(principalAccountId?: number): TransactionFormValues {
     accountId: principalAccountId ?? 0,
     categoryId: 0,
     amount: 0,
-    effectiveDate: toDateOnly(new Date()),
+    effectiveDate: todayDateOnly(),
     description: "",
     tags: [],
   };

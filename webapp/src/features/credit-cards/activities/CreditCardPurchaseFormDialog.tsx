@@ -41,7 +41,7 @@ import {
   type CreditCardPurchaseActivityFormValues,
 } from "./creditCardActivitySchema";
 import { CREDIT_CARD_ACTIVITY_TYPES } from "../creditCardActivityConstants";
-import { toDateOnly } from "@/utils/dateHelpers";
+import { todayDateOnly } from "@/utils/dateHelpers";
 import { getNumericInputChangeValue, getNumericInputValue } from "@/utils/numericInput";
 
 interface CreditCardPurchaseFormDialogProps {
@@ -56,7 +56,7 @@ function getCreateValues(): CreditCardPurchaseActivityFormValues {
   return {
     categoryId: 0,
     description: "",
-    effectiveDate: toDateOnly(new Date()),
+    effectiveDate: todayDateOnly(),
     currencyCode: "ARS",
     amount: 0,
     installments: 1,

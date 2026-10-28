@@ -123,7 +123,7 @@ export function daysBetweenDateOnly(from: string, to: string): number {
  * Obtiene el rango de fechas para el día actual
  * @returns DateRange con from y to del día actual
  */
-export function getTodayRange(): DateRange {
+function getTodayRange(): DateRange {
   const today = new Date();
   const from = toDateOnly(today);
   const to = toDateOnly(today);
@@ -134,7 +134,7 @@ export function getTodayRange(): DateRange {
  * Obtiene el rango de fechas para la semana actual
  * @returns DateRange con from (lunes) y to (domingo)
  */
-export function getWeekRange(): DateRange {
+function getWeekRange(): DateRange {
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
   const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Ajuste para que lunes sea inicio
@@ -157,7 +157,7 @@ export function getWeekRange(): DateRange {
  * Obtiene el rango de fechas para el mes actual
  * @returns DateRange con from (primer día del mes) y to (último día del mes)
  */
-export function getMonthRange(): DateRange {
+function getMonthRange(): DateRange {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
@@ -191,7 +191,7 @@ export function getCurrentMonthToDateRange(): DateRange {
  * Obtiene el rango de fechas para el año actual
  * @returns DateRange con from (1 de enero) y to (31 de diciembre)
  */
-export function getYearRange(): DateRange {
+function getYearRange(): DateRange {
   const today = new Date();
   const year = today.getFullYear();
 

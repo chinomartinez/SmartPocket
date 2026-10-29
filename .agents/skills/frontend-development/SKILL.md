@@ -1,6 +1,6 @@
 ---
 name: frontend-development
-description: Overview de desarrollo React 19 de SmartPocket e índice de skills. Lista skills especializados disponibles para data fetching, forms, testing, routing, architecture patterns, y visual/financial display. Usar para preguntas generales de frontend o descubrir qué skill especializado usar.
+description: Overview de desarrollo React 19 de SmartPocket e índice de skills. Lista skills especializados disponibles para data fetching, forms, testing, routing, architecture patterns, manejo de fechas y visual/financial display. Usar para preguntas generales de frontend o descubrir qué skill especializado usar.
 ---
 
 # SmartPocket - Frontend Development
@@ -30,6 +30,16 @@ React Hook Form + Zod validation
 - Form submission con mutations
 - Display de errores (client + API)
 - Dynamic fields, conditional validation
+
+### **frontend-date-handling**
+
+Fechas de calendario (DateOnly)
+
+- DTOs y schemas Zod con `dateOnlySchema`
+- Formularios con `type="date"` y envío directo
+- Formateo y comparación con `dateHelpers`
+- Filtros por período (`getPeriodRange`)
+- Anti-patterns: `Date`, `toISOString().slice`, `.coerce`
 
 ### **frontend-error-handling**
 
@@ -137,6 +147,7 @@ Componentes reutilizables compartidos
 
 - API calls / data fetching → **frontend-data-fetching**
 - Formularios / validación → **frontend-forms**
+- Fechas / DateOnly → **frontend-date-handling**
 - Errores / toasts → **frontend-error-handling**
 - Estructura / organización → **frontend-component-architecture**
 - Tests → **frontend-testing**

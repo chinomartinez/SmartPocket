@@ -6,7 +6,7 @@ import type {
   CreditCardStatementListItemDTO,
   CreditCardStatementListRequest,
   CreditCardStatementPaymentsBulkCommand,
-  CreditCardStatementPaymentDTO,
+  CreditCardStatementPaymentSummaryDTO,
   CreditCardStatementSuggestionsDTO,
   CreditCardStatementUpdateCommand,
 } from "./creditCardTypes";
@@ -47,7 +47,7 @@ export const creditCardStatementService = {
   },
 
   getPayments: async (statementId: number) => {
-    const response = await spApiClient.get<CreditCardStatementPaymentDTO[]>(
+    const response = await spApiClient.get<CreditCardStatementPaymentSummaryDTO[]>(
       `/creditcardstatements/${statementId}/payments`,
     );
     return response.data;

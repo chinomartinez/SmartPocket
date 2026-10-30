@@ -1,5 +1,3 @@
-using SmartPocket.Features.CreditCardStatements.Shared;
-
 namespace SmartPocket.Features.CreditCardStatements.GetById
 {
     public class CreditCardStatementGetByIdDTO
@@ -14,7 +12,6 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
         public int ChargesCount { get; set; }
         public List<IncludedInstallmentItemDTO> IncludedInstallmentItems { get; set; } = [];
         public List<IncludedChargeItemDTO> IncludedChargeItems { get; set; } = [];
-        public CreditCardStatementTotalsDTO Totals { get; set; } = new();
     }
 
     public class IncludedInstallmentItemDTO

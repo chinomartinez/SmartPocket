@@ -33,9 +33,12 @@ export function CurrencyPaymentCard({
 }) {
   const [areFieldsOpen, setAreFieldsOpen] = useState(false);
   const isPaid = isPaymentComplete(payment);
-  const paidAmount =
-    payment.amount !== undefined && Number.isFinite(payment.amount) ? payment.amount : 0;
-  const pendingAmount = Math.max(payment.includedAmount - paidAmount, 0);
+  const paidAmountLabel =
+    payment.accountCurrencyCode &&
+    payment.amount !== undefined &&
+    Number.isFinite(payment.amount)
+      ? formatCurrency(payment.amount, payment.accountCurrencyCode)
+      : "—";
   const hasData = payment.accountId !== undefined || payment.amount !== undefined;
   const fieldsId = `payment-fields-${payment.coveredCurrencyCode}`;
   const accountFieldId = `payment-account-${payment.coveredCurrencyCode}`;
@@ -81,18 +84,7 @@ export function CurrencyPaymentCard({
               isPaid ? "text-emerald-400" : "text-foreground",
             )}
           >
-            {formatCurrency(paidAmount, payment.coveredCurrencyCode)}
-          </dd>
-        </div>
-        <div className="flex items-baseline gap-1.5">
-          <dt className="text-text-quaternary">Pendiente</dt>
-          <dd
-            className={cn(
-              "font-medium tabular-nums",
-              pendingAmount > 0 ? "text-amber-300" : "text-foreground",
-            )}
-          >
-            {formatCurrency(pendingAmount, payment.coveredCurrencyCode)}
+            {paidAmountLabel}
           </dd>
         </div>
       </dl>
@@ -123,7 +115,12 @@ export function CurrencyPaymentCard({
           </Label>
           <Select
             value={payment.accountId?.toString()}
-            onValueChange={(value) => onChange({ accountId: Number(value) })}
+            onValueChange={(value) => {
+              const accountId = Number(value);
+              const account = accounts.find((item) => item.id === accountId);
+
+              onChange({ accountId, accountCurrencyCode: account?.currency.code });
+            }}
           >
             <SelectTrigger id={accountFieldId} className="w-full">
               <SelectValue placeholder="Seleccionar cuenta" />
@@ -139,7 +136,7 @@ export function CurrencyPaymentCard({
         </div>
         <div className="space-y-1">
           <Label htmlFor={amountFieldId} className="text-xs font-normal text-text-quaternary">
-            Importe
+            Importe{payment.accountCurrencyCode ? ` (${payment.accountCurrencyCode})` : ""}
           </Label>
           <Input
             id={amountFieldId}

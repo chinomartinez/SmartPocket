@@ -89,7 +89,7 @@ namespace SmartPocket.WebApi.Controllers
         }
 
         [HttpGet("{statementId}/payments")]
-        public async Task<List<CreditCardStatementPaymentDTO>> GetPayments(
+        public async Task<List<CreditCardStatementPaymentSummaryDTO>> GetPayments(
             [FromServices] CreditCardStatementPaymentsQueryHandler handler,
             [FromRoute] int statementId,
             CancellationToken cancellation)

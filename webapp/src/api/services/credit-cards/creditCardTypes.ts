@@ -138,10 +138,17 @@ export interface CreditCardStatementSuggestionsDTO {
   suggestedChargeItems: CreditCardStatementChargeItemDTO[];
 }
 
-export interface CreditCardStatementDetailDTO extends CreditCardStatementListItemDTO {
+export interface CreditCardStatementDetailDTO {
+  id: number;
+  creditCardId: number;
+  description: string;
+  closingDate: string;
+  dueDate: string;
+  status: CreditCardStatementStatus;
+  installmentsCount: number;
+  chargesCount: number;
   includedInstallmentItems: CreditCardStatementInstallmentItemDTO[];
   includedChargeItems: CreditCardStatementChargeItemDTO[];
-  totals: CreditCardStatementTotalsDTO;
 }
 
 export interface CreditCardStatementListRequest {
@@ -175,20 +182,19 @@ export interface CreditCardStatementUpdateCommand {
   subsChargesForCreate: CreditCardStatementChargeCreateCommand[];
 }
 
-export interface CreditCardStatementPaymentAccountDTO {
-  id: number;
-  name: string;
-  currencyCode: string;
-  icon: IconDTO;
-}
-
 export interface CreditCardStatementPaymentDTO {
   id: number;
   transactionId: number;
-  account: CreditCardStatementPaymentAccountDTO;
-  amount: number;
+  accountId: number;
+  money: MoneyDTO;
   effectiveDate: string;
   coveredCurrencyCode: string;
+}
+
+export interface CreditCardStatementPaymentSummaryDTO {
+  coveredCurrencyCode: string;
+  includedAmount: number;
+  payment: CreditCardStatementPaymentDTO | null;
 }
 
 export interface CreditCardStatementPaymentInput {

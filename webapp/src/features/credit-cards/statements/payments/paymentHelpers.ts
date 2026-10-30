@@ -1,6 +1,6 @@
 import type {
   CreditCardStatementDetailDTO,
-  CreditCardStatementPaymentDTO,
+  CreditCardStatementPaymentSummaryDTO,
 } from "@/api/services/credit-cards/creditCardTypes";
 import { toDateOnlyUtc, todayDateOnly } from "@/utils/dateHelpers";
 import type { DraftPayment, StatementDetailItem } from "./paymentTypes";
@@ -16,21 +16,17 @@ export function isPaymentComplete(payment: DraftPayment) {
 }
 
 export function createDraftPayments(
-  detail: CreditCardStatementDetailDTO,
-  payments: CreditCardStatementPaymentDTO[],
+  paymentSummaries: CreditCardStatementPaymentSummaryDTO[],
 ): DraftPayment[] {
-  return detail.totals.currencySummaries.map((summary) => {
-    const payment = payments.find((item) => item.coveredCurrencyCode === summary.currencyCode);
-
-    return {
-      id: payment?.id ?? null,
-      accountId: payment?.account.id,
-      amount: payment?.amount,
-      effectiveDate: payment ? payment.effectiveDate : todayDateOnly(),
-      coveredCurrencyCode: summary.currencyCode,
-      includedAmount: summary.includedAmount,
-    };
-  });
+  return paymentSummaries.map((summary) => ({
+    id: summary.payment?.id ?? null,
+    accountId: summary.payment?.accountId,
+    accountCurrencyCode: summary.payment?.money.currencyCode,
+    amount: summary.payment?.money.amount,
+    effectiveDate: summary.payment?.effectiveDate ?? todayDateOnly(),
+    coveredCurrencyCode: summary.coveredCurrencyCode,
+    includedAmount: summary.includedAmount,
+  }));
 }
 
 export function getStatementDetailItems(

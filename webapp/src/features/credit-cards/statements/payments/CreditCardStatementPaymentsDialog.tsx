@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, Loader2, WalletCards } from "lucide-react";
+import { ConfirmDiscardDialog } from "@/components/ConfirmDiscardDialog";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { Badge } from "@/components/ui/badge";
@@ -56,23 +57,29 @@ export function CreditCardStatementPaymentsDialog({
   const [draftPayments, setDraftPayments] = useState<DraftPayment[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [removalCurrency, setRemovalCurrency] = useState<string | null>(null);
+  const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
+  const baselinePayments = useRef<DraftPayment[]>([]);
   const seededForOpen = useRef(false);
 
   useEffect(() => {
     if (!open) {
       seededForOpen.current = false;
+      baselinePayments.current = [];
       setDraftPayments([]);
       setValidationError(null);
       setRemovalCurrency(null);
+      setDiscardConfirmOpen(false);
       return;
     }
 
-    if (!seededForOpen.current && detailQuery.data && paymentsQuery.data) {
-      setDraftPayments(createDraftPayments(detailQuery.data, paymentsQuery.data));
+    if (!seededForOpen.current && paymentsQuery.data) {
+      const seededPayments = createDraftPayments(paymentsQuery.data);
+      baselinePayments.current = seededPayments.map((payment) => ({ ...payment }));
+      setDraftPayments(seededPayments);
       setValidationError(null);
       seededForOpen.current = true;
     }
-  }, [detailQuery.data, open, paymentsQuery.data]);
+  }, [open, paymentsQuery.data]);
 
   const detailItems = useMemo(
     () => (detailQuery.data ? getStatementDetailItems(detailQuery.data) : []),
@@ -88,16 +95,37 @@ export function CreditCardStatementPaymentsDialog({
     ? draftPayments.find((payment) => payment.coveredCurrencyCode === removalCurrency)
     : undefined;
   const removalIsPersisted = Boolean(removalDraft && removalDraft.id !== null);
+  const isDirty = !areDraftPaymentsEqual(draftPayments, baselinePayments.current);
+
+  const resetDialogState = () => {
+    updateMutation.reset();
+    seededForOpen.current = false;
+    baselinePayments.current = [];
+    setDraftPayments([]);
+    setValidationError(null);
+    setRemovalCurrency(null);
+    setDiscardConfirmOpen(false);
+  };
+
+  const closeWithoutConfirm = () => {
+    resetDialogState();
+    onOpenChange(false);
+  };
 
   const handleOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) {
-      updateMutation.reset();
-      setDraftPayments([]);
-      setValidationError(null);
-      setRemovalCurrency(null);
+    if (nextOpen) {
+      onOpenChange(true);
+      return;
     }
 
-    onOpenChange(nextOpen);
+    if (updateMutation.isPending) return;
+
+    if (isDirty) {
+      setDiscardConfirmOpen(true);
+      return;
+    }
+
+    closeWithoutConfirm();
   };
 
   const handlePaymentChange = (currencyCode: string, changes: Partial<DraftPayment>) => {
@@ -112,7 +140,11 @@ export function CreditCardStatementPaymentsDialog({
   const handleConfirmRemove = () => {
     if (!removalCurrency) return;
 
-    handlePaymentChange(removalCurrency, { accountId: undefined, amount: undefined });
+    handlePaymentChange(removalCurrency, {
+      accountId: undefined,
+      accountCurrencyCode: undefined,
+      amount: undefined,
+    });
     setRemovalCurrency(null);
   };
 
@@ -163,7 +195,7 @@ export function CreditCardStatementPaymentsDialog({
         },
       },
       {
-        onSuccess: () => handleOpenChange(false),
+        onSuccess: closeWithoutConfirm,
       },
     );
   };
@@ -178,8 +210,7 @@ export function CreditCardStatementPaymentsDialog({
                 <WalletCards className="size-5" /> Gestionar pagos
               </DialogTitle>
               <DialogDescription>
-                Registrá los pagos personales asociados al resumen. Esto no ejecuta ni verifica un pago
-                bancario.
+                Registrá los pagos del resumen.
               </DialogDescription>
             </div>
             {statement && (
@@ -263,7 +294,33 @@ export function CreditCardStatementPaymentsDialog({
               : ""
           }
         />
+        <ConfirmDiscardDialog
+          open={discardConfirmOpen}
+          onOpenChange={setDiscardConfirmOpen}
+          onConfirm={closeWithoutConfirm}
+          description="Los pagos que no guardaste se perderán. Esta acción no se puede deshacer."
+        />
       </DialogContent>
     </Dialog>
   );
+}
+
+function areDraftPaymentsEqual(current: DraftPayment[], baseline: DraftPayment[]) {
+  if (current.length !== baseline.length) return false;
+
+  const baselineByCurrency = new Map(
+    baseline.map((payment) => [payment.coveredCurrencyCode, payment]),
+  );
+
+  return current.every((payment) => {
+    const original = baselineByCurrency.get(payment.coveredCurrencyCode);
+
+    return (
+      original !== undefined &&
+      payment.id === original.id &&
+      payment.accountId === original.accountId &&
+      payment.amount === original.amount &&
+      payment.effectiveDate === original.effectiveDate
+    );
+  });
 }

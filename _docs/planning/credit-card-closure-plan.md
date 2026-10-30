@@ -74,6 +74,43 @@ La Fase 6 es la última y no debe ejecutarse hasta que todo lo demás esté cerr
 **Objetivo:** dejar de mostrar información monetaria incorrecta y evitar pérdida accidental de
 cambios.
 
+### 5.0. Contrato de pagos por moneda
+
+El detalle del resumen deja de calcular totales de pago. El endpoint de pagos pasa a devolver las
+filas por moneda:
+
+```text
+GET /CreditCardStatements/{statementId}/payments
+```
+
+Respuesta:
+
+```csharp
+public class CreditCardStatementPaymentSummaryDTO
+{
+    public string CoveredCurrencyCode { get; set; }
+    public decimal IncludedAmount { get; set; }
+    public CreditCardStatementPaymentDTO? Payment { get; set; }
+}
+```
+
+`CreditCardStatementPaymentDTO` deja de anidar la cuenta y pasa a tener:
+
+```csharp
+public int AccountId { get; set; }
+public MoneyDTO Money { get; set; }
+```
+
+Cambios asociados:
+
+- `GetById` deja de devolver `totals.currencySummaries`; conserva header e items incluidos.
+- El listado paginado mantiene `totals.currencySummaries` para evitar consultas por item.
+- La UI arma las filas de pago desde el endpoint de pagos, no desde `GetById`.
+- `IncludedAmount` se calcula sumando cuotas y cargos incluidos por moneda.
+- `Payment` se asigna por `CoveredCurrencyCode`; es `null` cuando todavía no existe pago.
+- No se cruza `CoveredCurrencyCode` con la moneda del pago. La moneda real del pago es
+  `Payment.Money.CurrencyCode`.
+
 ### 5.1. Quitar el estado "Pendiente"
 
 Archivo: `webapp/src/features/credit-cards/statements/payments/CurrencyPaymentCard.tsx`
@@ -87,11 +124,17 @@ Archivo: `webapp/src/features/credit-cards/statements/payments/CurrencyPaymentCa
 
 ### 5.2. Formatear el pago con la moneda de la cuenta
 
-Archivo: `webapp/src/features/credit-cards/statements/payments/CurrencyPaymentCard.tsx`
+Archivos:
 
-- Derivar la moneda de la cuenta desde `accounts` y `payment.accountId`.
-- Mostrar `Pagado` con esa moneda.
-- Si no hay cuenta seleccionada, mostrar `—` o el importe sin moneda, sin asumir la moneda cubierta.
+- `webapp/src/features/credit-cards/statements/payments/paymentHelpers.ts`
+- `webapp/src/features/credit-cards/statements/payments/paymentTypes.ts`
+- `webapp/src/features/credit-cards/statements/payments/CurrencyPaymentCard.tsx`
+
+- `createDraftPayments` recibe el array de pagos por moneda y conserva `payment.money.currencyCode`
+  como `accountCurrencyCode`.
+- Mostrar `Pagado` con `accountCurrencyCode`.
+- Si no hay cuenta seleccionada, mostrar `—`, sin asumir la moneda cubierta.
+- Al elegir una cuenta distinta, actualizar `accountCurrencyCode` con la moneda de esa cuenta.
 - Cambiar la etiqueta del input a `Importe (ARS)` cuando haya cuenta seleccionada.
 - Mantener la moneda cubierta visible en el encabezado de la fila.
 - La fila debe comunicar claramente dos conceptos distintos:
@@ -116,8 +159,8 @@ Archivos:
 Comportamiento:
 
 - Detectar cambios comparando el estado actual contra el estado inicial cargado.
-- En pagos, comparar cada borrador: `id`, `accountId`, `amount`, `effectiveDate` y
-  `coveredCurrencyCode`.
+- En pagos, comparar cada borrador: `id`, `accountId`, `accountCurrencyCode`, `amount`,
+  `effectiveDate` y `coveredCurrencyCode`.
 - En el formulario de resumen, comparar:
   - descripción y fechas;
   - cuotas seleccionadas;
@@ -135,6 +178,8 @@ diálogos.
 
 ### 5.5. Criterios de aceptación
 
+- El endpoint de pagos devuelve una fila por moneda incluida, con `payment` nullable.
+- `GetById` no devuelve `totals` ni `currencySummaries`.
 - Un resumen con items en USD pagado desde una cuenta ARS muestra `Incluido 20 USD` y
   `Pagado 40.000 ARS`.
 - No existe ninguna fila ni etiqueta `Pendiente` en el diálogo de pagos.

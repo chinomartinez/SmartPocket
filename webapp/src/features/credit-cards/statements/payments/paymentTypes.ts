@@ -1,6 +1,7 @@
 export interface DraftPayment {
   id: number | null;
   accountId: number | undefined;
+  accountCurrencyCode: string | undefined;
   amount: number | undefined;
   effectiveDate: string;
   coveredCurrencyCode: string;

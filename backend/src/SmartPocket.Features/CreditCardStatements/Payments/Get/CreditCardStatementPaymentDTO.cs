@@ -1,4 +1,4 @@
-using SmartPocket.Features.Shared.Icons;
+using SmartPocket.Features.Transactions;
 
 namespace SmartPocket.Features.CreditCardStatements.Payments.Get
 {
@@ -6,17 +6,9 @@ namespace SmartPocket.Features.CreditCardStatements.Payments.Get
     {
         public int Id { get; set; }
         public int TransactionId { get; set; }
-        public CreditCardStatementPaymentAccountDTO Account { get; set; } = default!;
-        public decimal Amount { get; set; }
+        public int AccountId { get; set; }
+        public MoneyDTO Money { get; set; } = default!;
         public DateOnly EffectiveDate { get; set; }
         public string CoveredCurrencyCode { get; set; } = string.Empty;
-    }
-
-    public class CreditCardStatementPaymentAccountDTO
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string CurrencyCode { get; set; } = string.Empty;
-        public IconDTO Icon { get; set; } = default!;
     }
 }

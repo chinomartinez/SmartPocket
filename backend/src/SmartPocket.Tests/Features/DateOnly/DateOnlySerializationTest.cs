@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SmartPocket.Features.CreditCardStatements.GetById;
 using SmartPocket.Features.CreditCardStatements.Payments.Get;
+using SmartPocket.Features.Transactions;
 using SmartPocket.Features.Transactions.GetById;
 using SmartPocket.Features.Transfers.GetById;
 
@@ -87,7 +88,12 @@ namespace SmartPocket.Tests.Features.DateOnlySerialization
             {
                 Id = 1,
                 TransactionId = 2,
-                Amount = 100,
+                AccountId = 3,
+                Money = new MoneyDTO
+                {
+                    Amount = 100,
+                    CurrencyCode = "ARS"
+                },
                 CoveredCurrencyCode = "ARS",
                 EffectiveDate = new DateOnly(2026, 10, 21)
             };

@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartPocket.Domain.CreditCards;
 using SmartPocket.Features.Abstractions.Handlers;
-using SmartPocket.Features.CreditCardStatements.Shared;
-using SmartPocket.Features.Transactions;
 using SmartPocket.Persistence;
 
 namespace SmartPocket.Features.CreditCardStatements.GetById
@@ -90,37 +88,6 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
                 })
                 .ToListAsync(cancellation);
 
-            var paymentsByCoveredCurrency = await _smartPocketContext.Query<CreditCardStatementPayment>()
-                .AsNoTracking()
-                .Where(x => x.CreditCardStatementId == id)
-                .Select(x => new
-                {
-                    x.CoveredCurrencyCode,
-                    x.Transaction.Amount,
-                    CurrencyCode = x.Transaction.Account.CurrencyCode
-                })
-                .ToDictionaryAsync(
-                    x => x.CoveredCurrencyCode,
-                    x => new MoneyDTO
-                    {
-                        Amount = x.Amount,
-                        CurrencyCode = x.CurrencyCode
-                    },
-                    cancellation);
-
-            var currencySummaries = includedInstallments
-                .Select(x => new { x.Amount, x.CurrencyCode })
-                .Concat(includedCharges.Select(x => new { x.Amount, x.CurrencyCode }))
-                .GroupBy(x => x.CurrencyCode)
-                .OrderBy(x => x.Key)
-                .Select(currencyGroup => new CreditCardStatementCurrencySummaryDTO
-                {
-                    CurrencyCode = currencyGroup.Key,
-                    IncludedAmount = currencyGroup.Sum(x => x.Amount),
-                    Payment = paymentsByCoveredCurrency.GetValueOrDefault(currencyGroup.Key)
-                })
-                .ToList();
-
             return new CreditCardStatementGetByIdDTO
             {
                 Id = statement.Id,
@@ -132,11 +99,7 @@ namespace SmartPocket.Features.CreditCardStatements.GetById
                 InstallmentsCount = includedInstallments.Count,
                 ChargesCount = includedCharges.Count,
                 IncludedInstallmentItems = includedInstallments,
-                IncludedChargeItems = includedCharges,
-                Totals = new CreditCardStatementTotalsDTO
-                {
-                    CurrencySummaries = currencySummaries
-                }
+                IncludedChargeItems = includedCharges
             };
         }
     }

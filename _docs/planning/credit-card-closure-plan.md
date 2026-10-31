@@ -364,7 +364,7 @@ No usar el mismo mensaje genérico para ambos casos.
 - Cancelar una suscripción pide confirmación y muestra advertencia.
 - Los dos empty states son distintos y el de filtros permite limpiarlos.
 
-**Estado:** implementada. Falta QA manual.
+**Estado:** implementada y verificada.
 
 ## 8. Fase 4: resúmenes
 

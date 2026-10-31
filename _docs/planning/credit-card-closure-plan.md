@@ -39,7 +39,7 @@ El diseño de dominio del backend sigue siendo referencia y no se elimina:
 | Pagos: moneda del importe | El importe pagado se muestra con la moneda real de la cuenta, no con la moneda cubierta. |
 | Pagos: conversión | Se mantiene explícito que SmartPocket no convierte monedas. |
 | Detalle cronológico de pagos | Se mantiene la lista inline con importe y moneda. No se migra a tabla con columnas por moneda. |
-| Diálogos con cambios | Se pide confirmación al cerrar con cambios sin guardar en el formulario de resumen y en la gestión de pagos. |
+| Diálogos con cambios | Se pide confirmación al cerrar la gestión de pagos con cambios sin guardar. El formulario de resumen no la incluye. |
 | Fechas de cuotas | Se mantiene el comportamiento actual del código. No se modifica. |
 | Tests automatizados | Fuera del alcance de este plan. Se usa una matriz de QA manual. |
 | FR53 | Entra en este plan como feature de backend. |
@@ -52,6 +52,7 @@ El diseño de dominio del backend sigue siendo referencia y no se elimina:
 - Card "Agregar tarjeta" al final del carrusel.
 - Resumen visual de uso dentro de la card del carrusel.
 - Diferencia monetaria entre items incluidos y pagos.
+- Confirmación al cerrar el formulario de resumen con cambios.
 - Selector de fecha al cancelar una suscripción.
 - Soft delete de cargos de suscripción o cambios al modelo de dominio.
 - Tests automatizados nuevos para el módulo.
@@ -149,32 +150,24 @@ Archivo: `webapp/src/features/credit-cards/statements/payments/CreditCardStateme
 - No agregar advertencias largas; el detalle de monedas se muestra en cada fila.
 - No agregar cálculos de equivalencia ni cotizaciones.
 
-### 5.4. Confirmación al cerrar con cambios sin guardar
+### 5.4. Confirmación al cerrar la gestión de pagos
 
-Archivos:
+Archivo:
 
 - `webapp/src/features/credit-cards/statements/payments/CreditCardStatementPaymentsDialog.tsx`
-- `webapp/src/features/credit-cards/statements/CreditCardStatementFormDialog.tsx`
 
 Comportamiento:
 
 - Detectar cambios comparando el estado actual contra el estado inicial cargado.
-- En pagos, comparar cada borrador: `id`, `accountId`, `accountCurrencyCode`, `amount`,
+- Comparar cada borrador: `id`, `accountId`, `accountCurrencyCode`, `amount`,
   `effectiveDate` y `coveredCurrencyCode`.
-- En el formulario de resumen, comparar:
-  - descripción y fechas;
-  - cuotas seleccionadas;
-  - cargos seleccionados;
-  - montos editados de cargos.
 - Si hay cambios y el usuario cierra con X, Escape, click afuera o `Cancelar`, mostrar confirmación
   para descartar.
 - Si confirma, cerrar y resetear.
 - Si cancela, mantener el diálogo abierto y conservar los cambios.
 - Si guarda correctamente, cerrar sin preguntar.
 
-Se recomienda crear un diálogo reutilizable de confirmación de descarte en `webapp/src/components/`
-siguiendo los patrones existentes. Si no se reutiliza, implementar la misma lógica en ambos
-diálogos.
+Se reutiliza `ConfirmDiscardDialog` de `webapp/src/components/`.
 
 ### 5.5. Criterios de aceptación
 
@@ -188,8 +181,8 @@ diálogos.
 - Guardar correctamente cierra sin preguntar.
 - Un error de guardado conserva el borrador.
 
-**Estado:** contrato de pagos y diálogo de pagos implementados. Falta la confirmación de descarte en
-el formulario de resumen y la QA manual.
+**Estado:** implementada. La confirmación de descarte queda limitada a la gestión de pagos por
+decisión de alcance.
 
 ## 6. Fase 2: tarjetas y cascada
 
@@ -285,7 +278,7 @@ Archivo: `webapp/src/features/credit-cards/CreditCardsPage.tsx`
 - ESLint de los archivos tocados y `pnpm run build` pasan.
 - El backend compila.
 
-**Estado:** backend y frontend implementados. Falta la QA manual.
+**Estado:** implementada y verificada manualmente.
 
 ## 7. Fase 3: actividades
 
@@ -558,7 +551,6 @@ Decisiones del módulo:
 | Resumen con items USD y pago desde cuenta ARS | Se muestra `Incluido 20 USD` y `Pagado 40.000 ARS`; no aparece `Pendiente`. |
 | Cambiar cuenta de un pago | El importe y la etiqueta de moneda se actualizan a la moneda de la nueva cuenta. |
 | Cerrar gestión de pagos con cambios | Se pide confirmación; cancelar conserva el borrador; descartar cierra. |
-| Cerrar formulario de resumen con cambios | Se pide confirmación; cancelar conserva los cambios. |
 | Guardar pagos con error | El diálogo permanece abierto y conserva el borrador. |
 | Eliminar tarjeta sin movimientos | Se elimina y se selecciona la siguiente o aparece el empty state. |
 | Eliminar tarjeta con compras, suscripciones y resúmenes | Todo deja de aparecer. |

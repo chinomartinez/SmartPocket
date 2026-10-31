@@ -85,7 +85,35 @@ namespace SmartPocket.Features.CreditCardStatements.Update
 
                     return existingChargesCount == ids.Count;
                 })
-                .WithMessage("Uno o más cargos de suscripción no existen o no pertenecen al resumen especificado.");
+                .WithMessage("Uno o más cargos de suscripción no existen o no pertenecen al resumen especificado.")
+                .CustomAsync(async (charges, context, cancellation) =>
+                {
+                    var command = context.InstanceToValidate;
+                    var chargeIds = charges.Select(x => x.Id).ToArray();
+                
+                    if (chargeIds.Length == 0) return;
+                
+                    var subscriptionIds = await _smartPocketContext.Query<CreditCardSubscriptionCharge>()
+                        .Where(x => chargeIds.Contains(x.Id))
+                        .Select(x => x.CreditCardSubscriptionId )
+                        .ToListAsync(cancellation);
+                
+                    if (subscriptionIds.Count == 0) return;
+
+                    var chargeNumbers = charges.Select(x => x.ChargeNumber).ToArray();
+
+                    var collisions = await _smartPocketContext.Query<CreditCardSubscriptionCharge>()
+                        .Where(x => x.CreditCardStatementId != command.Id)
+                        .Where(x => subscriptionIds.Contains(x.CreditCardSubscriptionId))
+                        .Where(x => chargeNumbers.Contains(x.ChargeNumber))
+                        .Select(x => new { x.CreditCardSubscriptionId, x.ChargeNumber })
+                        .ToListAsync(cancellation);
+                
+                    if (collisions.Count > 0)
+                    {
+                        context.AddFailure("Uno o más números de cargo ya existen en otros resúmenes.");
+                    }
+                });
 
 
             RuleFor(x => x.SubsChargesForCreate)

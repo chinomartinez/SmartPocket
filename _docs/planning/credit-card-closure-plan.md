@@ -442,6 +442,9 @@ No se modifica el esquema.
 - La creación y la actualización siguen rechazando duplicados.
 - No se permiten cargos duplicados dentro del mismo resumen ni contra otros.
 
+**Estado:** cerrada. La corrección se implementa directamente en el validator y queda fuera del
+alcance documental de este plan.
+
 ## 10. Fase 6: cierre documental
 
 **Objetivo:** dejar el roadmap como fuente de verdad y eliminar los planes de tarjetas.

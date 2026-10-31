@@ -204,7 +204,7 @@ Al eliminar una tarjeta:
 3. Aplicar soft delete a sus compras.
 4. Aplicar soft delete a sus suscripciones.
 5. Aplicar soft delete a sus resúmenes.
-6. Aplicar soft delete a los pagos de esos resúmenes.
+6. Eliminar las relaciones de pago de esos resúmenes.
 7. Aplicar soft delete a las transacciones asociadas a esos pagos.
 8. Guardar una sola vez.
 

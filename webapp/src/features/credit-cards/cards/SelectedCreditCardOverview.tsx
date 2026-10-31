@@ -1,4 +1,4 @@
-import { Info, Pencil } from "lucide-react";
+import { Info, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ErrorAlert";
@@ -17,6 +17,7 @@ interface SelectedCreditCardOverviewProps {
   isLoading: boolean;
   error: unknown;
   onEdit: () => void;
+  onDelete: () => void;
 }
 
 export function SelectedCreditCardOverview({
@@ -25,6 +26,7 @@ export function SelectedCreditCardOverview({
   isLoading,
   error,
   onEdit,
+  onDelete,
 }: SelectedCreditCardOverviewProps) {
   const usage =
     overview && overview.creditLimit > 0
@@ -41,7 +43,7 @@ export function SelectedCreditCardOverview({
           <div className="flex size-12 items-center justify-center rounded-xl bg-sp-blue-500/15 text-sp-blue-400">
             <IconBox icon={card.icon} size="sm" shape="rounded" />
           </div>
-          <div className="relative min-w-0 flex-1 pr-20 lg:pr-0">
+          <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h2
                 id="selected-card-title"
@@ -55,14 +57,24 @@ export function SelectedCreditCardOverview({
               >
                 Activa
               </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                className="absolute right-0 top-0 h-8 px-2.5 text-xs lg:static"
-                onClick={onEdit}
-              >
-                <Pencil className="size-3.5" /> Editar
-              </Button>
+              <div className="ml-auto flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2.5 text-xs"
+                  onClick={onEdit}
+                >
+                  <Pencil className="size-3.5" /> Editar
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2.5 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                  onClick={onDelete}
+                >
+                  <Trash2 className="size-3.5" /> Eliminar
+                </Button>
+              </div>
             </div>
             <p className="mt-1 text-sm text-text-quaternary">Moneda base {card.currencyCode}</p>
           </div>

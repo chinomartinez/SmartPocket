@@ -278,3 +278,16 @@ export function useUpdateCreditCard() {
     },
   });
 }
+
+export function useDeleteCreditCard() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: creditCardService.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: creditCardKeys.all });
+      queryClient.invalidateQueries({ queryKey: accountKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+    },
+  });
+}

@@ -141,12 +141,12 @@ Archivos:
   - moneda cubierta del resumen;
   - moneda real debitada de la cuenta.
 
-### 5.3. Advertencia de no conversión
+### 5.3. Descripción del diálogo
 
 Archivo: `webapp/src/features/credit-cards/statements/payments/CreditCardStatementPaymentsDialog.tsx`
 
-- Agregar un texto visible, por ejemplo:
-  - `El importe se registra en la moneda de la cuenta. SmartPocket no convierte monedas.`
+- Mantener una descripción breve: `Registrá los pagos del resumen.`
+- No agregar advertencias largas; el detalle de monedas se muestra en cada fila.
 - No agregar cálculos de equivalencia ni cotizaciones.
 
 ### 5.4. Confirmación al cerrar con cambios sin guardar
@@ -184,10 +184,12 @@ diálogos.
   `Pagado 40.000 ARS`.
 - No existe ninguna fila ni etiqueta `Pendiente` en el diálogo de pagos.
 - El importe pagado nunca se rotula con la moneda cubierta.
-- El texto de no conversión es visible.
-- Cerrar cualquiera de los dos diálogos con cambios pregunta antes de descartar.
+- Cerrar el diálogo de pagos con cambios pregunta antes de descartar.
 - Guardar correctamente cierra sin preguntar.
 - Un error de guardado conserva el borrador.
+
+**Estado:** contrato de pagos y diálogo de pagos implementados. Falta la confirmación de descarte en
+el formulario de resumen y la QA manual.
 
 ## 6. Fase 2: tarjetas y cascada
 
@@ -214,7 +216,7 @@ Consideraciones:
   padres y del resumen.
 - Las transacciones de pago deben salir de cuentas y dashboard; de lo contrario quedarían gastos
   huérfanos.
-- No se elimina nada físicamente.
+- No se elimina ninguna entidad principal; las relaciones de pago sí se eliminan físicamente.
 - Mantener la operación dentro de una única unidad de persistencia.
 - Si el volumen de datos crece, usar proyecciones mínimas para cargar IDs y entidades necesarias.
 
@@ -255,7 +257,7 @@ cuentas y del dashboard.
 Esta acción no cancela nada ante el banco.
 ```
 
-- El botón de confirmación debe ser destructivo y mostrar estado de carga mientras elimina.
+- El botón de confirmación debe ser destructivo.
 - No eliminar tarjetas desde la card del carrusel.
 
 ### 6.4. Frontend: selección posterior
@@ -264,7 +266,7 @@ Archivo: `webapp/src/features/credit-cards/CreditCardsPage.tsx`
 
 - Al eliminar la tarjeta seleccionada, seleccionar la primera tarjeta disponible.
 - Si no quedan tarjetas, mostrar el empty state existente.
-- Cerrar el diálogo y limpiar el estado de edición.
+- Cerrar el diálogo de confirmación.
 - Evitar consultar el overview de la tarjeta eliminada.
 
 ### 6.5. Métricas
@@ -280,8 +282,10 @@ Archivo: `webapp/src/features/credit-cards/CreditCardsPage.tsx`
 - Los pagos asociados dejan de impactar en cuentas y dashboard.
 - Si era la última tarjeta, aparece el empty state.
 - Si había otras, se selecciona la primera disponible.
-- `pnpm run lint` y `pnpm run build` pasan.
+- ESLint de los archivos tocados y `pnpm run build` pasan.
 - El backend compila.
+
+**Estado:** backend y frontend implementados. Falta la QA manual.
 
 ## 7. Fase 3: actividades
 

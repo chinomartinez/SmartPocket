@@ -69,4 +69,8 @@ export const creditCardService = {
   update: async (id: number, data: CreditCardCreateCommand) => {
     await spApiClient.put(`${BASE_PATH}/${id}`, data);
   },
+
+  delete: async (id: number) => {
+    await spApiClient.delete(`${BASE_PATH}/${id}`);
+  },
 };

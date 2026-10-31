@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { useCreditCardOverview, useCreditCards } from "@/api/services/credit-cards/useCreditCards";
+import {
+  useCreditCardOverview,
+  useCreditCards,
+  useDeleteCreditCard,
+} from "@/api/services/credit-cards/useCreditCards";
+import type { CreditCardListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { CreditCardFormDialog } from "./cards/CreditCardFormDialog";
 import { CreditCardActivitySection } from "./activities/CreditCardActivitySection";
 import { CreditCardCarousel } from "./cards/CreditCardCarousel";
@@ -15,6 +21,8 @@ export function CreditCardsPage() {
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [cardDialogOpen, setCardDialogOpen] = useState(false);
   const [editingCardId, setEditingCardId] = useState<number | null>(null);
+  const [cardToDelete, setCardToDelete] = useState<CreditCardListItemDTO | null>(null);
+  const deleteCardMutation = useDeleteCreditCard();
 
   const selectedCard = creditCards?.find((card) => card.id === selectedCardId) ?? creditCards?.[0];
   const overviewQuery = useCreditCardOverview(selectedCard?.id ?? 0);
@@ -35,6 +43,31 @@ export function CreditCardsPage() {
     if (!selectedCard) return;
     setEditingCardId(selectedCard.id);
     setCardDialogOpen(true);
+  };
+
+  const openDeleteCardDialog = () => {
+    if (!selectedCard) return;
+    deleteCardMutation.reset();
+    setCardToDelete(selectedCard);
+  };
+
+  const closeDeleteCardDialog = () => {
+    setCardToDelete(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!cardToDelete) return;
+
+    const remainingCards = creditCards?.filter((card) => card.id !== cardToDelete.id) ?? [];
+
+    deleteCardMutation.mutate(cardToDelete.id, {
+      onSuccess: () => {
+        if (cardToDelete.id === selectedCard?.id) {
+          setSelectedCardId(remainingCards[0]?.id ?? null);
+        }
+        setCardToDelete(null);
+      },
+    });
   };
 
   if (isLoading) return <CreditCardsLoadingState />;
@@ -70,6 +103,7 @@ export function CreditCardsPage() {
         isLoading={overviewQuery.isLoading}
         error={overviewQuery.error}
         onEdit={openEditCardDialog}
+        onDelete={openDeleteCardDialog}
       />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(330px,0.8fr)]">
         <CreditCardActivitySection
@@ -86,6 +120,18 @@ export function CreditCardsPage() {
         card={editingCard}
         open={cardDialogOpen}
         onOpenChange={setCardDialogOpen}
+      />
+      <DeleteConfirmationDialog
+        open={Boolean(cardToDelete)}
+        onOpenChange={(open) => {
+          if (!open) closeDeleteCardDialog();
+        }}
+        onConfirm={handleConfirmDelete}
+        itemName={cardToDelete?.name ?? ""}
+        itemType="tarjeta"
+        title="¿Eliminar tarjeta?"
+        description="Dejará de aparecer junto con sus compras, suscripciones y resúmenes. Si tiene pagos registrados, también se quitarán de tus cuentas y del dashboard. Esta acción no cancela nada ante el banco."
+        isDeleting={deleteCardMutation.isPending}
       />
     </div>
   );

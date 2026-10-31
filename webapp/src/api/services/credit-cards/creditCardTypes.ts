@@ -68,6 +68,7 @@ export interface CreditCardActivityFilters {
   page: number;
   pageSize: number;
   type?: CreditCardActivityType;
+  status?: CreditCardActivityStatus;
   search?: string;
 }
 

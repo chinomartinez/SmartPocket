@@ -10,7 +10,7 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 ## Estado Actual del Proyecto
 
 - **Fase Actual**: Fase 3 - Desarrollo del MVP (25%)
-- **Última Actualización**: Fase 3.2 completada
+- **Última Actualización**: Fase 3.10 completada
 
 ---
 
@@ -223,7 +223,7 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 
 #### 3.10: Credit Card Management
 
-**Estado:** ⏳ Pendiente
+**Estado:** ✅ Implementado 100%
 
 **Objetivo:** Permitir al usuario administrar tarjetas de crédito y registrar el ciclo completo de sus consumos: compras en cuotas, suscripciones, armado de resúmenes y asociación de pagos reales.
 
@@ -235,50 +235,59 @@ Este documento define el plan de desarrollo para la aplicación web SmartPocket.
 
 **FRs**
 
-- [] FR49: Crear tarjetas de crédito con nombre, moneda, límite, ícono, día de cierre sugerido y día de vencimiento
-- [] FR50: Ver listado de tarjetas de crédito con límite y estado de uso
-- [] FR51: Editar los datos configurables de una tarjeta de crédito
-- [] FR52: Eliminar tarjetas de crédito mediante soft delete
-- [] FR53: Ocultar en cascada las compras, suscripciones y cuotas asociadas a una tarjeta eliminada
+- [x] FR49: Crear tarjetas de crédito con nombre, moneda, límite, ícono, día de cierre sugerido y día de vencimiento
+- [x] FR50: Ver listado de tarjetas de crédito con límite y uso estimado
+- [x] FR51: Editar los datos configurables de una tarjeta de crédito
+- [x] FR52: Eliminar tarjetas de crédito mediante soft delete
+- [x] FR53: Ocultar en cascada las compras, suscripciones y cuotas asociadas a una tarjeta eliminada
 
 ##### 3.10.2: Credit Card Purchases & Subscriptions
 
 **FRs**
 
-- [] FR54: Registrar compras con categoría, moneda, descripción, fecha efectiva, monto total y cantidad de cuotas
-- [] FR55: Generar todas las cuotas de una compra en cuotas al momento de crearla, con monto fijo y sin resumen asociado inicialmente
-- [] FR56: Registrar suscripciones con monto variable por período y fecha efectiva
-- [] FR57: Ver compras y suscripciones filtradas por tarjeta, tipo y estado
-- [] FR58: Editar compras y suscripciones respetando las restricciones de cuotas y resúmenes ya relacionados
-- [] FR59: Eliminar compras y suscripciones según las reglas de integridad del dominio
-- [] FR60: Cancelar suscripciones indicando fecha de cancelación y detener la generación de pagos posteriores a esa fecha
-- [] FR61: Calcular y mostrar el estado de la compra completa: en proceso, pagada o finalizada
-- [] FR62: Calcular y mostrar el estado de la suscripción: activa o cancelada
+- [x] FR54: Registrar compras con categoría, moneda, descripción, fecha efectiva, monto total y cantidad de cuotas
+- [x] FR55: Generar todas las cuotas de una compra en cuotas al momento de crearla, con monto fijo y sin resumen asociado inicialmente
+- [x] FR56: Registrar suscripciones con monto variable por período y fecha efectiva
+- [x] FR57: Ver compras y suscripciones filtradas por tarjeta, tipo y estado
+- [x] FR58: Editar compras y suscripciones respetando las restricciones de cuotas y resúmenes ya relacionados
+- [x] FR59: Eliminar compras y suscripciones según las reglas de integridad del dominio
+- [x] FR60: Cancelar suscripciones con confirmación, registrando la fecha de cancelación y deteniendo cargos posteriores
+- [x] FR61: Calcular y mostrar el estado de la compra completa: en proceso, pagada o finalizada
+- [x] FR62: Calcular y mostrar el estado de la suscripción: activa o cancelada
 
 ##### 3.10.3: Credit Card Statements & Installments
 
 **FRs**
 
-- [] FR63: Generar un preview de resumen sin persistirlo, seleccionando una fecha de cierre real
-- [] FR64: Mostrar en el preview cuotas y pagos sugeridos dentro del rango de fechas del resumen
-- [] FR65: Mostrar en el preview cuotas y pagos atrasados que permanecen pendientes en el pool
-- [] FR66: Incluir o excluir libremente ítems sugeridos y atrasados antes de confirmar el resumen
-- [] FR67: Generar el pago del período de una suscripción al incluirla en el preview del resumen
-- [] FR68: Confirmar y crear un resumen con las cuotas y pagos seleccionados
-- [] FR69: Ver resúmenes ordenados por fecha de cierre, con estado cerrado o pagado
-- [] FR70: Editar o eliminar resúmenes cerrados sin pagar, devolviendo sus cuotas al pool
-- [] FR71: Impedir cambios sobre las cuotas incluidas en un resumen pagado
+- [x] FR63: Generar un preview de resumen sin persistirlo, usando la fecha de cierre real
+- [x] FR64: Mostrar en el preview cuotas y cargos sugeridos anteriores al cierre
+- [x] FR65: Mostrar en el preview cuotas y cargos pendientes del pool que todavía no fueron asignados
+- [x] FR66: Incluir o excluir libremente cuotas y cargos sugeridos o pendientes antes de confirmar el resumen
+- [x] FR67: Generar el cargo del período de una suscripción al incluirla en el preview del resumen
+- [x] FR68: Confirmar y crear un resumen con las cuotas y cargos seleccionados
+- [x] FR69: Ver resúmenes ordenados por fecha de cierre, con estado cerrado, parcialmente pagado o pagado
+- [x] FR70: Editar o eliminar resúmenes cerrados sin pagar, devolviendo sus cuotas al pool
+- [x] FR71: Impedir cambios sobre las cuotas incluidas en un resumen pagado
 
 ##### 3.10.4: Credit Card Statement Payments
 
 **FRs**
 
-- [] FR72: Registrar uno o más pagos para un resumen mediante transacciones asociadas
-- [] FR73: Registrar pagos de un resumen en moneda corriente y/o dólar
-- [] FR74: Ver para cada resumen el total incluido, el total efectivamente pagado y la diferencia calculada
-- [] FR75: Editar los datos de las transacciones asociadas a un resumen pagado
-- [] FR76: Editar el monto del pago de una suscripción individual dentro de un resumen pagado
-- [] FR77: Eliminar un resumen pagado con confirmación explícita, incluyendo sus transacciones asociadas y devolviendo sus cuotas al pool
+- [x] FR72: Registrar uno o más pagos para un resumen mediante transacciones asociadas
+- [x] FR73: Registrar pagos de un resumen en cualquier moneda soportada
+- [x] FR74: Ver para cada resumen los totales incluidos por moneda y los pagos registrados, sin calcular diferencias entre monedas
+- [x] FR75: Editar los pagos y sus transacciones mediante el contrato bulk
+- [x] FR76: Editar el monto de un cargo de suscripción incluido en un resumen cerrado. No se edita un resumen pagado
+- [x] FR77: Eliminar un resumen pagado con confirmación explícita, incluyendo sus transacciones asociadas y devolviendo sus cuotas al pool
+
+**Decisiones del módulo:**
+
+- Los datos son registros manuales; no hay sincronización bancaria.
+- Los pagos se registran en la moneda real de la cuenta, sin conversión entre monedas.
+- No se calculan diferencias entre monedas.
+- Un resumen solo se edita mientras está cerrado; con pagos, hay que eliminarlos primero.
+- Eliminar una tarjeta oculta sus compras, suscripciones y resúmenes, y quita sus pagos de cuentas y dashboard.
+- Los cargos manuales no forman parte del alcance.
 
 **Referencias:**
 

@@ -117,7 +117,7 @@ export function CreditCardStatementList({ cardId, currencyCode }: CreditCardStat
                 key={statement.id}
                 statement={statement}
                 currencyCode={currencyCode}
-                onOpen={handleOpenEdit}
+                onEdit={handleOpenEdit}
                 onManagePayments={handleManagePayments}
                 onDelete={handleRequestDelete}
               />

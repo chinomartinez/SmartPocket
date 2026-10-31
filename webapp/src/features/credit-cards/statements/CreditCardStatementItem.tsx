@@ -1,4 +1,4 @@
-import { CalendarDays, Trash2, WalletCards } from "lucide-react";
+import { CalendarDays, Pencil, Trash2, WalletCards } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { CreditCardStatementListItemDTO } from "@/api/services/credit-cards/creditCardTypes";
 import { formatCurrency } from "@/utils/formatters";
@@ -7,7 +7,7 @@ import { formatDateOnlyLabel } from "@/utils/dateHelpers";
 interface CreditCardStatementItemProps {
   statement: CreditCardStatementListItemDTO;
   currencyCode: string;
-  onOpen: (statement: CreditCardStatementListItemDTO) => void;
+  onEdit: (statement: CreditCardStatementListItemDTO) => void;
   onManagePayments: (statement: CreditCardStatementListItemDTO) => void;
   onDelete: (statement: CreditCardStatementListItemDTO) => void;
 }
@@ -15,14 +15,11 @@ interface CreditCardStatementItemProps {
 export function CreditCardStatementItem({
   statement,
   currencyCode,
-  onOpen,
+  onEdit,
   onManagePayments,
   onDelete,
 }: CreditCardStatementItemProps) {
   const canEdit = statement.status === "Closed";
-  const handleOpen = () => {
-    if (canEdit) onOpen(statement);
-  };
   const handleDelete = () => onDelete(statement);
   const currencySummaries = [...statement.totals.currencySummaries].sort(
     (first, second) =>
@@ -46,15 +43,9 @@ export function CreditCardStatementItem({
   });
 
   return (
-    <article className="rounded-lg transition-colors hover:bg-hover-muted">
+    <article className="rounded-lg">
       <div className="flex items-start gap-3 p-4">
-        <button
-          type="button"
-          onClick={handleOpen}
-          disabled={!canEdit}
-          title={canEdit ? "Editar resumen" : "El resumen tiene pagos y no se puede editar"}
-          className="-m-1 min-w-0 flex-1 rounded-lg p-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sp-blue-400 disabled:cursor-not-allowed disabled:opacity-70"
-        >
+        <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-foreground">{statement.description}</p>
           <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-text-quaternary">
             <CalendarDays className="size-3.5 shrink-0" />
@@ -64,7 +55,7 @@ export function CreditCardStatementItem({
             {statement.installmentsCount} {statement.installmentsCount === 1 ? "cuota" : "cuotas"}{" "}
             · {statement.chargesCount} {statement.chargesCount === 1 ? "cargo" : "cargos"}
           </p>
-        </button>
+        </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
           <Badge
             variant="outline"
@@ -79,6 +70,17 @@ export function CreditCardStatementItem({
             {statusLabel}
           </Badge>
           <div className="flex items-center gap-1">
+            {canEdit && (
+              <button
+                type="button"
+                aria-label={`Editar ${statement.description}`}
+                title="Editar resumen"
+                onClick={() => onEdit(statement)}
+                className="inline-flex size-10 items-center justify-center rounded-lg text-text-quaternary transition-colors hover:bg-sp-blue-500/10 hover:text-sp-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sp-blue-400 sm:size-9"
+              >
+                <Pencil className="size-5" />
+              </button>
+            )}
             <button
               type="button"
               aria-label={`Gestionar pagos de ${statement.description}`}

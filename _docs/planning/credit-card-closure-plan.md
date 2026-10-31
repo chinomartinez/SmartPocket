@@ -405,6 +405,8 @@ Archivo: `webapp/src/features/credit-cards/statements/CreditCardStatementFormDia
 - La card no abre el formulario por click.
 - El empty state de sugerencias es distinto del de items incluidos.
 
+**Estado:** implementada y verificada.
+
 ## 9. Fase 5: hardening de cargos
 
 **Objetivo:** evaluar y, si corresponde, corregir el riesgo de duplicados al actualizar cargos.

@@ -289,6 +289,7 @@ export function CreditCardStatementFormDialog({
                           onToggleInstallment={handleToggleInstallment}
                           onToggleCharge={handleToggleCharge}
                           onAmountChange={handleChargeAmountChange}
+                          emptyMessage="No hay items incluidos."
                         />
                       </StatementItemsSection>
                     )}
@@ -308,6 +309,8 @@ export function CreditCardStatementFormDialog({
                         onToggleInstallment={handleToggleInstallment}
                         onToggleCharge={handleToggleCharge}
                         onAmountChange={handleChargeAmountChange}
+                        emptyMessage="No hay cuotas ni cargos pendientes para esta fecha de cierre."
+                        emptyHint="Registrá compras o suscripciones para que aparezcan aquí."
                       />
                     </StatementItemsSection>
                   </div>
@@ -388,6 +391,8 @@ function StatementItemList({
   onToggleInstallment,
   onToggleCharge,
   onAmountChange,
+  emptyMessage,
+  emptyHint,
 }: {
   installments: CreditCardStatementInstallmentItemDTO[];
   charges: CreditCardStatementChargeItemDTO[];
@@ -398,6 +403,8 @@ function StatementItemList({
   onToggleInstallment: (id: number) => void;
   onToggleCharge: (key: string) => void;
   onAmountChange: (key: string, amount: number | undefined) => void;
+  emptyMessage: string;
+  emptyHint?: string;
 }) {
   const items = [
     ...installments.map((item) => ({ type: "installment" as const, item })),
@@ -415,7 +422,12 @@ function StatementItemList({
   });
 
   if (items.length === 0) {
-    return <p className="py-5 text-sm text-text-quaternary">No hay items para mostrar.</p>;
+    return (
+      <div className="py-5">
+        <p className="text-sm text-text-quaternary">{emptyMessage}</p>
+        {emptyHint && <p className="mt-1 text-xs text-text-quaternary">{emptyHint}</p>}
+      </div>
+    );
   }
 
   return (

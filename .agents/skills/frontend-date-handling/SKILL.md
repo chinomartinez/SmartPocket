@@ -5,7 +5,7 @@ description: Manejo de fechas de calendario en el frontend de SmartPocket. Usar 
 
 # SmartPocket - Frontend Date Handling
 
-Reglas operativas para fechas date-only. El fundamento está en `_docs/planning/date-handling-plan.md` (plan cerrado); esta skill es el checklist de implementación.
+Reglas operativas para fechas date-only. Esta skill es el checklist de implementación.
 
 ---
 
@@ -114,4 +114,3 @@ const schema = z.object({
 - `webapp/src/features/transactions/TransactionFormModal.tsx`
 - `webapp/src/features/transfers/TransferFormModal.tsx`
 - `webapp/src/features/credit-cards/statements/payments/paymentHelpers.ts`
-- `_docs/planning/date-handling-plan.md`

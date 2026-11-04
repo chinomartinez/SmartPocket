@@ -1,4 +1,4 @@
-# ADR-003 — Modelo de recurrencia: patrón estructurado (sin RRULE)
+# ADR-0003 — Modelo de recurrencia: patrón estructurado (sin RRULE)
 
 - **Estado:** Propuesto (pendiente de confirmación)
 - **Fecha:** 2026-11-02
@@ -85,7 +85,7 @@ El cálculo vive en una **función pura del dominio** (`RecurrenceCalendar`), te
 
 **A. `RRULE` / Ical.Net.** Potencia innecesaria, dependencia externa, UI imposible de explicar y validación difusa. Se descarta para el MVP.
 
-**B. Ocurrencias persistidas + constructor visual.** El usuario crea cada vencimiento a mano y la app los repite. Es el modelo "cadena" del ADR-001, con los mismos problemas.
+**B. Ocurrencias persistidas + constructor visual.** El usuario crea cada vencimiento a mano y la app los repite. Es el modelo "cadena" del ADR-0001, con los mismos problemas.
 
 **C. Expresiones cron.** Pensadas para jobs, no para vencimientos; no expresan "el 16 de cada mes" de forma legible para el usuario.
 

@@ -622,7 +622,7 @@ Layout: calculadora estándar 4×5 (referencia: Gestor de Gastos app)
 
 **Decisión:** Combinar (C) — Base aprobada con refinamientos pendientes
 
-**Artefacto generado:** `_docs/planning-artifacts/ux-design-directions.html` (6 mockups interactivos)
+**Artefacto generado:** `docs/technical/ux-design-directions.html` (6 mockups interactivos)
 
 ### Decisiones Aprobadas
 

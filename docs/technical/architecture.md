@@ -1,8 +1,7 @@
 ---
 inputDocuments:
-  - "_docs/planning/prd.md"
-  - "_docs/planning/product-brief-SmartPocket-2026-02-28.md"
-  - "_docs/planning/ux-design-specification.md"
+  - "docs/planning/product-brief-SmartPocket-2026-02-28.md"
+  - "docs/technical/ux-design-specification.md"
 workflowType: "architecture"
 project_name: "SmartPocket"
 user_name: "Chino"
@@ -508,8 +507,7 @@ SmartPocket es un monorepo sin workspace manager con separación física clara:
 | -------------- | -------------------------------------------- | ---------------------------- |
 | `backend/src/` | API REST + lógica de negocio                 | .NET 10, C#, EF Core 10      |
 | `webapp/src/`  | SPA cliente                                  | React 19, TypeScript, Vite 7 |
-| `_docs/`       | Artefactos de planificación e implementación | Markdown                     |
-| `docs/`        | Documentación de proyecto (knowledge base)   | Markdown                     |
+| `docs/`        | Planificación, ADRs, specs y documentación   | Markdown                     |
 
 No hay dependencia de build entre `backend/` y `webapp/`. Se comunican exclusivamente via HTTP REST. En desarrollo, Vite proxea `/api` → `localhost:5000`.
 

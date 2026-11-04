@@ -2,9 +2,9 @@
 
 ## Repository Scope
 
-- This is a monorepo without a workspace manager: `webapp/` is the React SPA, `backend/src/` is the .NET API, and `_docs/` contains planning and technical documentation.
+- This is a monorepo without a workspace manager: `webapp/` is the React SPA, `backend/src/` is the .NET API, and `docs/` contains planning and technical documentation.
 - The existing project guidance is in `.github/copilot-instructions.md`; read it for project-specific constraints. The focused rules in `.github/instructions/` apply to matching files, and repository skills live under `.agents/skills/`.
-- Normal AI work is limited to `webapp/` and `_docs/planning/`. Change `backend/` only when the user explicitly requests backend work.
+- Normal AI work is limited to `webapp/` and `docs/planning/`. Change `backend/` only when the user explicitly requests backend work.
 - Do not invent API endpoints. Confirm the existing controller/service contract before adding frontend calls.
 
 ## Commands
@@ -58,3 +58,17 @@ dotnet run --project SmartPocket.WebApi/SmartPocket.WebApi.csproj
 - Tailwind is v4: use `@import "tailwindcss"`, `@theme`, OKLCH theme colors, and the Vite Tailwind plugin; do not add a v3 `tailwind.config.js` or `@tailwind` directives.
 - Use `cn()` for conditional Tailwind classes and keep responsive layouts mobile-first.
 - Do not log tokens, passwords, headers, API keys, or sensitive payloads. Do not put secrets in source or committed environment files.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs are local markdown files under `docs/planning/<feature-slug>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The seven canonical triage roles map to `Type:` and `Status:` lines in local issue files. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` at the repo root plus `docs/adr/`. See `docs/agents/domain.md`.

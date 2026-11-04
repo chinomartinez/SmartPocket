@@ -1,4 +1,4 @@
-# ADR-001 — Modelo de eventos recurrentes: serie, calendario derivado y liquidaciones
+# ADR-0001 — Modelo de eventos recurrentes: serie, calendario derivado y liquidaciones
 
 - **Estado:** Propuesto (pendiente de confirmación)
 - **Fecha:** 2026-11-02
@@ -8,7 +8,7 @@
 
 Modelar el módulo con **tres conceptos**:
 
-1. **Serie** (`RecurringEvent`): la regla. Cuenta, categoría, tipo (ingreso/gasto), monto planificado, descripción, patrón de recurrencia (frecuencia, intervalo, días de la semana y días del mes) y fin opcional. Ver ADR-003.
+1. **Serie** (`RecurringEvent`): la regla. Cuenta, categoría, tipo (ingreso/gasto), monto planificado, descripción, patrón de recurrencia (frecuencia, intervalo, días de la semana y días del mes) y fin opcional. Ver ADR-0003.
 2. **Ocurrencia**: **no se persiste**. Se calcula a partir del primer vencimiento y el patrón de recurrencia. Su identidad es `(serie, fecha de vencimiento)`.
 3. **Liquidación** (`RecurringEventSettlement`): lo único que se persiste por ocurrencia, y solo cuando el usuario actúa. Puede ser **pago** (con transacción asociada) u **omisión** (sin transacción).
 
@@ -17,7 +17,7 @@ El estado de cada ocurrencia se **deriva**: pagada si tiene liquidación de pago
 ## Por qué
 
 - **El historial de impagos es gratis y no se puede desincronizar.** Si los pagos son la fuente de verdad, cualquier ocurrencia sin pago es un impago. No hace falta una tabla de ocurrencias ni un proceso que las cree.
-- **Elimina el problema de "generación automática".** No hay job, no hay catch-up, no hay riesgo de duplicados: la ocurrencia aparece al abrir la app porque se calcula. Ver ADR-002.
+- **Elimina el problema de "generación automática".** No hay job, no hay catch-up, no hay riesgo de duplicados: la ocurrencia aparece al abrir la app porque se calcula. Ver ADR-0002.
 - **Soporta pagos tardíos sin ambigüedad.** La liquidación guarda qué vencimiento cubre, no la fecha en que se pagó. Pagar el 16/10 el 02/11 deja el historial correcto.
 - **Evita filas huérfanas y migraciones de datos.** Cambiar una frecuencia no reescribe historial: las liquidaciones ya tomadas no dependen del calendario.
 - **Encaja con el precedente del módulo de tarjetas**: regla + hijos derivados/generados, sin `DbSet` propio y con soft delete por interceptor.
@@ -35,7 +35,7 @@ El estado de cada ocurrencia se **deriva**: pagada si tiene liquidación de pago
 - **No se puede editar una ocurrencia futura antes de pagarla.** Solo se puede cambiar el monto al pagar u omitirla. Si el producto necesita "editar solo este vencimiento", hay que persistir ocurrencias (ver alternativas).
 - **Cambiar la forma del calendario después de liquidar es inviable.** Frecuencia, intervalo, días de la semana, días del mes, primer vencimiento y tipo quedan bloqueados una vez que existe una liquidación; para cambiarlos hay que cancelar y crear otra serie.
 - **Ordenar y paginar por próxima ocurrencia no se puede hacer en SQL.** Se resuelve en memoria sobre las series activas (igual que `CreditCardActivities`). Es aceptable para decenas de series; si el volumen crece, se denormaliza `NextDueDate`.
-- El roadmap dice "generación automática de entradas recurrentes" (FR27) y este modelo no genera entradas: las proyecta. Requiere actualizar la redacción (ADR-002).
+- El roadmap dice "generación automática de entradas recurrentes" (FR27) y este modelo no genera entradas: las proyecta. Requiere actualizar la redacción (ADR-0002).
 
 ## Alternativas descartadas
 

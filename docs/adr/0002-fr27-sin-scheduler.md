@@ -1,4 +1,4 @@
-# ADR-002 — FR27 sin scheduler: "automático" significa calendario derivado, no transacciones automáticas
+# ADR-0002 — FR27 sin scheduler: "automático" significa calendario derivado, no transacciones automáticas
 
 - **Estado:** Propuesto (pendiente de confirmación)
 - **Fecha:** 2026-11-02
@@ -16,7 +16,7 @@
 - Un job en SQLite + app online-only es frágil: si el proceso no corre, no hay generación; si corre dos veces, hay duplicados. Requiere idempotencia, lock y un lugar donde correr.
 - Crear transacciones sin acción del usuario muta balances y dashboard sin que nadie lo haya confirmado. Es exactamente el tipo de inconsistencia que NFR15/NFR16 quieren evitar.
 - Un "pago automático" sin sync bancario es una suposición: la app no puede saber si el débito ocurrió, por cuánto, ni con qué fecha.
-- El modelo del ADR-001 ya produce la experiencia que el usuario pidió ("ver Peluquería el 16/11 por $10k") sin escribir nada.
+- El modelo del ADR-0001 ya produce la experiencia que el usuario pidió ("ver Peluquería el 16/11 por $10k") sin escribir nada.
 
 ## Consecuencias
 

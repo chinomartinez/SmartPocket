@@ -16,7 +16,7 @@ El MVP entrega paridad funcional completa con apps comerciales actuales: gestió
 
 - `webapp/` - Frontend (React 19 + TypeScript + Tailwind v4)
 - `backend/` - API REST (.NET)
-- `_docs/` - Documentación, specs, épicas, roadmap
+- `docs/` - Documentación, specs, épicas, roadmap
 
 ## Uso Principal de IA
 
@@ -26,7 +26,7 @@ El MVP entrega paridad funcional completa con apps comerciales actuales: gestió
 
 ## REGLAS CRITICAS!
 
-- La IA solo trabaja con `webapp/` y `_docs/planning/`. Por el momento.
+- La IA solo trabaja con `webapp/` y `docs/planning/`. Por el momento.
 - El código backend es manual. Solo intervenir en backend si se solicita explícitamente.
 - Si algo es ambiguo, preguntar antes de asumir.
 - No inventar endpoints. Si el backend no tiene un endpoint para algo, no lo hagas. En su lugar, pregunta cómo proceder.
@@ -82,7 +82,7 @@ if (import.meta.env.DEV) {
 
 - Frontend: Feature-first architecture en `webapp/src/features/`
 - Backend: Feature-first organization (vertical slices) en `backend/src/`
-- Docs centralizadas en `_docs/`
+- Docs centralizadas en `docs/`
 
 **Mapa de carpetas de `webapp/src/` (simplificado):**
 
@@ -98,10 +98,15 @@ src/
 └── utils/        # Helpers puros
 ```
 
-**Mapa de carpetas de `_docs/` (simplificado):**
+**Mapa de carpetas de `docs/` (simplificado):**
 
 ```
-_docs/
-├── planning/      # Épicas, historias de usuario, roadmap
-├── others/        # Documentación sin uso directo. Almacenamiento de referencia.
+docs/
+├── adr/           # Decisiones de arquitectura, numeración NNNN-slug.md
+├── agents/        # Configuración de las skills (issue tracker, triage, dominio)
+├── planning/      # Épicas, historias de usuario, specs, issues, roadmap
+├── technical/     # Arquitectura, UX, previews
+└── others/        # Documentación sin uso directo. Almacenamiento de referencia.
 ```
+
+El glosario de dominio vive en `GLOSSARY.md` en la raíz. Ver `docs/agents/domain.md`.

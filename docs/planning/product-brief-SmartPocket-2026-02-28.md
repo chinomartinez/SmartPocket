@@ -1,7 +1,7 @@
 ---
 inputDocuments:
-  - "_docs/roadmap.md"
-  - "_docs/mvp-requirements.md"
+  - "docs/planning/roadmap.md"
+  - "docs/others/mvp-requirements.md"
 date: 2026-02-28
 author: Chino
 ---

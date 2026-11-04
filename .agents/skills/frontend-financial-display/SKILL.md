@@ -438,7 +438,7 @@ const amountColor =
 
 - **Design System**: `src/index.css` (clases `.glass-card-*`, colores `oklch`)
 - **Colors**: `.github/copilot-instructions.md` (paleta semántica completa)
-- **UX Spec**: `_docs/planning/ux-design-specification.md` (decisiones de diseño)
+- **UX Spec**: `docs/technical/ux-design-specification.md` (decisiones de diseño)
 - **Formatters**: `src/utils/formatters.ts` (crear si no existe)
 
 ---

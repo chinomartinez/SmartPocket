@@ -1,7 +1,7 @@
 # SmartPocket — Eventos financieros recurrentes: diseño funcional
 
 **Fase:** 3.5 del roadmap · **FRs:** 24–30 y 33 · **Estado:** propuesto, pendiente de confirmación
-**Decisiones de arquitectura:** [ADR-001](adr-001-modelo-serie-calendario-liquidaciones.md) · [ADR-002](adr-002-fr27-sin-scheduler.md) · [ADR-003](adr-003-modelo-de-recurrencia.md) · [Glosario](glosario.md)
+**Decisiones de arquitectura:** [ADR-0001](../../adr/0001-modelo-serie-calendario-liquidaciones.md) · [ADR-0002](../../adr/0002-fr27-sin-scheduler.md) · [ADR-0003](../../adr/0003-modelo-de-recurrencia.md) · [Glosario](../../../GLOSSARY.md#eventos-recurrentes)
 
 ---
 
@@ -23,7 +23,7 @@ El usuario puede planificar pagos e ingresos recurrentes o de una sola vez (alqu
 
 **Fuera de alcance (MVP)**
 
-- Pagos automáticos o débitos (no hay sync bancario; ver ADR-002).
+- Pagos automáticos o débitos (no hay sync bancario; ver ADR-0002).
 - Recordatorios por mail, push o notificaciones.
 - Pausa temporal: se resuelve cancelando y creando otra serie.
 - Editar una ocurrencia futura antes de pagarla.
@@ -86,7 +86,7 @@ Una serie combina **frecuencia**, **intervalo**, **primer vencimiento**, **días
 
 **Casos que cubre:** pago único; mensual el 16; los 1 y 15; cada 3 meses; último día del mes; cada 2 semanas el lunes; lunes-miércoles-viernes; lunes a viernes; cada 2 semanas de lunes a miércoles; anual el 16/11; cada 10 días.
 
-**Casos que no cubre:** "segundo martes del mes", semanas del mes, ajuste a día hábil y `RRULE` completo. Ver [ADR-003](adr-003-modelo-de-recurrencia.md).
+**Casos que no cubre:** "segundo martes del mes", semanas del mes, ajuste a día hábil y `RRULE` completo. Ver [ADR-0003](../../adr/0003-modelo-de-recurrencia.md).
 
 El calendario termina en la primera de estas condiciones: se alcanzó la cantidad de ocurrencias, se superó la fecha de fin, o se superó la fecha de cancelación.
 
@@ -306,7 +306,7 @@ Muestra:
 | FR24 | Crear series de gasto con recurrencia, incluido el pago único. |
 | FR25 | Crear series de ingreso con recurrencia (misma entidad, `IsIncome`). |
 | FR26 | Pagar una ocurrencia desde Próximos o desde el detalle; crea la transacción. |
-| FR27 | Reinterpretado: las ocurrencias se proyectan automáticamente, no se generan transacciones (ADR-002). Requiere ajustar la redacción del roadmap. |
+| FR27 | Reinterpretado: las ocurrencias se proyectan automáticamente, no se generan transacciones (ADR-0002). Requiere ajustar la redacción del roadmap. |
 | FR28 | Editar la serie con las restricciones de RN-15/RN-16. |
 | FR29 | Cancelar o eliminar la serie; eliminar ocurrencias vía omisión. |
 | FR30 | Lista de próximos con filtros y estados. |
@@ -323,6 +323,6 @@ Confirmado:
 1. **Semanal con varios días.** Cubre lunes-miércoles-viernes, lunes a viernes y "cada 2 semanas de lunes a miércoles".
 2. **Mensual con varios días del mes.** Los 1 y 15 se modelan como una sola serie con días `[1, 15]`; los días que no existen se ajustan al último y los que colapsan se deduplican.
 3. **Pago único ("Única vez").** Una sola ocurrencia, sin intervalo, días ni fin.
-4. **No se soporta** "segundo martes del mes", semanas del mes, ajuste a día hábil ni `RRULE`. Ver ADR-003.
+4. **No se soporta** "segundo martes del mes", semanas del mes, ajuste a día hábil ni `RRULE`. Ver ADR-0003.
 5. **Horizonte de Próximos:** hoy + 90 días, más todas las vencidas, más la próxima de cada serie que no caiga en ese rango.
 6. **Límite de historial:** primer vencimiento hasta 12 meses atrás. Queda **provisional**: es el valor que hay que confirmar (la alternativa era 24 meses).

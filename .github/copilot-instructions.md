@@ -26,7 +26,7 @@ El MVP entrega paridad funcional completa con apps comerciales actuales: gestió
 
 ## REGLAS CRITICAS!
 
-- La IA solo trabaja con `webapp/` y `docs/planning/`. Por el momento.
+- La IA trabaja con `webapp/`, `docs/` y `GLOSSARY.md`.
 - El código backend es manual. Solo intervenir en backend si se solicita explícitamente.
 - Si algo es ambiguo, preguntar antes de asumir.
 - No inventar endpoints. Si el backend no tiene un endpoint para algo, no lo hagas. En su lugar, pregunta cómo proceder.

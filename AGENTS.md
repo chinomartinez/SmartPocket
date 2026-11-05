@@ -4,7 +4,7 @@
 
 - This is a monorepo without a workspace manager: `webapp/` is the React SPA, `backend/src/` is the .NET API, and `docs/` contains planning and technical documentation.
 - The existing project guidance is in `.github/copilot-instructions.md`; read it for project-specific constraints. The focused rules in `.github/instructions/` apply to matching files, and repository skills live under `.agents/skills/`.
-- Normal AI work is limited to `webapp/` and `docs/planning/`. Change `backend/` only when the user explicitly requests backend work.
+- Normal AI work covers `webapp/`, `docs/` and `GLOSSARY.md`. Change `backend/` only when the user explicitly requests backend work.
 - Do not invent API endpoints. Confirm the existing controller/service contract before adding frontend calls.
 
 ## Commands
@@ -67,7 +67,7 @@ Issues and specs are local markdown files under `docs/planning/<feature-slug>/`.
 
 ### Triage labels
 
-The seven canonical triage roles map to `Type:` and `Status:` lines in local issue files. See `docs/agents/triage-labels.md`.
+The five canonical triage statuses map to `Status:` and the two category roles to `Type:` in local issue files. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 

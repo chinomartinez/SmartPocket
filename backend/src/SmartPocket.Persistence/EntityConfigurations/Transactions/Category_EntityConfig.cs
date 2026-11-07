@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transactions
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
+            builder.ToTable("Categories");
+
             builder.Property(x => x.Name)
                 .HasMaxLength(200)
                 .IsRequired();

@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
     {
         public void Configure(EntityTypeBuilder<CreditCardSubscriptionCharge> builder)
         {
+            builder.ToTable("CreditCardSubscriptionCharges");
+
             builder.Property(x => x.Amount).IsNumeric().IsRequired();
 
             builder.Property(x => x.ChargeNumber);

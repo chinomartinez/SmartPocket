@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
     {
         public void Configure(EntityTypeBuilder<CreditCardStatement> builder)
         {
+            builder.ToTable("CreditCardStatements");
+
             // Configuraciones por defecto
             builder.Property(x => x.ClosingDate);
             builder.Property(x => x.DueDate);

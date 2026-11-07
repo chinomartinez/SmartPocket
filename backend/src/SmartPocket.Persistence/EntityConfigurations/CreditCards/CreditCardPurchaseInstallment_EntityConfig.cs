@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
     {
         public void Configure(EntityTypeBuilder<CreditCardPurchaseInstallment> builder)
         {
+            builder.ToTable("CreditCardPurchaseInstallments");
+
             builder.HasOne(i => i.CreditCardPurchase)
                 .WithMany(p => p.Installments)
                 .HasForeignKey(i => i.CreditCardPurchaseId)

@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transactions
     {
         public void Configure(EntityTypeBuilder<TransactionSource> builder)
         {
+            builder.ToTable("TransactionSources");
+
             builder.Property(x => x.Id).ValueGeneratedNever();
             builder.Property(x => x.Id).HasConversion<int>();
 

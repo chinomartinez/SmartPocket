@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.Transfers
     {
         public void Configure(EntityTypeBuilder<Transfer> builder)
         {
+            builder.ToTable("Transfers");
+
             builder.HasOne(x => x.OriginTransaction)
                 .WithOne()
                 .HasForeignKey<Transfer>(x => x.OriginTransactionId)

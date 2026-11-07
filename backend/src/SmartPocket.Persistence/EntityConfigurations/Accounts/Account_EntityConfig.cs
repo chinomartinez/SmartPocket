@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.Accounts
     {
         public void Configure(EntityTypeBuilder<Account> builder)
         {
+            builder.ToTable("Accounts");
+
             builder.Property(x => x.Name).HasMaxLength(200).IsRequired();
 
             builder.ConfigureIcon(x => x.Icon);

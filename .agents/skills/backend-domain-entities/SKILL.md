@@ -1,6 +1,6 @@
 ---
 name: backend-domain-entities
-description: Crea y modifica entidades de dominio y configuraciones de Entity Framework Core en el backend de SmartPocket. Úsala al trabajar en backend/src/SmartPocket.Domain, backend/src/SmartPocket.Persistence, modelos de dominio, entidades, value objects, IEntityTypeConfiguration, DbSet, auditoría, soft delete o mapeos EF Core.
+description: Crea y modifica entidades de dominio y configuraciones de Entity Framework Core en el backend de SmartPocket. Úsala al trabajar en backend/src/SmartPocket.Domain, backend/src/SmartPocket.Persistence, modelos de dominio, entidades, value objects, IEntityTypeConfiguration, ToTable, auditoría, soft delete o mapeos EF Core.
 ---
 
 # Entidades de dominio y EF Core
@@ -16,7 +16,7 @@ Activa esta skill cuando la tarea implique:
 - Crear un value object del dominio.
 - Crear una configuración `IEntityTypeConfiguration<T>`.
 - Configurar propiedades, relaciones, precisión decimal, iconos o monedas en EF Core.
-- Registrar un `DbSet` en `SmartPocketContext`.
+- Declarar el nombre de tabla con `ToTable` en la configuración.
 - Configurar auditoría, timestamps o soft delete.
 - Revisar por qué una entidad o configuración no se persiste correctamente.
 
@@ -43,7 +43,7 @@ SmartPocket.Persistence → SmartPocket.Domain → SmartPocket.SharedKernel
 - Mantén las configuraciones, `EntityTypeBuilder`, `ComplexProperty` y detalles de tablas en `SmartPocket.Persistence`.
 - No uses atributos de persistencia en las entidades de dominio salvo que exista una decisión explícita y justificada.
 - No agregues paquetes EF Core innecesarios al proyecto Domain.
-- Revisa `ISmartPocketContext` cuando una entidad deba formar parte del contrato de persistencia, pero no expongas automáticamente cada `DbSet` sin necesidad.
+- Revisa `ISmartPocketContext` cuando una entidad deba formar parte del contrato de persistencia. El contrato expone acceso genérico (`Query<T>()`, `AddEntity<T>()`, `FindAsync<T>()`); no declares `DbSet` en `SmartPocketContext`.
 
 Ambos proyectos usan `net10.0`, `Nullable` habilitado e `ImplicitUsings` habilitado. Respeta estas opciones al crear código:
 
@@ -56,6 +56,7 @@ Ambos proyectos usan `net10.0`, `Nullable` habilitado e `ImplicitUsings` habilit
 ## Estructura y nombres
 
 - Usa nombres singulares para las entidades: `Account`, `Transaction`, `CreditCard`.
+- Usa nombres plurales para las tablas (`Accounts`, `Transactions`, `CreditCards`) y decláralos siempre con `ToTable`.
 - Usa carpetas plurales para agrupar entidades: `Accounts/`, `Transactions/`, `CreditCards/`.
 - Coloca las configuraciones en `backend/src/SmartPocket.Persistence/EntityConfigurations/`.
 - Mantén la misma estructura de carpetas y namespace entre el dominio y sus configuraciones cuando sea conveniente.
@@ -213,8 +214,8 @@ Por ello:
 
 - No registres manualmente cada configuración en `OnModelCreating`.
 - No agregues `HasKey(x => x.Id)` si la convención ya identifica la clave.
-- No agregues `ToTable(...)` si la tabla convencional es correcta.
-- Configura explícitamente solo los requisitos que no cubran las convenciones: longitudes, required/optional, precisión, relaciones, columnas calculadas y comportamientos de borrado.
+- Declara siempre `ToTable` con el nombre plural de la tabla; no dependas de la convención del nombre del tipo o del `DbSet`.
+- Configura explícitamente solo los requisitos que no cubran las convenciones: nombre de tabla, longitudes, required/optional, precisión, relaciones, columnas calculadas y comportamientos de borrado.
 
 ### Extensiones existentes
 
@@ -264,17 +265,27 @@ Si una propiedad calculada debe consultarse desde la base de datos:
 
 El proveedor actual de Persistence es `Microsoft.EntityFrameworkCore.Sqlite`. No asumas comportamiento de SQL Server o PostgreSQL al crear SQL para columnas calculadas, valores por defecto, timestamps o conversiones. Si cambia el proveedor, revisa las configuraciones dependientes del dialecto SQL.
 
-## Registrar el DbSet
+## Nombrar la tabla
 
-Agrega el `DbSet` en `backend/src/SmartPocket.Persistence/SmartPocketContext.cs` con nombre plural:
+Declara el nombre de la tabla en la configuración de la entidad, con nombre plural y en `PascalCase`:
 
 ```csharp
-internal DbSet<Account> Accounts { get; private set; }
+internal class Account_EntityConfig : IEntityTypeConfiguration<Account>
+{
+    public void Configure(EntityTypeBuilder<Account> builder)
+    {
+        builder.ToTable("Accounts");
+
+        builder.Property(x => x.Name)
+            .HasMaxLength(200)
+            .IsRequired();
+    }
+}
 ```
 
-Mantén la propiedad `internal`, con `get` público dentro de la declaración y `set` privado o `internal`, siguiendo el patrón existente. Revisa también `ISmartPocketContext` si la nueva entidad debe formar parte de su contrato.
-
-No agregues registros manuales para la configuración si la clase está dentro del assembly de Persistence y cumple `IEntityTypeConfiguration<T>`.
+- Usa el plural de la entidad: `Account` → `Accounts`, `CreditCardPurchase` → `CreditCardPurchases`.
+- Declara `ToTable` siempre, incluso cuando la convención coincida. Así el nombre no depende del nombre del tipo ni de un `DbSet`.
+- No agregues `DbSet` en `SmartPocketContext` para registrar la entidad. Las entidades se descubren por `ApplyConfigurationsFromAssembly(...)` y se acceden mediante `Query<T>()`, `AddEntity<T>()` o `FindAsync<T>()`.
 
 ## Flujo de trabajo
 
@@ -286,7 +297,7 @@ No agregues registros manuales para la configuración si la clase está dentro d
 6. Agrega `Update` o métodos de comportamiento solo cuando encapsulen cambios coherentes o invariantes reales; considera el costo de los datos requeridos.
 7. Crea la configuración `_EntityConfig` y aplica solo las reglas de persistencia necesarias.
 8. Reutiliza las extensiones de `MapPropertyExtensions` y evita duplicar `ApplyCommonConfigs`.
-9. Registra el `DbSet` plural en `SmartPocketContext` y actualiza el contrato si corresponde.
+9. Declara `builder.ToTable("<Plural>")` en la configuración y actualiza el contrato si corresponde.
 10. Revisa si el cambio requiere una migración según el flujo actual del backend.
 
 ## Checklist de validación
@@ -305,14 +316,14 @@ No agregues registros manuales para la configuración si la clase está dentro d
 - [ ] No se duplican convenciones, filtros globales o timestamps comunes.
 - [ ] Se reutilizan `ConfigureIcon`, `ConfigureCurrency`, `IsNumeric` u otras extensiones cuando aplican.
 - [ ] Las relaciones tienen el comportamiento de borrado intencional.
-- [ ] El `DbSet` está registrado con nombre plural y visibilidad consistente.
+- [ ] La configuración declara `ToTable` con el nombre plural de la tabla.
 - [ ] `ISmartPocketContext` fue revisado si el contrato necesita la entidad.
 ## Troubleshooting
 
 | Problema | Revisión |
 | --- | --- |
 | La configuración no se aplica | Comprueba el assembly, namespace, implementación de `IEntityTypeConfiguration<T>` y el sufijo/nombre de la clase. |
-| La entidad aparece con una tabla o clave inesperada | Revisa primero las convenciones antes de agregar `ToTable` o `HasKey`. |
+| La entidad aparece con una tabla inesperada | Comprueba que la configuración declare `ToTable` con el plural correcto; no dependas de la convención del nombre del tipo ni de un `DbSet`. |
 | Una entidad auditada no filtra eliminados | Comprueba que implemente `IDeletable` directamente o mediante `BaseAuditEntity<T>` y que `ApplyCommonConfigs` se ejecute. |
 | Faltan timestamps | Comprueba `ITimestampedEntity` y evita sobrescribir la configuración común sin necesidad. |
 | Un value object no se persiste | Configúralo con `ComplexProperty` y mapea sus propiedades internas. |

@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.Security
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+            builder.ToTable("Users");
+
             builder.Property(x => x.Email).HasMaxLength(200).IsRequired();
             builder.Property(x => x.Name).HasMaxLength(256).IsRequired();
             builder.Property(x => x.Surname).HasMaxLength(256).IsRequired();

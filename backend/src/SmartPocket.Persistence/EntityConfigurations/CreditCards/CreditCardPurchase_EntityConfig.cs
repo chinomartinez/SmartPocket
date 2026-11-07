@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
     {
         public void Configure(EntityTypeBuilder<CreditCardPurchase> builder)
         {
+            builder.ToTable("CreditCardPurchases");
+
             builder.Property(e => e.Description)
                 .HasMaxLength(500)
                 .IsRequired();

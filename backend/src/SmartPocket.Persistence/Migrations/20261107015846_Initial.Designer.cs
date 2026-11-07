@@ -12,8 +12,8 @@ using SmartPocket.Persistence;
 namespace SmartPocket.Persistence.Migrations
 {
     [DbContext(typeof(SmartPocketContext))]
-    [Migration("20261028011931_Phase2_DateOnlyBusinessDates")]
-    partial class Phase2_DateOnlyBusinessDates
+    [Migration("20261107015846_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,7 +77,7 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.CreditCards.CreditCard", b =>
@@ -152,7 +152,7 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CreditCard");
+                    b.ToTable("CreditCards", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.CreditCards.CreditCardPurchase", b =>
@@ -209,7 +209,7 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasIndex("CreditCardId");
 
-                    b.ToTable("CreditCardPurchase");
+                    b.ToTable("CreditCardPurchases", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.CreditCards.CreditCardPurchaseInstallment", b =>
@@ -238,7 +238,7 @@ namespace SmartPocket.Persistence.Migrations
                     b.HasIndex("CreditCardPurchaseId", "Number")
                         .IsUnique();
 
-                    b.ToTable("CreditCardPurchaseInstallment");
+                    b.ToTable("CreditCardPurchaseInstallments", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.CreditCards.CreditCardStatement", b =>
@@ -283,7 +283,7 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasIndex("CreditCardId");
 
-                    b.ToTable("CreditCardStatement");
+                    b.ToTable("CreditCardStatements", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.CreditCards.CreditCardStatementPayment", b =>
@@ -311,7 +311,7 @@ namespace SmartPocket.Persistence.Migrations
                     b.HasIndex("CreditCardStatementId", "CoveredCurrencyCode")
                         .IsUnique();
 
-                    b.ToTable("CreditCardStatementPayment");
+                    b.ToTable("CreditCardStatementPayments", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.CreditCards.CreditCardSubscription", b =>
@@ -368,7 +368,7 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasIndex("CreditCardId");
 
-                    b.ToTable("CreditCardSubscription");
+                    b.ToTable("CreditCardSubscriptions", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.CreditCards.CreditCardSubscriptionCharge", b =>
@@ -397,7 +397,7 @@ namespace SmartPocket.Persistence.Migrations
                     b.HasIndex("CreditCardSubscriptionId", "ChargeNumber")
                         .IsUnique();
 
-                    b.ToTable("CreditCardSubscriptionCharge");
+                    b.ToTable("CreditCardSubscriptionCharges", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.Security.User", b =>
@@ -436,7 +436,7 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.Transactions.Category", b =>
@@ -491,7 +491,7 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.Transactions.Transaction", b =>
@@ -564,7 +564,7 @@ namespace SmartPocket.Persistence.Migrations
 
                     b.HasIndex("TransactionSourceId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.Transactions.TransactionSource", b =>
@@ -582,7 +582,7 @@ namespace SmartPocket.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("TransactionSources");
+                    b.ToTable("TransactionSources", (string)null);
 
                     b.HasData(
                         new
@@ -647,7 +647,7 @@ namespace SmartPocket.Persistence.Migrations
                     b.HasIndex("OriginTransactionId")
                         .IsUnique();
 
-                    b.ToTable("Transfers");
+                    b.ToTable("Transfers", (string)null);
                 });
 
             modelBuilder.Entity("SmartPocket.Domain.CreditCards.CreditCardPurchase", b =>

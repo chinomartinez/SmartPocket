@@ -8,6 +8,8 @@ namespace SmartPocket.Persistence.EntityConfigurations.CreditCards
     {
         public void Configure(EntityTypeBuilder<CreditCardStatementPayment> builder)
         {
+            builder.ToTable("CreditCardStatementPayments");
+
             builder.ConfigureCurrency(x => x.CoveredCurrencyCode);
 
             builder.HasIndex(x => x.TransactionId)

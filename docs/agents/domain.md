@@ -47,4 +47,4 @@ que el proyecto no usa, y conviene reconsiderar, o hay un hueco real, y conviene
 
 Si tu output contradice un ADR existente, expontalo explícitamente en lugar de pisarlo en silencio:
 
-> _Contradice ADR-0001 (modelo de serie y calendario derivado), pero vale reabrirlo porque…_
+> _Contradice ADR-0001 (modelo de transacciones recurrentes), pero vale reabrirlo porque…_

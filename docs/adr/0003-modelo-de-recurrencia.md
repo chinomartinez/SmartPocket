@@ -1,7 +1,8 @@
 # ADR-0003 — Modelo de recurrencia: patrón estructurado (sin RRULE)
 
-- **Estado:** Propuesto (pendiente de confirmación)
+- **Estado:** Aceptado
 - **Fecha:** 2026-11-02
+- **Actualizado:** 2026-11-14 (terminología: "serie" → "transacción recurrente")
 - **Contexto:** El roadmap pide frecuencias diaria, semanal, mensual y anual. El usuario necesita además "cada N" (cada 2 semanas, cada 3 meses), patrones con varios días de la semana (lunes-miércoles-viernes, lunes a viernes), varios días del mes (1 y 15) y pagos únicos. La mayoría de los casos reales son mensuales, pero el modelo no debe cerrarse.
 
 ## Decisión
@@ -30,7 +31,7 @@ El cálculo vive en una **función pura del dominio** (`RecurrenceCalendar`), te
 ### Reglas del mes
 
 - Si un día elegido no existe en el mes, se usa el último día: `31/01 → 28/02 → 31/03`.
-- Si dos o más días colapsan al mismo fecha al ajustarse, se genera **una sola ocurrencia**: `[30, 31]` en febrero → `28/02`.
+- Si dos o más días colapsan a la misma fecha al ajustarse, se genera **una sola ocurrencia**: `[30, 31]` en febrero → `28/02`.
 - `[31]` equivale al **último día de cada mes**, porque en todos los meses con 31 días el 31 es el último.
 - Las ocurrencias de un mes se ordenan por fecha y se deduplican.
 - El primer vencimiento debe ser uno de los días elegidos. Los días anteriores del primer mes no se generan.
@@ -91,5 +92,5 @@ El cálculo vive en una **función pura del dominio** (`RecurrenceCalendar`), te
 
 ## Notas
 
-- El primer vencimiento es también la fecha desde la que se calcula la referencia del patrón. No hay un campo separado de "fecha de creación de la serie"; eso lo cubre `CreatedAt`.
-- El horizonte de la vista de Próximos se define en el diseño funcional (RN-24), no en este ADR.
+- El primer vencimiento es también la fecha desde la que se calcula la referencia del patrón. No hay un campo separado de "fecha de creación de la transacción recurrente"; eso lo cubre `CreatedAt`.
+- El horizonte de la vista de Próximos se define en el diseño funcional, no en este ADR.

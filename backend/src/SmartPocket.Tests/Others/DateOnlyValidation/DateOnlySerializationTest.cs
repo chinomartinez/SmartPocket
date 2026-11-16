@@ -5,7 +5,7 @@ using SmartPocket.Features.Transactions;
 using SmartPocket.Features.Transactions.GetById;
 using SmartPocket.Features.Transfers.GetById;
 
-namespace SmartPocket.Tests.Features.DateOnlySerialization
+namespace SmartPocket.Tests.Others.DateOnlyValidation
 {
     public class DateOnlySerializationTest
     {

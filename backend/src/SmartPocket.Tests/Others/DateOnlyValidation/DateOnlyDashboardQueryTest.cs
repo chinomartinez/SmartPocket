@@ -7,8 +7,9 @@ using SmartPocket.Features.Transactions.Create;
 using SmartPocket.Persistence;
 using SmartPocket.Tests.Infrastructures;
 
-namespace SmartPocket.Tests.Features.DateOnlyQueries
+namespace SmartPocket.Tests.Others.DateOnlyValidation
 {
+    [IntegrationTest]
     public class DateOnlyDashboardQueryTest : IClassFixture<IntegrationTestFixture>
     {
         private readonly IntegrationTestFixture _testFixture;

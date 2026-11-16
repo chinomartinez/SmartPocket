@@ -29,7 +29,7 @@ Accounts/
 ├── Create/
 │   ├── AccountCreateCommand.cs
 │   ├── AccountCreateCommandHandler.cs
-│   ├── AccountCreateValidator.cs
+│   ├── AccountCreateCommandValidator.cs
 │   └── AccountCreateResponse.cs
 ├── Get/
 │   ├── AccountGetRequest.cs
@@ -38,7 +38,7 @@ Accounts/
 └── Update/
     ├── AccountUpdateCommand.cs
     ├── AccountUpdateCommandHandler.cs
-    └── AccountUpdateValidator.cs
+    └── AccountUpdateCommandValidator.cs
 ```
 
 Reglas generales:

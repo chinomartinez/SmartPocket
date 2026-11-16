@@ -7,9 +7,9 @@ using SmartPocket.Persistence;
 
 namespace SmartPocket.Features.Accounts.Create
 {
-    public class AccountCreateValidator : AbstractValidator<AccountCreateCommand>
+    public class AccountCreateCommandValidator : AbstractValidator<AccountCreateCommand>
     {
-        public AccountCreateValidator(ISmartPocketContext context)
+        public AccountCreateCommandValidator(ISmartPocketContext context)
         {
             RuleFor(x => x.CurrencyCode).CurrencyValidations();
 

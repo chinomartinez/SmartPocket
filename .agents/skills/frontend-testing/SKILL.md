@@ -1,298 +1,318 @@
 ---
 name: frontend-testing
-description: Patrones de testing con Vitest para SmartPocket React app. Usar al escribir tests, mockear servicios, testear hooks, configurar coverage, u organizar tests. Incluye patterns de mock para TanStack Query y toast libraries.
+description: Patrones de testing con Vitest 4 para la app React de SmartPocket en entorno node: funciones puras, schemas Zod, formateo de montos y fechas, manejo de errores y services con vi.mock. Úsala al escribir tests, mockear el cliente HTTP, usar it.each, organizar tests o decidir qué no testear. No cubre tests de componentes ni hooks porque el stack DOM no está instalado.
 ---
 
-# SmartPocket - Testing (Vitest)
+# Testing del frontend (Vitest)
 
-Patrones de testing con Vitest para SmartPocket React app.
+Guía del setup real de `webapp/`: Vitest 4 en entorno `node`, sin jsdom ni Testing Library.
 
----
+## Cuándo usar esta skill
 
-## When to Use This Skill
+- Escribir tests de utilidades, schemas o helpers.
+- Testear un service con `vi.mock` del cliente HTTP.
+- Mockear `sonner`, `errorLogger` o dependencias externas.
+- Usar `it.each` para casos tabulados.
+- Decidir si un test vale la pena.
+- Organizar archivos de test.
+- Depurar tests que fallan solo al correr toda la suite.
 
-- Escribir unit tests
-- Escribir integration tests
-- Mocking services (API, TanStack Query)
-- Testing hooks personalizados
-- Coverage requirements y CI setup
-- Debugging test failures
-- Test organization (dónde poner tests)
+## Estado actual
 
----
+- `vitest.config.ts` usa `environment: "node"`.
+- No están instalados `jsdom`, `happy-dom`, `@testing-library/react`, `@testing-library/user-event` ni `@testing-library/jest-dom`.
+- Los tests existentes prueban funciones puras: `utils`, `errorHandler`, `paymentHelpers`.
+- No hay tests de componentes, hooks ni rutas.
+- `globals: true` está configurado, pero los tests importan explícitamente desde `vitest`. Mantené esa convención.
 
-## Test Organization
+## Comandos
 
-**Regla:** Tests viven **junto al archivo** que testean, con sufijo `.test.ts(x)`.
-
+```text
+pnpm test                              # modo watch
+pnpm test -- --run                     # una sola corrida
+pnpm test -- src/utils/formatters.test.ts
 ```
+
+`pnpm run test:coverage` **no funciona hoy**: falta instalar `@vitest/coverage-v8` o `@vitest/coverage-istanbul`. No lo documentes como si estuviera configurado.
+
+## Organización
+
+Los tests viven junto al archivo que prueban, con sufijo `.test.ts`:
+
+```text
 src/utils/formatters.ts
-src/utils/formatters.test.ts  ← Test aquí
+src/utils/formatters.test.ts
 
-src/features/accounts/AccountCard.tsx
-src/features/accounts/AccountCard.test.tsx  ← Test aquí
+src/api/services/accounts/accountService.ts
+src/api/services/accounts/accountService.test.ts
 ```
 
-**NO crear carpeta `__tests__/` separada**. Co-location facilita navegación.
+No crear una carpeta `__tests__/` separada. Los tests de componentes, si algún día se agregan, usan `.test.tsx`.
 
----
+## Qué testear
 
-## Coverage Requirements
+Prioridad para una app personal:
 
-**Mínimo MVP:** 60% coverage global
+1. **Funciones puras con reglas de negocio**: montos, redondeo, monedas, fechas, `DateOnly`, schemas Zod.
+2. **Manejo de errores**: mapeo de RFC 7807 a mensajes y `ErrorDetail`.
+3. **Services**: URL, parámetros, método HTTP y mapeo de la respuesta.
+4. **Formularios**: solo si un bug real justifica montar el stack DOM.
+5. **Componentes y hooks**: no ahora; se cubren levantando la app o con Playwright.
 
-**Prioridades por tipo:**
+## Qué no testear
 
-| Tipo              | Coverage Mínimo | Razón                                           |
-| ----------------- | --------------- | ----------------------------------------------- |
-| **Utils/Helpers** | 80%+            | Funciones puras, fácil testear, alto impacto    |
-| **Services**      | 70%+            | Lógica crítica de API                           |
-| **Hooks**         | 60%+            | Data fetching, menos crítico con TanStack Query |
-| **Components**    | 50%+            | UI menos crítico en MVP, costoso testear        |
+- Estilos, clases de Tailwind o glassmorphism.
+- Componentes puramente presentacionales.
+- Detalles internos de React (estado, props, hooks).
+- Librerías de terceros.
+- Snapshots grandes.
+- Cobertura por cobertura: un test que solo ejecuta líneas no aporta.
 
-**Comando:**
-
-```bash
-pnpm run test:coverage
-```
-
----
-
-## Mock Patterns
-
-### Patrón Universal: Service + Hook + Component
-
-Ejemplo integral que muestra el flujo completo de testing con TanStack Query:
+## Arrange-Act-Assert
 
 ```typescript
-// src/features/accounts/AccountList.test.tsx
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, renderHook, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { accountService } from "@/api/services/accounts/accountService";
-import { AccountList } from "./AccountList";
-import { useAccounts } from "./useAccounts";
+import { describe, expect, it } from "vitest";
+import { formatCurrency } from "./formatters";
 
-// 1. Mock del service
-vi.mock("@/api/services/accounts/accountService", () => ({
-  accountService: {
-    getAll: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
+describe("formatCurrency", () => {
+  it("redondea montos en ARS", () => {
+    // Arrange
+    const amount = 123.456;
+
+    // Act
+    const result = formatCurrency(amount);
+
+    // Assert
+    expect(result).toBe("$ 123");
+  });
+});
+```
+
+Reglas:
+
+- Un `Act` por test.
+- Un comportamiento por test.
+- Assertions específicas, no snapshots.
+- Descripciones en español; identificadores en inglés.
+- `describe("nombreDeLaFuncion")`, `it("describe el comportamiento")`.
+
+## `it.each` (equivalente a `[Theory]`)
+
+```typescript
+it.each([
+  [0, "$ 0"],
+  [1000, "$ 1.000"],
+  [99.99, "$ 100"],
+])("formatea %s como %s", (amount, expected) => {
+  expect(formatCurrency(amount)).toBe(expected);
+});
+```
+
+- Usalo cuando cambia el dato, no el comportamiento.
+- Si el assert o el setup cambian por caso, usá tests separados.
+
+## Services con `vi.mock`
+
+Los services son una capa fina sobre `spApiClient`. Testealos mockeando el cliente, no Axios:
+
+```typescript
+import { describe, expect, it, vi } from "vitest";
+import type { ApiResponse } from "@/api/types";
+import type { PagedListResponse } from "@/api/services/shared/sharedTypes";
+import { spApiClient } from "@/api/spApiClient";
+import { accountService } from "./accountService";
+import type { AccountGetDTO } from "./accountTypes";
+
+vi.mock("@/api/spApiClient", () => ({
+  spApiClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
     delete: vi.fn(),
   },
 }));
 
-// 2. Helper para QueryClient (reusable en todos los tests)
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-}
+const account: AccountGetDTO = {
+  id: 1,
+  name: "Caja",
+  icon: { code: "wallet", colorHex: "#FFFFFF" },
+  currency: { code: "ARS", name: "Peso argentino", symbol: "$" },
+  balance: 1000,
+  includeInBalanceGlobal: true,
+  createdAt: "2026-01-01",
+  isPrincipal: true,
+};
 
-describe("AccountList", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+const response: ApiResponse<PagedListResponse<AccountGetDTO>> = {
+  data: { page: 1, pageSize: 10, totalCount: 1, data: [account] },
+  status: 200,
+  statusText: "OK",
+  headers: {},
+};
 
-  // 3. Test component - happy path
-  it("renders accounts from API", async () => {
-    const mockAccounts = [
-      { id: 1, name: "Savings", balance: 1000 },
-      { id: 2, name: "Checking", balance: 500 },
-    ];
-    vi.mocked(accountService.getAll).mockResolvedValue(mockAccounts);
+describe("accountService", () => {
+  it("getAll devuelve los datos paginados", async () => {
+    // Arrange
+    vi.mocked(spApiClient.get).mockResolvedValue(response);
 
-    render(<AccountList />, { wrapper: createWrapper() });
+    // Act
+    const result = await accountService.getAll();
 
-    expect(await screen.findByText("Savings")).toBeInTheDocument();
-    expect(await screen.findByText("Checking")).toBeInTheDocument();
-  });
-
-  // 4. Test component - error case
-  it("shows error when API fails", async () => {
-    vi.mocked(accountService.getAll).mockRejectedValue(new Error("API Error"));
-    render(<AccountList />, { wrapper: createWrapper() });
-    expect(await screen.findByText(/error/i)).toBeInTheDocument();
+    // Assert
+    expect(spApiClient.get).toHaveBeenCalledWith("/accounts");
+    expect(result).toEqual([account]);
   });
 
-  // 5. Test hook directly
-  it("hook fetches data successfully", async () => {
-    const mockAccounts = [{ id: 1, name: "Savings", balance: 1000 }];
-    vi.mocked(accountService.getAll).mockResolvedValue(mockAccounts);
-
-    const { result } = renderHook(() => useAccounts(), { wrapper: createWrapper() });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual(mockAccounts);
-  });
-});
-```
-
-**Para toast mocking:**
-
-```typescript
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
-import { toast } from "sonner";
-
-it("shows success toast", async () => {
-  // ... trigger action ...
-  expect(toast.success).toHaveBeenCalledWith("Account created");
-});
-```
-
----
-
-## Testing Utilities
-
-### Pure Functions
-
-```typescript
-// src/utils/formatCurrency.test.ts
-import { describe, it, expect } from "vitest";
-import { formatCurrency } from "./formatCurrency";
-
-describe("formatCurrency", () => {
-  it("formats positive numbers", () => {
-    expect(formatCurrency(1000)).toBe("$1,000.00");
-  });
-
-  it("formats negative numbers", () => {
-    expect(formatCurrency(-500)).toBe("-$500.00");
-  });
-
-  it("handles custom currency", () => {
-    expect(formatCurrency(100, "€")).toBe("€100.00");
-  });
-});
-```
-
-### Components con User Interaction
-
-```typescript
-// src/features/accounts/AccountForm.test.tsx
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { AccountForm } from "./AccountForm";
-
-describe("AccountForm", () => {
-  it("submits form with valid data", async () => {
-    const user = userEvent.setup();
-    const onSubmit = vi.fn();
-    render(<AccountForm onSubmit={onSubmit} />);
-
-    await user.type(screen.getByLabelText(/name/i), "Savings Account");
-    await user.type(screen.getByLabelText(/balance/i), "1000");
-    await user.click(screen.getByRole("button", { name: /create/i }));
-
-    expect(onSubmit).toHaveBeenCalledWith({
-      name: "Savings Account",
-      balance: 1000,
+  it("create envía el comando y devuelve el id", async () => {
+    // Arrange
+    const created = { id: 7 };
+    vi.mocked(spApiClient.post).mockResolvedValue({
+      data: created,
+      status: 201,
+      statusText: "Created",
+      headers: {},
     });
-  });
 
-  it("shows validation errors", async () => {
-    const user = userEvent.setup();
-    render(<AccountForm />);
-    await user.click(screen.getByRole("button", { name: /create/i }));
-    expect(await screen.findByText(/name is required/i)).toBeInTheDocument();
+    // Act
+    const result = await accountService.create({
+      name: "Caja",
+      icon: { code: "wallet", colorHex: "#FFFFFF" },
+      currencyCode: "ARS",
+      balance: 0,
+      includeInBalanceGlobal: true,
+    });
+
+    // Assert
+    expect(spApiClient.post).toHaveBeenCalledWith("/accounts", expect.any(Object));
+    expect(result).toEqual(created);
   });
 });
 ```
 
----
+Reglas:
 
-## Test Helpers
+- `vi.mock` se hoistea: declaralo antes de los imports que lo usan, o usá `vi.hoisted` si necesitás variables compartidas.
+- Mockeá el borde HTTP (`spApiClient`), no Axios ni la red.
+- Verificá la URL y el payload, no la implementación interna del service.
+- Un service no debería testear la validación de formularios; eso va en el schema.
 
-**Setup file (`test/setup.ts`):**
+## Manejo de errores
+
+`handleApiError` es una función pura: testeala directo con `AxiosError`, sin mocks de red.
 
 ```typescript
-import { expect, afterEach, vi } from "vitest";
-import { cleanup } from "@testing-library/react";
-import * as matchers from "@testing-library/jest-dom/matchers";
+import { AxiosError } from "axios";
+import { handleApiError } from "./errorHandler";
 
-expect.extend(matchers);
+it("mapea un 400 a un mensaje de validación", () => {
+  // Arrange
+  const error = new AxiosError("Validation", "400", undefined, undefined, {
+    status: 400,
+    statusText: "Bad Request",
+    data: { errors: { name: ["Requerido"] } },
+    headers: {},
+    config: { headers: {} },
+  } as never);
+
+  // Act
+  const result = handleApiError(error);
+
+  // Assert
+  expect(result.statusCode).toBe(400);
+  expect(result.errors).toEqual({ name: ["Requerido"] });
+});
+```
+
+No uses `as any`. Si el tipo de Axios es difícil de construir, extraé un helper tipado en el test.
+
+## Fechas y timers
+
+Para lógica que depende de "hoy" o de la hora:
+
+```typescript
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
 afterEach(() => {
-  cleanup();
+  vi.useRealTimers();
+});
+
+it("devuelve el día local", () => {
+  vi.setSystemTime(new Date(2026, 9, 21, 22, 30, 0));
+  expect(todayDateOnly()).toBe("2026-10-21");
+});
+```
+
+- Siempre restaurá los timers en `afterEach`.
+- No dependas de la zona horaria de la máquina; fijala o usá fechas locales explícitas.
+- Para `DateOnly`, no uses `toISOString().slice(0, 10)`.
+
+## Limpieza de mocks
+
+```typescript
+beforeEach(() => {
   vi.clearAllMocks();
 });
 ```
 
-**Mock factories (optional):**
+- `clearAllMocks`: limpia llamadas y resultados; conserva implementaciones.
+- `resetAllMocks`: limpia también implementaciones.
+- `restoreAllMocks`: restaura spies originales.
 
-```typescript
-// test/factories/accountFactory.ts
-export function createMockAccount(overrides?: Partial<Account>): Account {
-  return { id: 1, name: "Savings", balance: 1000, ...overrides };
-}
+Elegí uno y sé consistente. Para `vi.fn()` alcanza con `clearAllMocks`; para `vi.spyOn`, usá `restoreAllMocks`.
+
+## Si algún día agregás tests DOM
+
+No es necesario para la app actual. Si aparece un bug de formulario o un flujo que justifique testear componentes:
+
+1. Instalar `jsdom` (o `happy-dom`), `@testing-library/react`, `@testing-library/dom`, `@testing-library/user-event`, `@testing-library/jest-dom` y `@vitest/coverage-v8`.
+2. Configurar un proyecto `dom` en `vitest.config.ts` o usar `// @vitest-environment jsdom` por archivo.
+3. Agregar `webapp/test/setup.ts` con `@testing-library/jest-dom/vitest` y limpieza.
+4. Testear por rol y label (`getByRole`, `getByLabelText`), con `userEvent.setup()` por test.
+5. Usar `await screen.findBy*()` para estados asíncronos.
+
+No agregues esas dependencias "por si acaso". Se instalan cuando hay un test concreto que las necesita.
+
+## Anti-patterns
+
+```text
+No testear implementación interna        → testear input/output
+No usar `any` en tests                   → tipos reales o helpers
+No mockear Axios en un service           → mockear spApiClient
+No usar snapshots grandes                → assertions específicas
+No depender del reloj real               → vi.setSystemTime
+No dejar timers o mocks sucios           → afterEach
+No testear estilos                       → revisión visual / Playwright
+No perseguir 60% de cobertura            → priorizar lógica de negocio
 ```
-
----
-
-## Integration Tests
-
-Para flows end-to-end complejos, ver [ejemplos avanzados](./references/advanced-examples.md).
-
-**Pattern básico:**
-
-```typescript
-const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-
-render(
-  <QueryClientProvider client={queryClient}>
-    <Page />
-  </QueryClientProvider>
-);
-
-// Interactuar con UI, verificar cambios en estado
-await user.click(screen.getByRole("button", { name: /create/i }));
-expect(await screen.findByText("Success")).toBeInTheDocument();
-```
-
----
-
-## Anti-Patterns Críticos
-
-| ❌ Anti-Pattern                | ✅ Solución                                           | Razón                                             |
-| ------------------------------ | ----------------------------------------------------- | ------------------------------------------------- |
-| No limpiar mocks entre tests   | `beforeEach(() => vi.clearAllMocks())`                | Mocks persisten entre tests causando side effects |
-| Testing implementation details | Testear output visible (`screen.getByRole("dialog")`) | No testear state/props internos                   |
-| Snapshot tests excesivos       | Assertions específicas (`getByText`, `getByRole`)     | Snapshots frágiles, poco útiles                   |
-| No await async ops             | `await screen.findBy*()` o `waitFor()`                | Evitar race conditions                            |
-| Mock después de import         | Mover `vi.mock()` antes de imports                    | Hoisting de mocks necesario                       |
-| No wrappear con QueryClient    | Crear `wrapper` con `QueryClientProvider`             | TanStack Query requiere provider                  |
-
----
 
 ## Troubleshooting
 
-| Problema                                   | Causa                        | Solución                                        |
-| ------------------------------------------ | ---------------------------- | ----------------------------------------------- |
-| "Cannot find module" en tests              | Path alias no configurado    | Configurar `vitest.config.ts` con resolve.alias |
-| Tests pasan individualmente, fallan juntos | Mocks no limpiados           | Agregar `vi.clearAllMocks()` en `beforeEach`    |
-| "Act" warning                              | Async state update sin await | Usar `await screen.findBy*()` o `waitFor()`     |
-| Mock no funciona                           | Mock después de import       | Mover `vi.mock()` antes de imports              |
-| QueryClient error en tests                 | No wrappear con provider     | Crear wrapper con `QueryClientProvider`         |
-| Coverage bajo en components                | UI no es crítico             | Priorizar utils/services, no forzar 100%        |
+| Problema | Causa | Solución |
+|---|---|---|
+| `Cannot find module '@/...'` | Alias no resuelto | Revisar `resolve.alias` en `vitest.config.ts` |
+| `import.meta.env` falla | Entorno Vite no inicializado | Mockear `spApiClient`, no importar el cliente real |
+| Un mock no aplica | `vi.mock` después del import | Moverlo arriba o usar `vi.hoisted` |
+| Tests pasan solos, fallan juntos | Mocks o timers sucios | `beforeEach`/`afterEach` |
+| `document is not defined` | Test DOM en entorno node | No hay stack DOM; usar Playwright o instalarlo |
+| `test:coverage` falla | Falta proveedor de coverage | Instalar `@vitest/coverage-v8` cuando se necesite |
 
----
+## Checklist
 
-## Configuración
-
-Ver [vitest.config.ts](../../../webapp/vitest.config.ts) para la configuración completa del proyecto.
-
----
+- [ ] El test está junto al archivo, con `.test.ts`.
+- [ ] Tiene Arrange, Act y Assert.
+- [ ] Prueba comportamiento, no implementación.
+- [ ] Los mocks se limpian entre tests.
+- [ ] No usa `any`.
+- [ ] No depende del reloj ni de la zona horaria real.
+- [ ] Si es un service, mockea `spApiClient`.
+- [ ] Si es un error de API, prueba `handleApiError` como función pura.
+- [ ] No agrega dependencias DOM sin un caso concreto.
 
 ## References
 
-- [Vitest Docs](https://vitest.dev/)
-- [Testing Library React](https://testing-library.com/docs/react-testing-library/intro/)
-- SmartPocket: Ver tests existentes en `webapp/src/features/`
-
-**Comandos:** `pnpm run test`, `pnpm run test:coverage`, `pnpm run test:watch`
-
----
+- [Ejemplos node: services, utilidades y errores](./references/node-examples.md)
+- [Vitest](https://vitest.dev/)
+- [Testing Library](https://testing-library.com/) (solo si se instala el stack DOM)
+- [Playwright CLI](../playwright-cli/SKILL.md) para E2E

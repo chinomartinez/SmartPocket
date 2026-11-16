@@ -33,7 +33,7 @@ Por tanto:
 - No registres manualmente cada validator en `Program.cs`.
 - Mantén el validator como clase concreta derivada de `AbstractValidator<T>`.
 - Usa un namespace coherente con la feature y operación.
-- Sigue las convenciones de nombres existentes, como `AccountCreateValidator`, `TransferUpdateCommandValidator` o `IconDTOValidator`.
+- Sigue las convenciones de nombres existentes, como `AccountCreateCommandValidator`, `TransferUpdateCommandValidator` o `IconDTOValidator`.
 
 La configuración global actual usa `CascadeMode.Stop` como nivel de cascada de reglas. No cambies la configuración global desde un validator individual sin una razón explícita.
 
@@ -198,7 +198,7 @@ Si la propiedad puede ser nula, valida primero `NotNull()` y configura la cascad
 Inyecta `ISmartPocketContext` cuando una regla necesite consultar datos:
 
 ```csharp
-public AccountCreateValidator(ISmartPocketContext context)
+public AccountCreateCommandValidator(ISmartPocketContext context)
 {
     RuleFor(x => x.Name)
         .CascadeStop()

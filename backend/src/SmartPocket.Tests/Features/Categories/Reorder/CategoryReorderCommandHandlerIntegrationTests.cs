@@ -5,14 +5,15 @@ using SmartPocket.Features.Categories.Reorder;
 using SmartPocket.Persistence;
 using SmartPocket.Tests.Infrastructures;
 
-namespace SmartPocket.Tests.Features.CategoryReorder
+namespace SmartPocket.Tests.Features.Categories.Reorder
 {
-    public class CategoryReorderHandlerTest : IClassFixture<IntegrationTestFixture>
+    [IntegrationTest]
+    public class CategoryReorderCommandHandlerIntegrationTests : IClassFixture<IntegrationTestFixture>
     {
         private readonly ISmartPocketContext _smartPocketContext;
         private readonly CategoryReorderCommandHandler _handler;
 
-        public CategoryReorderHandlerTest(IntegrationTestFixture testFixture)
+        public CategoryReorderCommandHandlerIntegrationTests(IntegrationTestFixture testFixture)
         {
             _smartPocketContext = testFixture.SmartPocketContext;
             _handler = testFixture.GetHandler<CategoryReorderCommandHandler>();

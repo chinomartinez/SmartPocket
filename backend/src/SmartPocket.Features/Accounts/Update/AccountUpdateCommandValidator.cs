@@ -7,9 +7,9 @@ using SmartPocket.Persistence;
 
 namespace SmartPocket.Features.Accounts.Update
 {
-    public class AccountUpdateValidator : AbstractValidator<AccountUpdateCommand>
+    public class AccountUpdateCommandValidator : AbstractValidator<AccountUpdateCommand>
     {
-        public AccountUpdateValidator(ISmartPocketContext context)
+        public AccountUpdateCommandValidator(ISmartPocketContext context)
         {
             RuleFor(x => x.Id)
                 .GreaterThan(0);

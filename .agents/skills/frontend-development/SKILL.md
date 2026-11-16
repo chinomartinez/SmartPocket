@@ -62,12 +62,12 @@ Estructura y best practices
 
 ### **frontend-testing**
 
-Vitest testing patterns
+Vitest en entorno node
 
-- Unit tests, integration tests
-- Mocking services y hooks
-- Coverage requirements (60% MVP)
-- Test organization
+- Funciones puras, schemas y formateo
+- Services con `vi.mock` de `spApiClient`
+- `it.each` y timers falsos
+- Qué no testear (componentes/hooks requieren stack DOM)
 
 ### **frontend-routing**
 
@@ -130,8 +130,9 @@ Componentes reutilizables compartidos
 
 **Testing:**
 
-- Vitest + Testing Library
-- Coverage mínimo: 60% MVP
+- Vitest 4 en entorno node (sin DOM)
+- Funciones puras y services
+- Cobertura opcional; no configurada
 
 **TypeScript:**
 

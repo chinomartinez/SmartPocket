@@ -4,8 +4,9 @@ using SmartPocket.Features.Transactions.Create;
 using SmartPocket.Features.Transfers.Create;
 using SmartPocket.Tests.Infrastructures;
 
-namespace SmartPocket.Tests.Features.DateOnlyValidation
+namespace SmartPocket.Tests.Others.DateOnlyValidation
 {
+    [IntegrationTest]
     public class DateOnlyValidatorTest : IClassFixture<IntegrationTestFixture>
     {
         private static readonly DateOnly Today = DateOnly.FromDateTime(DateTime.UtcNow);

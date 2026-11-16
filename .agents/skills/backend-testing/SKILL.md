@@ -334,13 +334,34 @@ public async Task Validate_WithEmptyName_ReturnsErrorForName(string name)
 
 ## Object mothers
 
-Los datos de prueba viven en `backend/src/SmartPocket.Tests/TestData/`.
+Los datos de prueba **compartidos** viven en `backend/src/SmartPocket.Tests/TestData/`. Los datos de una sola clase pueden ser un helper privado en esa clase.
 
 ```csharp
-internal static class CategoryTestData
+// Compartido: TestData/AccountTestData.cs
+internal static class AccountTestData
 {
-    public static Category Create(int id = 0, string name = "Categoría de prueba", bool isIncome = false)
-        => new(name, new Icon("tag", "#FFFFFF"), isIncome) { Id = id };
+    public static Account Create(
+        int id = 0,
+        string name = "Cuenta de prueba",
+        decimal initialBalance = 0)
+    {
+        return new Account(
+            name: name,
+            icon: new Icon("wallet", "#FFFFFF"),
+            currencyCode: Currency.ARS.Code,
+            initialBalance: initialBalance,
+            includeInBalanceGlobal: true,
+            isPrincipal: false)
+        {
+            Id = id
+        };
+    }
+}
+
+// Local: dentro de CategoryReorderCommandHandlerTests
+private static Category CreateCategory(int id, string name = "Categoría de prueba", bool isIncome = false)
+{
+    return new Category(name, new Icon("tag", "#FFFFFF"), isIncome) { Id = id };
 }
 ```
 
@@ -351,6 +372,7 @@ Reglas:
 - `id: 0` significa "sin persistir"; el test que necesita un id lo pasa explícito.
 - Sin datos aleatorios, sin Bogus, sin GUIDs.
 - Primero un helper privado en la clase de test; si lo usan dos o más clases, se promueve a `TestData/`.
+- No crear un archivo por entidad de forma preventiva. Un archivo con un solo método se justifica por reutilización, no por simetría con el dominio.
 - No ocultar reglas de dominio: si un test necesita un saldo, sembrá también las transacciones.
 
 ## Aislamiento de tests

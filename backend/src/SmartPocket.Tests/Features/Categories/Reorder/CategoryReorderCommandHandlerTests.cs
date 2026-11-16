@@ -1,7 +1,7 @@
+using SmartPocket.Domain;
 using SmartPocket.Domain.Transactions;
 using SmartPocket.Features.Categories.Reorder;
 using SmartPocket.Tests.Infrastructures;
-using SmartPocket.Tests.TestData;
 
 namespace SmartPocket.Tests.Features.Categories.Reorder
 {
@@ -13,9 +13,9 @@ namespace SmartPocket.Tests.Features.Categories.Reorder
             var cancellationToken = TestContext.Current.CancellationToken;
 
             // Arrange
-            var cat1 = CategoryTestData.Create(id: 1, name: "Comida");
-            var cat2 = CategoryTestData.Create(id: 2, name: "Transporte");
-            var cat3 = CategoryTestData.Create(id: 3, name: "Entretenimiento");
+            var cat1 = CreateCategory(id: 1, name: "Comida");
+            var cat2 = CreateCategory(id: 2, name: "Transporte");
+            var cat3 = CreateCategory(id: 3, name: "Entretenimiento");
             var context = new FakeSmartPocketContext().With(cat1, cat2, cat3);
             var handler = new CategoryReorderCommandHandler(context, new CategoryReorderValidator());
 
@@ -46,10 +46,10 @@ namespace SmartPocket.Tests.Features.Categories.Reorder
             var cancellationToken = TestContext.Current.CancellationToken;
 
             // Arrange
-            var expense1 = CategoryTestData.Create(id: 1, name: "Alquiler");
-            var expense2 = CategoryTestData.Create(id: 2, name: "Servicios");
-            var income1 = CategoryTestData.Create(id: 3, name: "Salario", isIncome: true);
-            var income2 = CategoryTestData.Create(id: 4, name: "Freelance", isIncome: true);
+            var expense1 = CreateCategory(id: 1, name: "Alquiler");
+            var expense2 = CreateCategory(id: 2, name: "Servicios");
+            var income1 = CreateCategory(id: 3, name: "Salario", isIncome: true);
+            var income2 = CreateCategory(id: 4, name: "Freelance", isIncome: true);
             var context = new FakeSmartPocketContext().With(expense1, expense2, income1, income2);
             var handler = new CategoryReorderCommandHandler(context, new CategoryReorderValidator());
 
@@ -81,7 +81,7 @@ namespace SmartPocket.Tests.Features.Categories.Reorder
             var cancellationToken = TestContext.Current.CancellationToken;
 
             // Arrange
-            var category = CategoryTestData.Create(id: 1);
+            var category = CreateCategory(id: 1);
             var context = new FakeSmartPocketContext().With(category);
             var handler = new CategoryReorderCommandHandler(context, new CategoryReorderValidator());
 
@@ -108,8 +108,8 @@ namespace SmartPocket.Tests.Features.Categories.Reorder
             var cancellationToken = TestContext.Current.CancellationToken;
 
             // Arrange
-            var category1 = CategoryTestData.Create(id: 1, name: "Comida");
-            var category2 = CategoryTestData.Create(id: 2, name: "Transporte");
+            var category1 = CreateCategory(id: 1, name: "Comida");
+            var category2 = CreateCategory(id: 2, name: "Transporte");
             var context = new FakeSmartPocketContext().With(category1, category2);
             var handler = new CategoryReorderCommandHandler(context, new CategoryReorderValidator());
 
@@ -136,7 +136,7 @@ namespace SmartPocket.Tests.Features.Categories.Reorder
             var cancellationToken = TestContext.Current.CancellationToken;
 
             // Arrange
-            var category = CategoryTestData.Create(id: 1);
+            var category = CreateCategory(id: 1);
             var context = new FakeSmartPocketContext().With(category);
             var handler = new CategoryReorderCommandHandler(context, new CategoryReorderValidator());
 
@@ -176,6 +176,17 @@ namespace SmartPocket.Tests.Features.Categories.Reorder
 
             // Assert
             Assert.False(result.IsEmpty);
+        }
+
+        private static Category CreateCategory(
+            int id,
+            string name = "Categoría de prueba",
+            bool isIncome = false)
+        {
+            return new Category(name, new Icon("tag", "#FFFFFF"), isIncome)
+            {
+                Id = id
+            };
         }
     }
 }

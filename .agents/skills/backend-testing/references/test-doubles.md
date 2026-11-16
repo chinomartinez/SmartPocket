@@ -57,10 +57,7 @@ Implementa `ISmartPocketContext` sobre listas en memoria.
 
 ```csharp
 var account = AccountTestData.Create(id: 1, name: "Caja");
-var category = CategoryTestData.Create(id: 1, name: "Comida");
-
-var context = new FakeSmartPocketContext()
-    .With(account, category);
+var context = new FakeSmartPocketContext().With(account);
 ```
 
 ### Comportamiento
